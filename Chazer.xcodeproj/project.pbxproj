@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */; };
+		F28D23EE28E5BF6D006CFB1B /* EditChazaraScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */; };
+		F28ED0A028D7B4A6005995D4 /* NewSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28ED09F28D7B4A6005995D4 /* NewSectionView.swift */; };
+		F2E561CB28D88B1A0078BE02 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */; };
+		F2E7990328D900D300295041 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E7990228D900D300295041 /* GraphView.swift */; };
+		F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E7990428D900FF00295041 /* GraphViewModel.swift */; };
 		F2FE271E28D29E7C006CFDFA /* ChazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */; };
 		F2FE272028D29E7C006CFDFA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE271F28D29E7C006CFDFA /* ContentView.swift */; };
 		F2FE272228D29E7D006CFDFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2FE272128D29E7D006CFDFA /* Assets.xcassets */; };
@@ -16,6 +22,8 @@
 		F2FE273428D29E7E006CFDFA /* ChazerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273328D29E7E006CFDFA /* ChazerTests.swift */; };
 		F2FE273E28D29E7E006CFDFA /* ChazerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273D28D29E7E006CFDFA /* ChazerUITests.swift */; };
 		F2FE274028D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273F28D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift */; };
+		F2FE274D28D29E8E006CFDFA /* Chazer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE274C28D29E8E006CFDFA /* Chazer.swift */; };
+		F2FE274F28D29EBB006CFDFA /* NewLimudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE274E28D29EBB006CFDFA /* NewLimudView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +44,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChazaraScheduleView.swift; sourceTree = "<group>"; };
+		F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChazaraScheduleView.swift; sourceTree = "<group>"; };
+		F28ED09F28D7B4A6005995D4 /* NewSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSectionView.swift; sourceTree = "<group>"; };
+		F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		F2E634A428D353E60039463B /* Chazer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chazer.entitlements; sourceTree = "<group>"; };
+		F2E7990228D900D300295041 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		F2E7990428D900FF00295041 /* GraphViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphViewModel.swift; sourceTree = "<group>"; };
 		F2FE271A28D29E7C006CFDFA /* Chazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerApp.swift; sourceTree = "<group>"; };
 		F2FE271F28D29E7C006CFDFA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -48,6 +63,8 @@
 		F2FE273928D29E7E006CFDFA /* ChazerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChazerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2FE273D28D29E7E006CFDFA /* ChazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerUITests.swift; sourceTree = "<group>"; };
 		F2FE273F28D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F2FE274C28D29E8E006CFDFA /* Chazer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chazer.swift; sourceTree = "<group>"; };
+		F2FE274E28D29EBB006CFDFA /* NewLimudView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewLimudView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,8 +115,17 @@
 		F2FE271C28D29E7C006CFDFA /* Chazer */ = {
 			isa = PBXGroup;
 			children = (
+				F2E634A428D353E60039463B /* Chazer.entitlements */,
 				F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */,
 				F2FE271F28D29E7C006CFDFA /* ContentView.swift */,
+				F2E7990228D900D300295041 /* GraphView.swift */,
+				F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */,
+				F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */,
+				F2E7990428D900FF00295041 /* GraphViewModel.swift */,
+				F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */,
+				F2FE274C28D29E8E006CFDFA /* Chazer.swift */,
+				F2FE274E28D29EBB006CFDFA /* NewLimudView.swift */,
+				F28ED09F28D7B4A6005995D4 /* NewSectionView.swift */,
 				F2FE272128D29E7D006CFDFA /* Assets.xcassets */,
 				F2FE272628D29E7E006CFDFA /* Persistence.swift */,
 				F2FE272828D29E7E006CFDFA /* Chazer.xcdatamodeld */,
@@ -263,10 +289,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2E561CB28D88B1A0078BE02 /* ContentViewModel.swift in Sources */,
 				F2FE272A28D29E7E006CFDFA /* Chazer.xcdatamodeld in Sources */,
+				F2E7990328D900D300295041 /* GraphView.swift in Sources */,
 				F2FE272728D29E7E006CFDFA /* Persistence.swift in Sources */,
+				F28D23EE28E5BF6D006CFB1B /* EditChazaraScheduleView.swift in Sources */,
 				F2FE272028D29E7C006CFDFA /* ContentView.swift in Sources */,
+				F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */,
+				F28ED0A028D7B4A6005995D4 /* NewSectionView.swift in Sources */,
 				F2FE271E28D29E7C006CFDFA /* ChazerApp.swift in Sources */,
+				F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */,
+				F2FE274D28D29E8E006CFDFA /* Chazer.swift in Sources */,
+				F2FE274F28D29EBB006CFDFA /* NewLimudView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +456,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Chazer/Chazer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Chazer/Preview Content\"";
@@ -433,6 +468,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -440,6 +476,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.reesedevelopment.Chazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -451,6 +488,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Chazer/Chazer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Chazer/Preview Content\"";
@@ -462,6 +500,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -469,6 +508,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.reesedevelopment.Chazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

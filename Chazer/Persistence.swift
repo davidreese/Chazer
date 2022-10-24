@@ -14,8 +14,8 @@ struct PersistenceController {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+            let newItem = CDLimud(context: viewContext)
+            newItem.name = Date().description
         }
         do {
             try viewContext.save()
