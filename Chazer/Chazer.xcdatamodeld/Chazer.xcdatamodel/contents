@@ -14,6 +14,8 @@
     </entity>
     <entity name="CDScheduledChazara" representedClassName="CDScheduledChazara" parentEntity="CDLimud" syncable="YES" codeGenerationType="class">
         <attribute name="delay" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="fixedDueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isDynamic" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="scId" attributeType="String"/>
         <attribute name="scName" optional="YES" attributeType="String"/>
         <relationship name="delayedFrom" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDScheduledChazara"/>

@@ -139,10 +139,17 @@ class Shiur: Section {
 class ScheduledChazara: Identifiable {
     var id: ID
     var name: String
+    var fixedDueDate: Date?
     /// The number of days after the initial learning date or the last chazara that the chazara is scheduled to occur
-    var delay: Int
+    var delay: Int?
     var delayedFrom: ScheduledChazara?
 //    var window: Int
+    
+    init(id: ID, name: String, due dueDate: Date) {
+        self.id = id
+        self.name = name
+        self.fixedDueDate = dueDate
+    }
     
     init(id: ID, name: String, delaySinceInitial: Int) {
         self.id = id
@@ -177,9 +184,13 @@ class ScheduledChazara: Identifiable {
         
         self.id = id
         self.name = name
-        self.delay = Int(cdScheduledChazara.delay)
-        if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
-            self.delayedFrom = ScheduledChazara(cdDelayedFrom)
+        if let fixedDueDate = cdScheduledChazara.fixedDueDate {
+            self.fixedDueDate = fixedDueDate
+        } else {
+            self.delay = Int(cdScheduledChazara.delay)
+            if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
+                self.delayedFrom = ScheduledChazara(cdDelayedFrom)
+            }
         }
     }
     

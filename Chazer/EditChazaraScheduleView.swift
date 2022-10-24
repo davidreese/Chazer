@@ -41,7 +41,7 @@ struct EditChazaraScheduleView: View {
         self.limudId = limudId
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
-        self.delay = scheduledChazara.delay
+        self.delay = scheduledChazara.delay ?? 1
         self.delayedFromId = scheduledChazara.delayedFrom?.id
     }
     
@@ -112,7 +112,7 @@ struct EditChazaraScheduleView: View {
         }
         .onAppear {
             self.scName = scheduledChazara.name
-            self.delay = scheduledChazara.delay
+            self.delay = scheduledChazara.delay ?? 1
             self.delayedFromId = scheduledChazara.delayedFrom?.id
             updateOtherScheduledChazaras()
         }

@@ -22,9 +22,11 @@ struct NewChazaraScheduleView: View {
     var initialLimud: Limud?
     
     @State private var cdScheduledChazaras: [CDScheduledChazara] = []
+    @State private var fixedDueMode = false
     
     @State var scId: ID = ""
     @State var scName: String = ""
+    @State var fixedDueDate: Date = Date().addingTimeInterval(60 * 60 * 24 * 10)
     @State var delay = 1
     @State var delayedFromId: ID = "init"
     
@@ -73,8 +75,12 @@ struct NewChazaraScheduleView: View {
                     
                 }
                 SwiftUI.Section {
+                    Toggle("Fixed Due Date", isOn: self.$fixedDueMode.animation())
 //                        TextField("", value: $delay, formatter: NumberFormatter())
-                        
+                    if fixedDueMode {
+                        DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
+                            .datePickerStyle(CompactDatePickerStyle())
+                    } else {
                         Picker("Delayed From", selection: $delayedFromId) {
                             Text("Initial Learning")
                                 .tag("init")
@@ -89,9 +95,10 @@ struct NewChazaraScheduleView: View {
                             .onAppear {
                                 print(self.cdScheduledChazaras)
                             }
-                        
+                            
+                        }
+                        Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
                     }
-                    Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
                 }
             }
             .navigationTitle("New Scheduled Chazara")
@@ -172,22 +179,28 @@ struct NewChazaraScheduleView: View {
             newItem.scId = self.scId
         }
         newItem.scName = scName
-        newItem.delay = Int16(delay)
         
-        let delayedFrom: CDScheduledChazara?
-        if delayedFromId == "init" {
-            delayedFrom = nil
+        if self.fixedDueMode {
+            newItem.fixedDueDate = self.fixedDueDate
+            newItem.isDynamic = false
         } else {
-            delayedFrom = cdScheduledChazaras.first(where: { cdsc in
-                cdsc.scId == delayedFromId
-            })
-            
-            if delayedFrom == nil {
-                throw CreationError.invalidData
+            newItem.delay = Int16(delay)
+            let delayedFrom: CDScheduledChazara?
+            if delayedFromId == "init" {
+                delayedFrom = nil
+            } else {
+                delayedFrom = cdScheduledChazaras.first(where: { cdsc in
+                    cdsc.scId == delayedFromId
+                })
+                
+                if delayedFrom == nil {
+                    throw CreationError.invalidData
+                }
             }
+            
+            newItem.delayedFrom = delayedFrom
+            newItem.isDynamic = true
         }
-        
-        newItem.delayedFrom = delayedFrom
         //        newItem.
         
         //        fix: what if this is nil

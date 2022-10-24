@@ -395,21 +395,28 @@ struct GraphView: View {
             if wasChazaraDone() {
                 return .completed
             } else {
-                if let delayedFrom = scheduledChazara.delayedFrom {
-                    if wasChazaraDone(for: delayedFrom) {
-                        let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
-                        
-                        if let date = chazaras.first?.date {
-                            return StatusBox.dateStatus(from: date, delayed: scheduledChazara.delay)
+                if let delay = scheduledChazara.delay {
+                    if let delayedFrom = scheduledChazara.delayedFrom {
+                        if wasChazaraDone(for: delayedFrom) {
+                            let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
+                            
+                            if let date = chazaras.first?.date {
+                                return StatusBox.dateStatus(from: date, delayed: delay)
+                            } else {
+                                print("Something went wrong getting last date for scheduled chazara timing")
+                                return .unknown
+                            }
                         } else {
-                            print("Something went wrong getting last date for scheduled chazara timing")
-                            return .unknown
+                            return .early
                         }
                     } else {
-                        return .early
+                        return StatusBox.dateStatus(from: section.initialDate, delayed: delay)
                     }
+                } else if scheduledChazara.fixedDueDate != nil {
+                    return .active
                 } else {
-                    return StatusBox.dateStatus(from: section.initialDate, delayed: scheduledChazara.delay)
+                    print("Unexpected error: scheduledChazara has no valid due rule")
+                    return .unknown
                 }
             }
         }
@@ -418,21 +425,28 @@ struct GraphView: View {
             if wasChazaraDone() {
                 return nil
             } else {
-                if let delayedFrom = scheduledChazara.delayedFrom {
-                    if wasChazaraDone(for: delayedFrom) {
-                        let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
-                        
-                        if let date = chazaras.first?.date {
-                            return StatusBox.getActiveDate(date, delay: scheduledChazara.delay)
+                if let delay = scheduledChazara.delay {
+                    if let delayedFrom = scheduledChazara.delayedFrom {
+                        if wasChazaraDone(for: delayedFrom) {
+                            let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
+                            
+                            if let date = chazaras.first?.date {
+                                return StatusBox.getActiveDate(date, delay: delay)
+                            } else {
+                                print("Something went wrong getting last date for scheduled chazara timing")
+                                return nil
+                            }
                         } else {
-                            print("Something went wrong getting last date for scheduled chazara timing")
                             return nil
                         }
                     } else {
-                        return nil
+                        return StatusBox.getActiveDate(section.initialDate, delay: delay)
                     }
+                } else if let fixedDueDate = scheduledChazara.fixedDueDate {
+                    return fixedDueDate
                 } else {
-                    return StatusBox.getActiveDate(section.initialDate, delay: scheduledChazara.delay)
+                    print("Unexpected Error: ScheduledChazara has no valid due rule.")
+                    return nil
                 }
             }
         }
@@ -453,29 +467,36 @@ struct GraphView: View {
             if wasChazaraDone() {
                 return nil
             } else {
-                if let delayedFrom = scheduledChazara.delayedFrom {
-                    if wasChazaraDone(for: delayedFrom) {
-                        let fr = CDChazara.fetchRequest()
-                        
-                        let sectionPredicate = NSPredicate(format: "scId = %@", delayedFrom.id)
-                        let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
-                        let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
-                        
-                        fr.predicate = compound
-                        
-                        let result: [CDChazara] = try! viewContext.fetch(fr)
-                        
-                        if let date = result.first?.date {
-                            return StatusBox.getDueDate(date, delay: scheduledChazara.delay)
+                if let delay = scheduledChazara.delay {
+                    if let delayedFrom = scheduledChazara.delayedFrom {
+                        if wasChazaraDone(for: delayedFrom) {
+                            let fr = CDChazara.fetchRequest()
+                            
+                            let sectionPredicate = NSPredicate(format: "scId = %@", delayedFrom.id)
+                            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
+                            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
+                            
+                            fr.predicate = compound
+                            
+                            let result: [CDChazara] = try! viewContext.fetch(fr)
+                            
+                            if let date = result.first?.date {
+                                return StatusBox.getDueDate(date, delay: delay)
+                            } else {
+                                print("Something went wrong getting last date for scheduled chazara timing")
+                                return nil
+                            }
                         } else {
-                            print("Something went wrong getting last date for scheduled chazara timing")
                             return nil
                         }
                     } else {
-                        return nil
+                        return StatusBox.getDueDate(section.initialDate, delay: delay)
                     }
+                } else if let fixedDueDate = scheduledChazara.fixedDueDate {
+                    return fixedDueDate
                 } else {
-                    return StatusBox.getDueDate(section.initialDate, delay: scheduledChazara.delay)
+                    print("Unexpected Error: ScheduledChazara has no valid due rule.")
+                    return nil
                 }
             }
         }
