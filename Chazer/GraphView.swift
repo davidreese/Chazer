@@ -35,79 +35,92 @@ struct GraphView: View {
     var body: some View {
         VStack {
             if !model.limud.sections.isEmpty {
-                ScrollView(.vertical, showsIndicators: false) {
+                List {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        VStack {
+                        HStack {
                             Spacer()
-                            
-                            HStack {
+                            VStack {
                                 Spacer()
                                 
-                                Text("Section")
-                                    .bold()
-                                    .frame(width: nameWidth)
-                                
-                                Text("Date")
-                                    .frame(width: dateWidth)
-                                
-                                ForEach(model.limud.scheduledChazaras) { sc in
-                                    Menu(content: {
-                                        Button("Delete Scheduled Chazara", action: {
-                                            try? deleteSC(sc)
-                                        })
-                                        Button("Edit Scheduled Chazara", action: {
-                                            self.model.scheduledChazaraToUpdate = sc
-                                            self.showingEditChazaraScheduleView = true
-                                        })
-                                    }) {
-                                        Text(sc.name)
-                                            .frame(width: chazaraWidth)
-                                            .foregroundColor(.primary)
-                                    }
-                                }
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(4)
-                            .shadow(radius: 2)
-                            .frame(height: headerCellHeight)
-                            
-                            let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
-                                lhs.initialDate > rhs.initialDate
-                            })
-                            
-                            ForEach(sortedSections) { section in
                                 HStack {
-                                    HStack {
+                                    Spacer()
+                                    
+                                    Text("Section")
+                                        .bold()
+                                        .frame(width: nameWidth)
+                                    
+                                    Text("Date")
+                                        .frame(width: dateWidth)
+                                    //                                    LazyHStack {
+                                    ForEach(model.limud.scheduledChazaras) { sc in
                                         Menu(content: {
-                                            Button("Delete Section", action: {
-                                                try? deleteSection(section)
+                                            Button("Delete Scheduled Chazara", action: {
+                                                try? deleteSC(sc)
+                                            })
+                                            Button("Edit Scheduled Chazara", action: {
+                                                self.model.scheduledChazaraToUpdate = sc
+                                                self.showingEditChazaraScheduleView = true
                                             })
                                         }) {
-                                            Text(section.name)
-                                                .bold()
-                                                .padding()
-                                                .frame(width: nameWidth)
+                                            Text(sc.name)
+                                                .frame(width: chazaraWidth)
                                                 .foregroundColor(.primary)
                                         }
-                                        Text(section.initialDate.formatted(date: Date.FormatStyle.DateStyle.numeric, time: .omitted))
-                                            .font(.callout)
-                                            .frame(width: dateWidth)
                                     }
-                                    
-                                    ForEach(model.limud.scheduledChazaras) { sc in
-                                        StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
-                                            model.objectWillChange.send()
-                                        })
-                                        .frame(width: chazaraWidth)
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(6)
+                                .shadow(radius: 2)
+                                .frame(height: headerCellHeight)
+                                
+                                let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
+                                    lhs.initialDate > rhs.initialDate
+                                })
+                                
+                                //                            LazyVStack {
+                                ForEach(sortedSections) { section in
+                                    HStack {
+                                        HStack {
+                                            Menu(content: {
+                                                Button("Delete Section", action: {
+                                                    try? deleteSection(section)
+                                                })
+                                            }) {
+                                                Text(section.name)
+                                                    .bold()
+                                                    .padding()
+                                                    .frame(width: nameWidth)
+                                                    .foregroundColor(.primary)
+                                            }
+                                            Text(section.initialDate.formatted(date: Date.FormatStyle.DateStyle.numeric, time: .omitted))
+                                                .font(.callout)
+                                                .frame(width: dateWidth)
+                                        }
                                         
-                                    }
-                                }.frame(height: cellHeight)
+                                        ForEach(model.limud.scheduledChazaras) { sc in
+                                            StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
+                                                model.objectWillChange.send()
+                                            })
+                                            .frame(width: chazaraWidth)
+                                            
+                                        }
+                                    }.frame(height: cellHeight)
+                                }
+                                .padding(.leading, 3)
                             }
+                            Spacer()
                         }
-                        .padding(.leading, 3)
+                        //                        .padding(.horizontal)
                     }
+                    //                        .ignoresSafeArea([.container], edges: [.horizontal])
                 }
+                .listStyle(PlainListStyle())
+                .scrollIndicators(.hidden)
+                .ignoresSafeArea([.container], edges: [.horizontal])
+                //                .listSectionSeparator(.hidden)
+                
+                //                .ignoresSafeArea([.container], edges: [.trailing])
             } else {
                 Text("You don't have any saved sections to chazer yet.")
                     .font(Font.title3)
@@ -122,7 +135,7 @@ struct GraphView: View {
                 
             }
         }
-        .padding(.horizontal)
+        .ignoresSafeArea([.container], edges: [.horizontal])
         .onAppear {
             self.model.objectWillChange.send()
         }
@@ -235,7 +248,7 @@ struct GraphView: View {
         
         @State var status: ChazaraStatus = .unknown
         
-        var text: String {
+        var text: String? {
             switch status {
             case .early:
                 return getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
@@ -245,8 +258,10 @@ struct GraphView: View {
                 return getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
             case .completed:
                 return getCompletionDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
-            default:
-                return ""
+            case .unknown:
+                return nil
+            case .exempt:
+                return nil
             }
         }
         
@@ -262,20 +277,35 @@ struct GraphView: View {
             Menu {
                 if status == .completed {
                     Button("Unmark", action: {
-//                        get the deleting to work and the editing to work
+                        //                        get the deleting to work and the editing to work
                         do {
-                            try removeCompletions()
+                            try removeChazaras()
                         } catch {
-                            print(error)
+                            print("Couldn't remove chazaras: \(error)")
                         }
                     })
                     Button("Change Chazara Date", action: showCompletionDateEditor)
+                } else if status == .exempt {
+                    Button("Unexempt", action: {
+                        do {
+                            try removeExemptions()
+                        } catch {
+                            print("Couldn't remove exemptions: \(error)")
+                        }
+                    })
                 } else {
                     Button("Mark as Chazered", action: {
                         do {
                             try markAsChazered()
                         } catch {
                             print("Couldn't mark as chazered: \(error)")
+                        }
+                    })
+                    Button("Exempt", action: {
+                        do {
+                            try markExempt()
+                        } catch {
+                            print("Couldn't mark as exempt: \(error)")
                         }
                     })
                 }
@@ -286,7 +316,7 @@ struct GraphView: View {
                     .padding()
                     .shadow(radius: 2)
                     .overlay(content: {
-                        Text(text)
+                        Text(text ?? "")
                             .font(.callout)
                             .bold()
                             .foregroundColor(.primary)
@@ -309,10 +339,21 @@ struct GraphView: View {
             }
         }
         
-        func removeCompletions() throws {
-            let chazaras = getCDChazaras(section: section, scheduledChazara: scheduledChazara)
+        /// Removes `CDChazara` objects for this chazara point.
+        private func removeChazaras() throws {
+            let chazaras = getCDChazaras()
             for chazara in chazaras {
                 viewContext.delete(chazara)
+                try viewContext.save()
+            }
+            update()
+        }
+        
+        /// Removes `CDExemption` objects for this chazara point.
+        private func removeExemptions() throws {
+            let exemptions = getCDExemptions()
+            for exemption in exemptions {
+                viewContext.delete(exemption)
                 try viewContext.save()
             }
             update()
@@ -324,10 +365,21 @@ struct GraphView: View {
         
         func markAsChazered(date: Date? = nil) throws {
             let chazara = CDChazara(context: viewContext)
-            chazara.id = "C\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+            chazara.id = IDGenerator.generate(withPrefix: "C")
             chazara.scId = scheduledChazara.id
             chazara.sectionId = section.id
             chazara.date = date ?? Date()
+            
+            try viewContext.save()
+            
+            update()
+        }
+        
+        func markExempt() throws {
+            let exemption = CDExemption(context: viewContext)
+            exemption.id = IDGenerator.generate(withPrefix: "E")
+            exemption.scId = scheduledChazara.id
+            exemption.sectionId = section.id
             
             try viewContext.save()
             
@@ -346,6 +398,7 @@ struct GraphView: View {
             case active
             case late
             case completed
+            case exempt
             
             func descriptionColor() -> Color {
                 switch self {
@@ -359,12 +412,14 @@ struct GraphView: View {
                     return .green
                 case .unknown:
                     return .white
+                case .exempt:
+                    return .blue
                 }
             }
         }
         
-        func wasChazaraDone(for scheduledChazara: ScheduledChazara? = nil) -> Bool {
-            let chazaras = getCDChazaras(scheduledChazara: scheduledChazara)
+        private static func wasChazaraDone(context: NSManagedObjectContext, on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
+            let chazaras = getCDChazaras(context: context, section: section, scheduledChazara: scheduledChazara)
             
             if chazaras.count == 1 {
                 return true
@@ -376,28 +431,124 @@ struct GraphView: View {
             }
         }
         
-        func getCDChazaras(section: Section? = nil, scheduledChazara: ScheduledChazara? = nil) -> [CDChazara] {
+        private func wasChazaraDone(on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
+            return StatusBox.wasChazaraDone(context: viewContext, on: section, for: scheduledChazara)
+        }
+        
+        /// Default caller for `wasChazaraDone`.
+        private func wasChazaraDone() -> Bool {
+            return wasChazaraDone(on: section, for: scheduledChazara)
+        }
+        
+        private static func getCDChazaras(context: NSManagedObjectContext, section: Section, scheduledChazara: ScheduledChazara) -> [CDChazara] {
             let fr: NSFetchRequest<CDChazara> = CDChazara.fetchRequest()
             
-            let sectionPredicate = NSPredicate(format: "scId = %@", scheduledChazara?.id ?? self.scheduledChazara.id)
-            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section?.id ?? self.section.id)
+            let sectionPredicate = NSPredicate(format: "scId = %@", scheduledChazara.id)
+            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
             let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
             
             fr.predicate = compound
             
-            let results: [CDChazara] = try! viewContext.fetch(fr)
+            let results: [CDChazara] = try! context.fetch(fr)
             
             return results
         }
         
+        private func getCDChazaras(section: Section, scheduledChazara: ScheduledChazara) -> [CDChazara] {
+            return StatusBox.getCDChazaras(context: viewContext, section: section, scheduledChazara: scheduledChazara)
+        }
+        
+        /// Default caller for ``getCDChazaras(section:scheduledChazara:)``.
+        private func getCDChazaras() -> [CDChazara] {
+            return getCDChazaras(section: section, scheduledChazara: scheduledChazara)
+        }
+        
+        /// Retreive exemptions from a given data context.
+        /// - Parameters:
+        ///   - context: The `NSManagedObjectContext` to search.
+        ///   - section: The `Section` to search at.
+        ///   - scheduledChazara: The `ScheduledChazara` to search at.
+        /// - Returns: An array of `CDExemption` objects that are assigned to these paramaters.
+        private static func getCDExemptions(context: NSManagedObjectContext, section: Section, scheduledChazara: ScheduledChazara) -> [CDExemption] {
+            let fr: NSFetchRequest<CDExemption> = CDExemption.fetchRequest()
+            
+            let sectionPredicate = NSPredicate(format: "scId = %@", scheduledChazara.id)
+            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
+            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
+            
+            fr.predicate = compound
+            
+            let results: [CDExemption] = try! context.fetch(fr)
+            
+            return results
+        }
+        
+        /// Local caller of ``StatusBox/getCDExemptions(context:section:scheduledChazara:)`` used to retreive exemptions from CoreData.
+        /// - Parameters:
+        ///   - section: The `Section` to search at.
+        ///   - scheduledChazara: The `ScheduledChazara` to search at.
+        /// - Returns: An array of `CDExemption` objects that are assigned to these paramaters.
+        private func getCDExemptions(section: Section, scheduledChazara: ScheduledChazara) -> [CDExemption] {
+            return StatusBox.getCDExemptions(context: viewContext, section: section, scheduledChazara: scheduledChazara)
+        }
+        
+        /// Default caller of ``getCDExemptions(section:scheduledChazara:)`` used to get all the exemptions at this chazara point.
+        /// - Returns: An array of `CDExemption` objects that are assigned to this chazara point.
+        private func getCDExemptions() -> [CDExemption] {
+            return getCDExemptions(section: section, scheduledChazara: scheduledChazara)
+        }
+        
+        /// Checks for an exemption at a given data point.
+        /// - Parameters:
+        ///   - context: The `NSManagedObjectContext` to search.
+        ///   - section: The `Section` to search at.
+        ///   - scheduledChazara: The `ScheduledChazara` to search at.
+        /// - Returns: `true` if there is at least one exemption found.
+        /// - Note: A warning will be printed to the console if more than one exemption is found.
+        private static func wasExempted(context: NSManagedObjectContext, on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
+            let exemptions = getCDExemptions(context: context, section: section, scheduledChazara: scheduledChazara)
+            
+            if exemptions.count == 1 {
+                return true
+            } else if exemptions.count > 1 {
+                print("Warning: More than one exemption (\(exemptions.count)) found. (SEC=\(section.id):SCH=\(scheduledChazara.id))")
+                return true
+            } else {
+                return false
+            }
+        }
+        
+        /// Local caller of ``StatusBox/wasExempted(context:section:scheduledChazara:)`` used to check for an exemption at a given data point.
+        /// - Parameters:
+        ///   - section: The `Section` to search at.
+        ///   - scheduledChazara: The `ScheduledChazara` to search at.
+        /// - Returns: `true` if there is at least one exemption found.
+        /// - Note: A warning will be printed to the console if more than one exemption is found.
+        private func wasExempted(on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
+            return StatusBox.wasExempted(context: viewContext, on: section, for: scheduledChazara)
+        }
+        
+        /// Default caller of ``wasExempted(section:scheduledChazara:)`` used to check for an exemption at this chazara point.
+        /// - Returns: `true` if there is at least one exemption found.
+        /// - Note: A warning will be printed to the console if more than one exemption is found.
+        private func wasExempted() -> Bool {
+            return wasExempted(on: section, for: scheduledChazara)
+        }
+        
+        /// Gets the chazara status that should be assigned to this `StatusBox` based on its section and scheduled chazara.
+        /// - Returns: The correct `ChazaraStatus` that should be applied, based on the data in storage.
         func getChazaraStatus() -> ChazaraStatus {
             //            check first to see if chazara has been completed
             if wasChazaraDone() {
                 return .completed
             } else {
+                if wasExempted() {
+                    return .exempt
+                }
+                
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(for: delayedFrom) {
+                        if wasChazaraDone(on: section, for: delayedFrom) {
                             let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
                             
                             if let date = chazaras.first?.date {
@@ -427,7 +578,7 @@ struct GraphView: View {
             } else {
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(for: delayedFrom) {
+                        if wasChazaraDone(on: section, for: delayedFrom) {
                             let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
                             
                             if let date = chazaras.first?.date {
@@ -469,7 +620,7 @@ struct GraphView: View {
             } else {
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(for: delayedFrom) {
+                        if wasChazaraDone(on: section, for: delayedFrom) {
                             let fr = CDChazara.fetchRequest()
                             
                             let sectionPredicate = NSPredicate(format: "scId = %@", delayedFrom.id)
@@ -532,7 +683,7 @@ struct GraphView: View {
             @Environment(\.managedObjectContext) private var viewContext
             @Environment(\.presentationMode) var presentationMode
             
-            var cdChazara: CDChazara
+            private var cdChazara: CDChazara
             @State var date: Date = Date()
             
             var updateParent: (() -> Void)?
