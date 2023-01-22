@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDChazara" representedClassName="CDChazara" syncable="YES" codeGenerationType="class">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="scId" attributeType="String"/>
+        <attribute name="sectionId" attributeType="String"/>
+    </entity>
+    <entity name="CDLimud" representedClassName="CDLimud" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="scheduledChazaras" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="CDScheduledChazara" inverseName="limud" inverseEntity="CDScheduledChazara"/>
+        <relationship name="sections" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDSection" inverseName="limud" inverseEntity="CDSection"/>
+    </entity>
+    <entity name="CDScheduledChazara" representedClassName="CDScheduledChazara" parentEntity="CDLimud" syncable="YES" codeGenerationType="class">
+        <attribute name="delay" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="fixedDueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isDynamic" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="scId" attributeType="String"/>
+        <attribute name="scName" optional="YES" attributeType="String"/>
+        <relationship name="delayedFrom" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDScheduledChazara"/>
+        <relationship name="limud" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDLimud" inverseName="scheduledChazaras" inverseEntity="CDLimud"/>
+    </entity>
+    <entity name="CDSection" representedClassName="CDSection" parentEntity="CDLimud" syncable="YES" codeGenerationType="class">
+        <attribute name="initialDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sectionId" optional="YES" attributeType="String"/>
+        <attribute name="sectionName" optional="YES" attributeType="String"/>
+        <relationship name="limud" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDLimud" inverseName="sections" inverseEntity="CDLimud"/>
+    </entity>
+</model>
