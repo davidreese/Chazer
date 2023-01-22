@@ -15,6 +15,7 @@
 		F2E0E5C5296DAF9A00F3575B /* Dashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E0E5C4296DAF9A00F3575B /* Dashboard.swift */; };
 		F2E0E5C7296DAFC800F3575B /* DashboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E0E5C6296DAFC800F3575B /* DashboardModel.swift */; };
 		F2E0E5C9296DC92200F3575B /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E0E5C8296DC92200F3575B /* UI.swift */; };
+		F2E0E5CB297ACA1700F3575B /* ChazaraStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E0E5CA297ACA1700F3575B /* ChazaraStatus.swift */; };
 		F2E561CB28D88B1A0078BE02 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */; };
 		F2E7990328D900D300295041 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E7990228D900D300295041 /* GraphView.swift */; };
 		F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E7990428D900FF00295041 /* GraphViewModel.swift */; };
@@ -57,6 +58,7 @@
 		F2E0E5C4296DAF9A00F3575B /* Dashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dashboard.swift; sourceTree = "<group>"; };
 		F2E0E5C6296DAFC800F3575B /* DashboardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardModel.swift; sourceTree = "<group>"; };
 		F2E0E5C8296DC92200F3575B /* UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
+		F2E0E5CA297ACA1700F3575B /* ChazaraStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazaraStatus.swift; sourceTree = "<group>"; };
 		F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		F2E634A428D353E60039463B /* Chazer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chazer.entitlements; sourceTree = "<group>"; };
 		F2E7990228D900D300295041 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				F2E0E5C8296DC92200F3575B /* UI.swift */,
 				F2E0E5C6296DAFC800F3575B /* DashboardModel.swift */,
 				F2E7990228D900D300295041 /* GraphView.swift */,
+				F2E0E5CA297ACA1700F3575B /* ChazaraStatus.swift */,
 				F2E0E5C2296DACE700F3575B /* ChazaraPoint.swift */,
 				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
 				F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */,
@@ -316,6 +319,7 @@
 				F2E0E5C7296DAFC800F3575B /* DashboardModel.swift in Sources */,
 				F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */,
 				F28ED0A028D7B4A6005995D4 /* NewSectionView.swift in Sources */,
+				F2E0E5CB297ACA1700F3575B /* ChazaraStatus.swift in Sources */,
 				F2E0E5C3296DACE700F3575B /* ChazaraPoint.swift in Sources */,
 				F2FE271E28D29E7C006CFDFA /* ChazerApp.swift in Sources */,
 				F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */,
