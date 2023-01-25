@@ -7,8 +7,10 @@
 
 import SwiftUI
 
+// TODO: Update this documentation once ScheduledChazara class changes to not be universal
+/// A view that shows the `ChazaraState` for every `ScheduledChazara` of a `Limud`.
 struct GraphView: View {
-    @ObservedObject var model: GraphViewModel
+    @ObservedObject private var model: GraphViewModel
     @Environment(\.managedObjectContext) private var viewContext
     
     var onUpdate: (() -> Void)?
@@ -17,13 +19,14 @@ struct GraphView: View {
     @State var showingAddChazaraScheduleView = false
     @State var showingEditChazaraScheduleView = false
     
+    
     //    var columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     init(limud: Limud, onUpdate: (() -> Void)? = nil) {
         self.model = GraphViewModel(limud: limud)
         self.onUpdate = onUpdate
         
-        UIScrollView.appearance().bounces = false
+        //        UIScrollView.appearance().bounces = false
     }
     
     var nameWidth = 100.0
@@ -84,7 +87,9 @@ struct GraphView: View {
                                         HStack {
                                             Menu(content: {
                                                 Button("Delete Section", action: {
-                                                    try? deleteSection(section)
+                                                    withAnimation {
+                                                        try? deleteSection(section)
+                                                    }
                                                 })
                                             }) {
                                                 Text(section.name)
@@ -116,9 +121,11 @@ struct GraphView: View {
                     //                        .ignoresSafeArea([.container], edges: [.horizontal])
                 }
                 .listStyle(PlainListStyle())
+                //                .background(Color.clear)
+                //                .navigationBarHidden(true)
                 .scrollIndicators(.hidden)
                 .ignoresSafeArea([.container], edges: [.horizontal])
-                //                .listSectionSeparator(.hidden)
+                .listSectionSeparator(.hidden)
                 
                 //                .ignoresSafeArea([.container], edges: [.trailing])
             } else {
@@ -194,15 +201,14 @@ struct GraphView: View {
             })
             .environment(\.managedObjectContext, self.viewContext)
         }
+        
     }
     
-    func deleteSection(_ section: Section) throws {
+    private func deleteSection(_ section: Section) throws {
         let fr: NSFetchRequest<CDSection> = CDSection.fetchRequest()
         fr.predicate = NSPredicate(format: "sectionId == %@", section.id)
         
         let results = try viewContext.fetch(fr)
-        
-        
         
         try withAnimation {
             for result in results {
@@ -214,7 +220,7 @@ struct GraphView: View {
         
     }
     
-    func deleteSC(_ scheduledChazara: ScheduledChazara) throws {
+    private func deleteSC(_ scheduledChazara: ScheduledChazara) throws {
         let fr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
         fr.predicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
         
@@ -232,38 +238,19 @@ struct GraphView: View {
         
     }
     
-    
+    /// A view that displays the state of a single `ChazaraPoint`.
     struct StatusBox: View {
         @Environment(\.managedObjectContext) private var viewContext
         //        private var viewContext: NSManagedObjectContext
         
-        @ObservedObject var model = StatusBoxModel()
+        @StateObject private var model: StatusBoxModel
         
-        var section: Section
-        var scheduledChazara: ScheduledChazara
+        private let section: Section
+        private let scheduledChazara: ScheduledChazara
         
         @State var showingDateChanger = false
         
         var updateParent: (() -> Void)?
-        
-        @State var status: ChazaraStatus = .unknown
-        
-        var text: String? {
-            switch status {
-            case .early:
-                return getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
-            case .active:
-                return getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
-            case .late:
-                return getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
-            case .completed:
-                return getCompletionDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
-            case .unknown:
-                return nil
-            case .exempt:
-                return nil
-            }
-        }
         
         init(section: Section, scheduledChazara: ScheduledChazara/*, viewContext: NSManagedObjectContext*/, onUpdate updateParent: (() -> Void)? = nil) {
             self.section = section
@@ -271,41 +258,51 @@ struct GraphView: View {
             //            self.viewContext = viewContext
             self.updateParent = updateParent
             //            self.status = getChazaraStatus()
+            self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
         }
         
         var body: some View {
+            let status = model.point?.status ?? .unknown
             Menu {
                 if status == .completed {
                     Button("Unmark", action: {
                         //                        get the deleting to work and the editing to work
-                        do {
-                            try removeChazaras()
-                        } catch {
-                            print("Couldn't remove chazaras: \(error)")
+                        Task {
+                            do {
+                                try await removeChazara()
+                            } catch {
+                                print("Couldn't remove chazaras: \(error)")
+                            }
                         }
                     })
                     Button("Change Chazara Date", action: showCompletionDateEditor)
                 } else if status == .exempt {
                     Button("Unexempt", action: {
-                        do {
-                            try removeExemptions()
-                        } catch {
-                            print("Couldn't remove exemptions: \(error)")
+                        Task {
+                            do {
+                                try await removeExemption()
+                            } catch {
+                                print("Couldn't remove exemptions: \(error)")
+                            }
                         }
                     })
                 } else {
                     Button("Mark as Chazered", action: {
-                        do {
-                            try markAsChazered()
-                        } catch {
-                            print("Couldn't mark as chazered: \(error)")
+                        Task {
+                            do {
+                                try await markAsChazered()
+                            } catch {
+                                print("Couldn't mark as chazered: \(error)")
+                            }
                         }
                     })
                     Button("Exempt", action: {
-                        do {
-                            try markExempt()
-                        } catch {
-                            print("Couldn't mark as exempt: \(error)")
+                        Task {
+                            do {
+                                try await markExempt()
+                            } catch {
+                                print("Couldn't mark as exempt: \(error)")
+                            }
                         }
                     })
                 }
@@ -316,21 +313,24 @@ struct GraphView: View {
                     .padding()
                     .shadow(radius: 2)
                     .overlay(content: {
-                        Text(text ?? "")
+                        Text(model.text ?? "E")
                             .font(.callout)
                             .bold()
                             .foregroundColor(.primary)
-                            .onChange(of: text) { _ in
-                                update()
+                            .onChange(of: model.text) { _ in
+                                Task {
+                                    await update()
+                                }
                             }
                     })
                     .onAppear {
-                        update()
+                        Task {
+                            await update()
+                        }
                     }
                     .sheet(isPresented: $showingDateChanger) {
-                        //                        if #available(iOS 16.0, *) {
-                        if let chazara = getCDChazaras().first, let date = chazara.date {
-                            ChazaraDateChanger(cdChazara: chazara, initialDate: date, onUpdate: updateParent)
+                        if let point = model.point, let date = model.point?.getCompletionDate() {
+                            ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: updateParent)
                                 .environment(\.managedObjectContext, self.viewContext)
                             //                                .presentationDetents([.medium])
                             //                        }
@@ -339,363 +339,57 @@ struct GraphView: View {
             }
         }
         
-        /// Removes `CDChazara` objects for this chazara point.
-        private func removeChazaras() throws {
-            let chazaras = getCDChazaras()
-            for chazara in chazaras {
-                viewContext.delete(chazara)
-                try viewContext.save()
-            }
-            update()
+        /// Removes chazara for this point.
+        private func removeChazara() async throws {
+            await model.point?.removeChazara()
+            await update()
         }
         
-        /// Removes `CDExemption` objects for this chazara point.
-        private func removeExemptions() throws {
-            let exemptions = getCDExemptions()
-            for exemption in exemptions {
-                viewContext.delete(exemption)
-                try viewContext.save()
-            }
-            update()
+        /// Removes an exemption for this chazara point.
+        private func removeExemption() async throws {
+            await model.point?.removeExemption()
+            await update()
         }
         
         func showCompletionDateEditor() {
             self.showingDateChanger = true
         }
         
-        func markAsChazered(date: Date? = nil) throws {
-            let chazara = CDChazara(context: viewContext)
-            chazara.id = IDGenerator.generate(withPrefix: "C")
-            chazara.scId = scheduledChazara.id
-            chazara.sectionId = section.id
-            chazara.date = date ?? Date()
-            
-            try viewContext.save()
-            
-            update()
+        func markAsChazered(date: Date = Date()) async throws {
+            await model.point?.markAsChazered(date: date)
+            await update()
         }
         
-        func markExempt() throws {
-            let exemption = CDExemption(context: viewContext)
-            exemption.id = IDGenerator.generate(withPrefix: "E")
-            exemption.scId = scheduledChazara.id
-            exemption.sectionId = section.id
-            
-            try viewContext.save()
-            
-            update()
+        func markExempt() async throws {
+            await model.point?.markAsExempt()
+            await update()
         }
         
-        func update() {
-            self.status = getChazaraStatus()
+        func update() async {
+            //            self.model.point?.updateData()
+            //            await self.model.point?.updateCorrectChazaraStatus()
+            self.model.updateText()
             self.model.objectWillChange.send()
             updateParent?()
-        }
-        
-        enum ChazaraStatus {
-            case unknown
-            case early
-            case active
-            case late
-            case completed
-            case exempt
-            
-            func descriptionColor() -> Color {
-                switch self {
-                case .early:
-                    return .gray
-                case .active:
-                    return .orange
-                case .late:
-                    return .red
-                case .completed:
-                    return .green
-                case .unknown:
-                    return .white
-                case .exempt:
-                    return .blue
-                }
-            }
-        }
-        
-        private static func wasChazaraDone(context: NSManagedObjectContext, on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
-            let chazaras = getCDChazaras(context: context, section: section, scheduledChazara: scheduledChazara)
-            
-            if chazaras.count == 1 {
-                return true
-            } else if chazaras.count > 1 {
-                print("Something is wrong, but at least you chazered \(chazaras.count) times.")
-                return true
-            } else {
-                return false
-            }
-        }
-        
-        private func wasChazaraDone(on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
-            return StatusBox.wasChazaraDone(context: viewContext, on: section, for: scheduledChazara)
-        }
-        
-        /// Default caller for `wasChazaraDone`.
-        private func wasChazaraDone() -> Bool {
-            return wasChazaraDone(on: section, for: scheduledChazara)
-        }
-        
-        private static func getCDChazaras(context: NSManagedObjectContext, section: Section, scheduledChazara: ScheduledChazara) -> [CDChazara] {
-            let fr: NSFetchRequest<CDChazara> = CDChazara.fetchRequest()
-            
-            let sectionPredicate = NSPredicate(format: "scId = %@", scheduledChazara.id)
-            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
-            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
-            
-            fr.predicate = compound
-            
-            let results: [CDChazara] = try! context.fetch(fr)
-            
-            return results
-        }
-        
-        private func getCDChazaras(section: Section, scheduledChazara: ScheduledChazara) -> [CDChazara] {
-            return StatusBox.getCDChazaras(context: viewContext, section: section, scheduledChazara: scheduledChazara)
-        }
-        
-        /// Default caller for ``getCDChazaras(section:scheduledChazara:)``.
-        private func getCDChazaras() -> [CDChazara] {
-            return getCDChazaras(section: section, scheduledChazara: scheduledChazara)
-        }
-        
-        /// Retreive exemptions from a given data context.
-        /// - Parameters:
-        ///   - context: The `NSManagedObjectContext` to search.
-        ///   - section: The `Section` to search at.
-        ///   - scheduledChazara: The `ScheduledChazara` to search at.
-        /// - Returns: An array of `CDExemption` objects that are assigned to these paramaters.
-        private static func getCDExemptions(context: NSManagedObjectContext, section: Section, scheduledChazara: ScheduledChazara) -> [CDExemption] {
-            let fr: NSFetchRequest<CDExemption> = CDExemption.fetchRequest()
-            
-            let sectionPredicate = NSPredicate(format: "scId = %@", scheduledChazara.id)
-            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
-            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
-            
-            fr.predicate = compound
-            
-            let results: [CDExemption] = try! context.fetch(fr)
-            
-            return results
-        }
-        
-        /// Local caller of ``StatusBox/getCDExemptions(context:section:scheduledChazara:)`` used to retreive exemptions from CoreData.
-        /// - Parameters:
-        ///   - section: The `Section` to search at.
-        ///   - scheduledChazara: The `ScheduledChazara` to search at.
-        /// - Returns: An array of `CDExemption` objects that are assigned to these paramaters.
-        private func getCDExemptions(section: Section, scheduledChazara: ScheduledChazara) -> [CDExemption] {
-            return StatusBox.getCDExemptions(context: viewContext, section: section, scheduledChazara: scheduledChazara)
-        }
-        
-        /// Default caller of ``getCDExemptions(section:scheduledChazara:)`` used to get all the exemptions at this chazara point.
-        /// - Returns: An array of `CDExemption` objects that are assigned to this chazara point.
-        private func getCDExemptions() -> [CDExemption] {
-            return getCDExemptions(section: section, scheduledChazara: scheduledChazara)
-        }
-        
-        /// Checks for an exemption at a given data point.
-        /// - Parameters:
-        ///   - context: The `NSManagedObjectContext` to search.
-        ///   - section: The `Section` to search at.
-        ///   - scheduledChazara: The `ScheduledChazara` to search at.
-        /// - Returns: `true` if there is at least one exemption found.
-        /// - Note: A warning will be printed to the console if more than one exemption is found.
-        private static func wasExempted(context: NSManagedObjectContext, on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
-            let exemptions = getCDExemptions(context: context, section: section, scheduledChazara: scheduledChazara)
-            
-            if exemptions.count == 1 {
-                return true
-            } else if exemptions.count > 1 {
-                print("Warning: More than one exemption (\(exemptions.count)) found. (SEC=\(section.id):SCH=\(scheduledChazara.id))")
-                return true
-            } else {
-                return false
-            }
-        }
-        
-        /// Local caller of ``StatusBox/wasExempted(context:section:scheduledChazara:)`` used to check for an exemption at a given data point.
-        /// - Parameters:
-        ///   - section: The `Section` to search at.
-        ///   - scheduledChazara: The `ScheduledChazara` to search at.
-        /// - Returns: `true` if there is at least one exemption found.
-        /// - Note: A warning will be printed to the console if more than one exemption is found.
-        private func wasExempted(on section: Section, for scheduledChazara: ScheduledChazara) -> Bool {
-            return StatusBox.wasExempted(context: viewContext, on: section, for: scheduledChazara)
-        }
-        
-        /// Default caller of ``wasExempted(section:scheduledChazara:)`` used to check for an exemption at this chazara point.
-        /// - Returns: `true` if there is at least one exemption found.
-        /// - Note: A warning will be printed to the console if more than one exemption is found.
-        private func wasExempted() -> Bool {
-            return wasExempted(on: section, for: scheduledChazara)
-        }
-        
-        /// Gets the chazara status that should be assigned to this `StatusBox` based on its section and scheduled chazara.
-        /// - Returns: The correct `ChazaraStatus` that should be applied, based on the data in storage.
-        func getChazaraStatus() -> ChazaraStatus {
-            //            check first to see if chazara has been completed
-            if wasChazaraDone() {
-                return .completed
-            } else {
-                if wasExempted() {
-                    return .exempt
-                }
-                
-                if let delay = scheduledChazara.delay {
-                    if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(on: section, for: delayedFrom) {
-                            let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
-                            
-                            if let date = chazaras.first?.date {
-                                return StatusBox.dateStatus(from: date, delayed: delay)
-                            } else {
-                                print("Something went wrong getting last date for scheduled chazara timing")
-                                return .unknown
-                            }
-                        } else {
-                            return .early
-                        }
-                    } else {
-                        return StatusBox.dateStatus(from: section.initialDate, delayed: delay)
-                    }
-                } else if scheduledChazara.fixedDueDate != nil {
-                    return .active
-                } else {
-                    print("Unexpected error: scheduledChazara has no valid due rule")
-                    return .unknown
-                }
-            }
-        }
-        
-        private func getActiveDate() -> Date? {
-            if wasChazaraDone() {
-                return nil
-            } else {
-                if let delay = scheduledChazara.delay {
-                    if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(on: section, for: delayedFrom) {
-                            let chazaras = getCDChazaras(section: section, scheduledChazara: delayedFrom)
-                            
-                            if let date = chazaras.first?.date {
-                                return StatusBox.getActiveDate(date, delay: delay)
-                            } else {
-                                print("Something went wrong getting last date for scheduled chazara timing")
-                                return nil
-                            }
-                        } else {
-                            return nil
-                        }
-                    } else {
-                        return StatusBox.getActiveDate(section.initialDate, delay: delay)
-                    }
-                } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                    return fixedDueDate
-                } else {
-                    print("Unexpected Error: ScheduledChazara has no valid due rule.")
-                    return nil
-                }
-            }
-        }
-        
-        //        func getCDChazara(scheduledChazara: ScheduledChazara? = nil, section: Section? = nil) -> CDChazara {
-        //            let fr = CDChazara.fetchRequest()
-        //
-        //            let sectionPredicate = NSPredicate(format: "scId = %@", delayedFrom.id)
-        //            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
-        //            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
-        //
-        //            fr.predicate = compound
-        //
-        //            let result: [CDChazara] = try! viewContext.fetch(fr)
-        //        }
-        
-        private func getDueDate() -> Date? {
-            if wasChazaraDone() {
-                return nil
-            } else {
-                if let delay = scheduledChazara.delay {
-                    if let delayedFrom = scheduledChazara.delayedFrom {
-                        if wasChazaraDone(on: section, for: delayedFrom) {
-                            let fr = CDChazara.fetchRequest()
-                            
-                            let sectionPredicate = NSPredicate(format: "scId = %@", delayedFrom.id)
-                            let scheduledChazaraPredicate = NSPredicate(format: "sectionId = %@", section.id)
-                            let compound = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scheduledChazaraPredicate])
-                            
-                            fr.predicate = compound
-                            
-                            let result: [CDChazara] = try! viewContext.fetch(fr)
-                            
-                            if let date = result.first?.date {
-                                return StatusBox.getDueDate(date, delay: delay)
-                            } else {
-                                print("Something went wrong getting last date for scheduled chazara timing")
-                                return nil
-                            }
-                        } else {
-                            return nil
-                        }
-                    } else {
-                        return StatusBox.getDueDate(section.initialDate, delay: delay)
-                    }
-                } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                    return fixedDueDate
-                } else {
-                    print("Unexpected Error: ScheduledChazara has no valid due rule.")
-                    return nil
-                }
-            }
-        }
-        
-        
-        private func getCompletionDate() -> Date? {
-            return getCDChazaras().first?.date
-        }
-        
-        private static func dateStatus(from startDate: Date, delayed: Int) -> ChazaraStatus {
-            let dateActive = getActiveDate(startDate, delay: delayed)
-            let now = Date()
-            let dueDate = getDueDate(startDate, delay: delayed)
-            
-            if now < dateActive {
-                return .early
-            } else if now >= dateActive && now < dueDate {
-                return .active
-            } else {
-                return .late
-            }
-        }
-        
-        private static func getActiveDate(_ date: Date, delay: Int) -> Date {
-            return date.advanced(by: TimeInterval(delay * 60 * 60 * 24))
-        }
-        
-        private static func getDueDate(_ date: Date, delay: Int) -> Date {
-            return getActiveDate(date, delay: delay).advanced(by: 2 * 60 * 60 * 24)
         }
         
         struct ChazaraDateChanger: View {
             @Environment(\.managedObjectContext) private var viewContext
             @Environment(\.presentationMode) var presentationMode
             
-            private var cdChazara: CDChazara
+            private var chazaraPoint: ChazaraPoint
             @State var date: Date = Date()
             
             var updateParent: (() -> Void)?
             
-            init(cdChazara: CDChazara, initialDate: Date, onUpdate updateParent: (() -> Void)? = nil) {
-                self.cdChazara = cdChazara
+            init(chazaraPoint: ChazaraPoint, initialDate: Date, onUpdate updateParent: (() -> Void)? = nil) {
+                self.chazaraPoint = chazaraPoint
                 self.date = initialDate
                 self.updateParent = updateParent
             }
             
-            init(cdChazara: CDChazara, onUpdate updateParent: (() -> Void)? = nil) {
-                self.cdChazara = cdChazara
+            init(chazaraPoint: ChazaraPoint, onUpdate updateParent: (() -> Void)? = nil) {
+                self.chazaraPoint = chazaraPoint
                 self.updateParent = updateParent
             }
             
@@ -708,9 +402,13 @@ struct GraphView: View {
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button {
-                                    try? updateDate()
-                                    updateParent?()
-                                    presentationMode.wrappedValue.dismiss()
+                                    Task {
+                                        try? await updateDate()
+                                        DispatchQueue.main.async {
+                                            updateParent?()
+                                            presentationMode.wrappedValue.dismiss()
+                                        }
+                                    }
                                 } label: {
                                     Text("Done")
                                 }
@@ -727,15 +425,99 @@ struct GraphView: View {
                 }
             }
             
-            func updateDate() throws {
-                cdChazara.date = self.date
-                try viewContext.save()
+            func updateDate() async throws {
+                await self.chazaraPoint.setDate(date)
             }
         }
     }
     
     class StatusBoxModel: ObservableObject {
+        @Published var point: ChazaraPoint?
+        private let sectionId: ID
+        private let scId: ID
         
+        init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext, section: Section, scheduledChazara: ScheduledChazara) {
+            self.sectionId = section.id
+            self.scId = scheduledChazara.id
+            
+            let fetchRequest = CDChazaraPoint.fetchRequest()
+            
+            let sectionPredicate = NSPredicate(format: "sectionId == %@", section.id)
+            let scPredicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
+            let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scPredicate])
+            fetchRequest.predicate = andPredicate
+            
+            do {
+                let results = try context.fetch(fetchRequest)
+                
+                if results.count == 1, let result = results.first {
+                    self.point = ChazaraPoint(result)
+                    //                    self.point?.updateCorrectChazaraStatus()//updateCorrectChazaraStatus()
+                    //                    print("P \(point?.status.rawValue)")
+                    
+                } else if results.isEmpty {
+                    print("Warning: Couldn't find CDChazaraPoint for StatusBox.")
+                    
+                    do {
+                        print("Creating a CDChazaraPoint for this spot...")
+                        let context = PersistenceController.shared.container.viewContext
+                        let point = CDChazaraPoint(context: context)
+                        
+                        point.pointId = IDGenerator.generate(withPrefix: "CP")
+                        point.sectionId = self.sectionId
+                        point.scId = self.scId
+                        
+                        let state = CDChazaraState(context: context)
+                        state.stateId = IDGenerator.generate(withPrefix: "CS")
+                        state.status = -1
+                        
+                        point.chazaraState = state
+                        
+                        try context.save()
+                        
+                        self.point = ChazaraPoint(point)
+                        
+                        print("Generated and saved a CDChazaraPoint.")
+                    } catch {
+                        print("Error: Couldn't save new CDChazaraPoint.")
+                    }
+                } else if results.count > 1 {
+                    print("Error: Found multiple CDChazaraPoints for StatusBox.")
+                }
+            } catch {
+                print("Error: Couldn't find CDChazaraPoint for StatusBox.")
+                //                return
+            }
+        }
+        
+        @Published var text: String?
+        
+        func getText() async -> String? {
+            switch point?.status ?? .unknown {
+            case .early:
+                return await point?.getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
+            case .active:
+                return await point?.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
+            case .late:
+                return await point?.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
+            case .completed:
+                return point?.getCompletionDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
+            case .unknown:
+                return nil
+            case .exempt:
+                return ""
+            }
+        }
+        
+        func updateText() {
+            Task {
+                let result = await getText()
+                DispatchQueue.main.async {
+                    self.text = result
+                    self.objectWillChange.send()
+                }
+            }
+        }
     }
 }
 
