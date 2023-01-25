@@ -137,7 +137,7 @@ struct EditChazaraScheduleView: View {
     
     
     private func updateScheduledChazara() throws -> Limud {
-        
+        fatalError()
         let fr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
         fr.predicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
         
@@ -148,18 +148,18 @@ struct EditChazaraScheduleView: View {
         }
         
         result.scName = self.scName
-        if let delayedFromId = self.delayedFromId, delayedFromId != result.scId {
-            let dfFr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
-            dfFr.predicate = NSPredicate(format: "scId == %@", delayedFromId)
-            
-            let results = try viewContext.fetch(dfFr)
-            
-            guard let result = results.first else {
-                throw UpdateError.unknownError
-            }
-            
-            result.delayedFrom = result
-        }
+//        if let delayedFromId = self.delayedFromId, self.delayedFromId != result.scId && self.delayedFromId != result.delayedFrom?.scId {
+//            let dfFr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
+//            dfFr.predicate = NSPredicate(format: "scId == %@", delayedFromId)
+//
+//            let dfResults = try viewContext.fetch(dfFr)
+//
+//            guard let dfResult = dfResults.first else {
+//                throw UpdateError.unknownError
+//            }
+//
+//            result.delayedFrom = dfResult
+//        }
         result.delay = Int16(self.delay)
         
         try withAnimation {

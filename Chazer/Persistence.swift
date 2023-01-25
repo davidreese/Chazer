@@ -35,6 +35,18 @@ struct PersistenceController {
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
+        
+            /*
+             // see https://medium.com/@maddy.lucky4u/swift-4-core-data-part-5-core-data-migration-3fc32483a5f2
+             // add necessary support for migration
+            let description = NSPersistentStoreDescription()
+            description.shouldMigrateStoreAutomatically = true
+            description.shouldInferMappingModelAutomatically = true
+            container.persistentStoreDescriptions =  [description]
+            // add necessary support for migration
+             */
+        
+        
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.

@@ -10,6 +10,6 @@ import Foundation
 typealias ID = String
 struct IDGenerator {
     static func generate(withPrefix prefix: String) -> ID {
-        return "\(prefix)\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+        return "\(prefix)\(Date().timeIntervalSince1970)\(Int.random(in: 1000...9999))"
     }
 }

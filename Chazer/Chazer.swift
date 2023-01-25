@@ -136,13 +136,17 @@ class Shiur: Section {
     }
 }
 
-class ScheduledChazara: Identifiable {
+class ScheduledChazara: Identifiable, Hashable {
     var id: ID
     var name: String
     var fixedDueDate: Date?
+    
     /// The number of days after the initial learning date or the last chazara that the chazara is scheduled to occur
     var delay: Int?
     var delayedFrom: ScheduledChazara?
+    
+    /// The number of days after the dynamic start date that the chazara point should be marked active.
+    var daysActive: Int?
 //    var window: Int
     
     init(id: ID, name: String, due dueDate: Date) {
@@ -194,12 +198,21 @@ class ScheduledChazara: Identifiable {
         }
     }
     
+    static func == (lhs: ScheduledChazara, rhs: ScheduledChazara) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
 //    enum DelayType {
 //        case sinceInitial
 //        case sinceLast
 //    }
 }
 
+/*
 class Chazara: Identifiable {
     var id: ID
     var date: Date
@@ -224,8 +237,7 @@ class Chazara: Identifiable {
         self.scId = scId
     }
 }
-
-typealias ID = String
+*/
 
 func delayFormatted(_ delay: Int) -> String {
     return "\(delay)"

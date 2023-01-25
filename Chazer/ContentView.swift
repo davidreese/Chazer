@@ -28,7 +28,9 @@ struct ContentView: View {
         return temp
     }
     
-    @State var showingNewLimudView = false
+    @State private var showingNewLimudView = false
+    @State private var showingDeleteAlert = false
+    @State private var indicesToDelete: IndexSet?
     
     init() {
 //        viewContext.automaticallyMergesChangesFromParent = true
@@ -37,6 +39,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
+                NavigationLink(destination: Dashboard(), label: {
+                        Text("Dashboard")
+                    })
                 ForEach(cdLimudim.filter({ cdl in
                     cdl.id != nil
                 })) { cdl in
@@ -47,15 +52,28 @@ struct ContentView: View {
                             })
                     }
                 }
+                
                 .onDelete(perform: { ix in
-                    do {
-                        try deleteItems(offsets: ix)
-                    } catch {
-                        print("Failed to delete with error: \(error)")
-                    }
+                    self.indicesToDelete = ix
+                    showingDeleteAlert = true
                 })
+                .alert(isPresented: self.$showingDeleteAlert) {
+                    Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
+                            do {
+                                try withAnimation {
+                                    try executeLimudDeletion()
+                                }
+                            } catch {
+                                print("Failed to delete with error: \(error)")
+                            }
+                            self.indicesToDelete = nil
+                        }, secondaryButton: .cancel() {
+                            self.indicesToDelete = nil
+                        }
+                    )
+                }
             }
-            .navigationTitle("Limudim")
+            .navigationTitle("Chazer")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
@@ -82,10 +100,10 @@ struct ContentView: View {
         //                })
     }
     
-    private func deleteItems(offsets: IndexSet) throws {
+    private func executeLimudDeletion() throws {
         do {
             try withAnimation {
-                try offsets.map { cdLimudim.filter({ cdl in
+                try self.indicesToDelete?.map { cdLimudim.filter({ cdl in
                     cdl.id != nil
                 })[$0] }.forEach({ cdl in
                     //                guard let cdl = cdl else {
