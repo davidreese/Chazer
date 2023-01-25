@@ -238,7 +238,7 @@ class ChazaraPoint {
         await self.fetchSection()
         self.fetchSC()
         self.updatePointData()
-//        await self.updateCorrectChazaraStatus()
+        await self.updateCorrectChazaraStatus()
     }
     
     func setDate(_ date: Date?) async {
@@ -402,9 +402,9 @@ class ChazaraPoint {
     
     
     /// Gets the chazara status that should be assigned to this `ChazaraPoint` based on its section and scheduled chazara.
-    /// - Returns: The correct `ChazaraStatus` that should be applied, based on the local variables.
+    /// - Returns: The correct ``ChazaraStatus`` that should be applied, based on the local variables.
     private func getCorrectChazaraStatus() async -> ChazaraStatus {
-        await updateAllData()
+//        await updateAllData()
         //            check first to see if chazara has been completed
         if self.status == .completed {
             return .completed
