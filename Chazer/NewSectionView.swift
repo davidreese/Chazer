@@ -131,6 +131,12 @@ struct NewSectionView: View {
         
         cdLimud.sections = cdLimud.sections?.adding(newItem) as NSSet?
         
+        guard let section = Section(newItem) else {
+            throw CreationError.unknownError
+        }
+        
+        section.generatePoints()
+        
         guard let limud = Limud(cdLimud) else {
             throw CreationError.unknownError
         }

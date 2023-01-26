@@ -36,12 +36,13 @@ struct GraphView: View {
     var headerCellHeight = 50.0
     
     var body: some View {
-        VStack {
+//        VStack {
             if !model.limud.sections.isEmpty {
                 List {
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            Spacer()
+//                            Spacer()
                             VStack {
                                 Spacer()
                                 
@@ -114,20 +115,86 @@ struct GraphView: View {
                                 }
                                 .padding(.leading, 3)
                             }
-                            Spacer()
+//                            Spacer()
                         }
-                        //                        .padding(.horizontal)
+                                                .padding(.horizontal)
                     }
+                    .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listSectionSeparator(.hidden)
+                        
                     //                        .ignoresSafeArea([.container], edges: [.horizontal])
+                    
                 }
+                
                 .listStyle(PlainListStyle())
                 //                .background(Color.clear)
                 //                .navigationBarHidden(true)
                 .scrollIndicators(.hidden)
-                .ignoresSafeArea([.container], edges: [.horizontal])
+//                .ignoresSafeArea([.container], edges: [.horizontal])
                 .listSectionSeparator(.hidden)
-                
+                .listRowSeparator(.hidden)
+//                .ignoresSafeArea([.container], edges: [.horizontal])
+                .onAppear {
+                    self.model.objectWillChange.send()
+                }
+                .navigationTitle(model.limud.name)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu(content: {
+                            Button {
+                                self.showingNewSectionView = true
+                            } label: {
+                                Label("Add a Section", systemImage: "note.text")
+                            }
+                            Button {
+                                self.showingAddChazaraScheduleView = true
+                            } label: {
+                                Label("Add Scheduled Chazara", systemImage: "calendar")
+                            }
+                            //                        Button {
+                            //                            self.showingEditChazaraScheduleView = true
+                            //                        } label: {
+                            //                            Label("Edit the Chazara Schedule", systemImage: "calendar")
+                            //                        }
+                        }, label: {
+                            Label("Add", systemImage: "plus")
+                        }) {
+                            self.showingNewSectionView = true
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingAddChazaraScheduleView) {
+                    NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
+                        withAnimation {
+                            self.model.limud = limud
+                            self.model.objectWillChange.send()
+                        }
+                    })
+                    .environment(\.managedObjectContext, self.viewContext)
+                }
+                .sheet(isPresented: $showingEditChazaraScheduleView) {
+                    if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
+                        EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
+                            withAnimation {
+                                self.model.limud = limud
+                                self.model.objectWillChange.send()
+                            }
+                        })
+                        .environment(\.managedObjectContext, self.viewContext)
+                    }
+                }
+                .sheet(isPresented: $showingNewSectionView) {
+                    NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                        withAnimation {
+                            self.model.limud = limud
+                            self.model.objectWillChange.send()
+                        }
+                    })
+                    .environment(\.managedObjectContext, self.viewContext)
+                }
                 //                .ignoresSafeArea([.container], edges: [.trailing])
+                
             } else {
                 Text("You don't have any saved sections to chazer yet.")
                     .font(Font.title3)
@@ -139,69 +206,7 @@ struct GraphView: View {
                     Text("New Section")
                 }
                 .buttonStyle(BorderedProminentButtonStyle())
-                
             }
-        }
-        .ignoresSafeArea([.container], edges: [.horizontal])
-        .onAppear {
-            self.model.objectWillChange.send()
-        }
-        .navigationTitle(model.limud.name)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu(content: {
-                    Button {
-                        self.showingNewSectionView = true
-                    } label: {
-                        Label("Add a Section", systemImage: "note.text")
-                    }
-                    Button {
-                        self.showingAddChazaraScheduleView = true
-                    } label: {
-                        Label("Add Scheduled Chazara", systemImage: "calendar")
-                    }
-                    //                        Button {
-                    //                            self.showingEditChazaraScheduleView = true
-                    //                        } label: {
-                    //                            Label("Edit the Chazara Schedule", systemImage: "calendar")
-                    //                        }
-                }, label: {
-                    Label("Add", systemImage: "plus")
-                }) {
-                    self.showingNewSectionView = true
-                }
-            }
-        }
-        .sheet(isPresented: $showingAddChazaraScheduleView) {
-            NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
-                withAnimation {
-                    self.model.limud = limud
-                    self.model.objectWillChange.send()
-                }
-            })
-            .environment(\.managedObjectContext, self.viewContext)
-        }
-        .sheet(isPresented: $showingEditChazaraScheduleView) {
-            if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
-                EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
-                    withAnimation {
-                        self.model.limud = limud
-                        self.model.objectWillChange.send()
-                    }
-                })
-                .environment(\.managedObjectContext, self.viewContext)
-            }
-        }
-        .sheet(isPresented: $showingNewSectionView) {
-            NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
-                withAnimation {
-                    self.model.limud = limud
-                    self.model.objectWillChange.send()
-                }
-            })
-            .environment(\.managedObjectContext, self.viewContext)
-        }
-        
     }
     
     private func deleteSection(_ section: Section) throws {
@@ -330,7 +335,10 @@ struct GraphView: View {
                     }
                     .sheet(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
-                            ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: updateParent)
+                            ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
+                                self.updateParent?()
+                                self.model.updateText()
+                            })
                                 .environment(\.managedObjectContext, self.viewContext)
                             //                                .presentationDetents([.medium])
                             //                        }
@@ -367,7 +375,7 @@ struct GraphView: View {
         
         func update() async {
             //            self.model.point?.updateData()
-            //            await self.model.point?.updateCorrectChazaraStatus()
+            await self.model.point?.updateCorrectChazaraStatus()
             self.model.updateText()
             self.model.objectWillChange.send()
             updateParent?()
@@ -377,7 +385,7 @@ struct GraphView: View {
             @Environment(\.managedObjectContext) private var viewContext
             @Environment(\.presentationMode) var presentationMode
             
-            private var chazaraPoint: ChazaraPoint
+            @ObservedObject var chazaraPoint: ChazaraPoint
             @State var date: Date = Date()
             
             var updateParent: (() -> Void)?
@@ -402,13 +410,9 @@ struct GraphView: View {
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button {
-                                    Task {
-                                        try? await updateDate()
-                                        DispatchQueue.main.async {
-                                            updateParent?()
-                                            presentationMode.wrappedValue.dismiss()
-                                        }
-                                    }
+                                    try? updateDate()
+                                    updateParent?()
+                                    presentationMode.wrappedValue.dismiss()
                                 } label: {
                                     Text("Done")
                                 }
@@ -425,8 +429,8 @@ struct GraphView: View {
                 }
             }
             
-            func updateDate() async throws {
-                await self.chazaraPoint.setDate(date)
+            func updateDate() throws {
+                self.chazaraPoint.setDate(date)
             }
         }
     }

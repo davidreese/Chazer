@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 /// A point on the visual graph with a certain status of chazara.
-class ChazaraPoint {
+class ChazaraPoint: ObservableObject {
     final let id: ID
     final let sectionId: ID
     private var section: Section?
@@ -17,10 +17,10 @@ class ChazaraPoint {
     final let scheduledChazaraId: ID
     private var scheduledChazara: ScheduledChazara?
     
-    private(set) var status: ChazaraStatus!
-    private(set) var date: Date?
+    @Published private(set) var status: ChazaraStatus!
+    @Published private(set) var date: Date?
     
-    private final let context: NSManagedObjectContext
+    private final let container = PersistenceController.shared.container
     
     init?(_ cdChazaraPoint: CDChazaraPoint) {
         guard let id = cdChazaraPoint.pointId else {
@@ -28,12 +28,14 @@ class ChazaraPoint {
             return nil
         }
         
-        if let context = cdChazaraPoint.managedObjectContext {
+        /*
+        if let context = cdChazaraPoint.managedObjectContext.contain {
             self.context = context
         } else {
             print("Data Error: Setting context to shared. Moving forward is not recommended.")
             self.context = PersistenceController.shared.container.viewContext
         }
+         */
         
         self.id = id
         self.sectionId = cdChazaraPoint.sectionId!
@@ -70,12 +72,10 @@ class ChazaraPoint {
     /// Fetches the ``CDChazaraPoint`` assosiated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
         //MARK: Very helpful code
-        let persistenceController = PersistenceController.shared
-        
         let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "pointId == %@", id)
         
-        guard let results = try? persistenceController.container.newBackgroundContext().fetch(fetchRequest) else {
+        guard let results = try? container.newBackgroundContext().fetch(fetchRequest) else {
             print("Error: Could not fetch the chazara point. ID=\(id)")
             return nil
         }
@@ -241,15 +241,15 @@ class ChazaraPoint {
         await self.updateCorrectChazaraStatus()
     }
     
-    func setDate(_ date: Date?) async {
+    func setDate(_ date: Date?) {
         do {
-            guard let entity = await self.fetchCDEntity() else {
+            guard let entity = self.fetchCDEntity() else {
                 print("Error: Couldn't set state, CDEntity is nil.")
                 return
             }
             
-                entity.chazaraState?.date = date
-//            try context.save()
+            entity.chazaraState?.date = date
+            try entity.managedObjectContext?.save()
             
             self.date = date
         } catch {
@@ -257,15 +257,15 @@ class ChazaraPoint {
         }
     }
     
-    func setStatus(_ status: ChazaraStatus) async {
+    func setStatus(_ status: ChazaraStatus) {
         do {
-            guard let entity = await self.fetchCDEntity() else {
+            guard let entity = self.fetchCDEntity() else {
                 print("Error: Couldn't set state, CDEntity is nil.")
                 return
             }
 
             entity.chazaraState?.status = status.rawValue
-//            try context.save()
+            try entity.managedObjectContext?.save()
 
             self.status = status
         } catch {
@@ -273,9 +273,9 @@ class ChazaraPoint {
         }
     }
     
-    func setState(status: ChazaraStatus, date: Date?) async {
+    func setState(status: ChazaraStatus, date: Date?) {
         do {
-            guard let entity = await self.fetchCDEntity() else {
+            guard let entity = self.fetchCDEntity() else {
                 print("Error: Couldn't set state, CDEntity is nil.")
                 return
             }
@@ -283,7 +283,7 @@ class ChazaraPoint {
             entity.chazaraState?.status = status.rawValue
             entity.chazaraState?.date = date
             
-//            try context.save()
+            try entity.managedObjectContext?.save()
             
             self.status = status
             self.date = date
@@ -293,20 +293,20 @@ class ChazaraPoint {
     }
     
     func markAsChazered(date: Date) async {
-        await setState(status: .completed, date: date)
+        setState(status: .completed, date: date)
     }
     
     func markAsExempt() async {
-        await setState(status: .exempt, date: nil)
+        setState(status: .exempt, date: nil)
     }
     
     func removeChazara() async {
-        await self.setState(status: .unknown, date: nil)
+        self.setState(status: .unknown, date: nil)
         await self.updateCorrectChazaraStatus()
     }
     
     func removeExemption() async {
-        await self.setState(status: .unknown, date: nil)
+        self.setState(status: .unknown, date: nil)
         await self.updateCorrectChazaraStatus()
     }
     
@@ -439,7 +439,7 @@ class ChazaraPoint {
     func updateCorrectChazaraStatus() async {
 //        Task {
         let status = await getCorrectChazaraStatus()
-        await self.setStatus(status)
+        self.setStatus(status)
 //        }
     }
     

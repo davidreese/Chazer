@@ -1,0 +1,769 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "F0E18D16-CD1E-411F-9B1F-F52ADB619CBD"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "16FB8B02-6745-4F9A-BCD2-E0683A2711B8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewSectionView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
+            landmarkName = "addSection()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "22EA8EEE-435B-4866-B46A-EBDD96CE047E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewSectionView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
+            landmarkName = "addSection()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "434D4476-B82C-4B11-B09C-F80A50B7C823"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewSectionView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "addSection()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FD0AA40D-D51C-47EE-A210-265ECFC0A93B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Chazer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "init?(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Chazer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "init?(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5 - 2167a23f8faa0cd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Limud.init(Chazer.CDLimud) -&gt; Swift.Optional&lt;Chazer.Limud&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "233">
+               </Location>
+               <Location
+                  uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5 - 2167a23f8faa0cd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Limud.init(Chazer.CDLimud) -&gt; Swift.Optional&lt;Chazer.Limud&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "294">
+               </Location>
+               <Location
+                  uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5 - 2167a23f8faa0cd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Limud.init(Chazer.CDLimud) -&gt; Swift.Optional&lt;Chazer.Limud&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "550">
+               </Location>
+               <Location
+                  uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5 - 2167a23f8faa0cd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Limud.init(Chazer.CDLimud) -&gt; Swift.Optional&lt;Chazer.Limud&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "1124">
+               </Location>
+               <Location
+                  uuid = "CBA3EBD0-20C5-44A0-8E50-1A18CC7EBAD5 - 2167a23f8faa0cd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Limud.init(Chazer.CDLimud) -&gt; Swift.Optional&lt;Chazer.Limud&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "1538">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3AD91A52-671A-4948-BFD4-4F3BE8B5718A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Chazer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
+            landmarkName = "init?(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "3AD91A52-671A-4948-BFD4-4F3BE8B5718A - 9034948532a90f9c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Section.init(Chazer.CDSection) -&gt; Swift.Optional&lt;Chazer.Section&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "105"
+                  endingLineNumber = "105"
+                  offsetFromSymbolStart = "228">
+               </Location>
+               <Location
+                  uuid = "3AD91A52-671A-4948-BFD4-4F3BE8B5718A - 9034948532a90f9c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.Section.init(Chazer.CDSection) -&gt; Swift.Optional&lt;Chazer.Section&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "105"
+                  endingLineNumber = "105"
+                  offsetFromSymbolStart = "289">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5C8E8EAB-EA96-4FB0-9FA4-AF1974FC3454"
+            shouldBeEnabled = "No"
+            condition = "cdSection.sectionName == &quot;0h&quot;"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Chazer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
+            landmarkName = "init?(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0F89FC2E-DC61-4CAD-A68F-B695A605AD7C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewSectionView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
+            landmarkName = "addSection()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5F349673-DE6F-483D-8632-2BAE40CA9334"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C28FBE3D-FA42-4235-9659-12AE05CF9940"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
+            landmarkName = "addScheduledChazara()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9EF01505-ECB8-4873-80E8-01E5957B3ABC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
+            landmarkName = "addScheduledChazara()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "ED3172F7-277D-428C-B227-E043C79F7A1E"
+            shouldBeEnabled = "No"
+            condition = "cdScheduledChazara.scId != nil"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Chazer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "189"
+            endingLineNumber = "189"
+            landmarkName = "init?(_:)"
+            landmarkType = "7">
+            <Actions>
+               <BreakpointActionProxy
+                  ActionExtensionID = "Xcode.BreakpointAction.Log">
+                  <ActionContent
+                     message = "@cdScheduledChazara.id@"
+                     conveyanceType = "0">
+                  </ActionContent>
+               </BreakpointActionProxy>
+            </Actions>
+            <Locations>
+               <Location
+                  uuid = "ED3172F7-277D-428C-B227-E043C79F7A1E - d68811bb0edbf0f8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.ScheduledChazara.init(Chazer.CDScheduledChazara) -&gt; Swift.Optional&lt;Chazer.ScheduledChazara&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "133">
+               </Location>
+               <Location
+                  uuid = "ED3172F7-277D-428C-B227-E043C79F7A1E - d68811bb0edbf0f8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.ScheduledChazara.init(Chazer.CDScheduledChazara) -&gt; Swift.Optional&lt;Chazer.ScheduledChazara&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "194">
+               </Location>
+               <Location
+                  uuid = "ED3172F7-277D-428C-B227-E043C79F7A1E - d68811bb0edbf0f8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.ScheduledChazara.init(Chazer.CDScheduledChazara) -&gt; Swift.Optional&lt;Chazer.ScheduledChazara&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/Chazer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "450">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "41D9B44E-4AAB-48A5-83F0-D9F0270257C6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "addScheduledChazara()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F10D577F-A991-41F4-B39A-3C8B9898B735"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "updateOtherScheduledChazaras()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8B4F0878-239F-4E54-996E-A91587035197"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "addScheduledChazara()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "76B7FA6C-2524-4E5D-AEAC-7FC04D0F103D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Persistence.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "init(inMemory:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6D523BF3-8A6E-4F22-B27B-7FBEFBD35571"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/NewChazaraScheduleView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "192"
+            endingLineNumber = "192"
+            landmarkName = "addScheduledChazara()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "6D523BF3-8A6E-4F22-B27B-7FBEFBD35571 - 50e296aa7aecb6f5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.NewChazaraScheduleView.addScheduledChazara() throws -&gt; Chazer.Limud"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/NewChazaraScheduleView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "172"
+                  endingLineNumber = "172"
+                  offsetFromSymbolStart = "3523">
+               </Location>
+               <Location
+                  uuid = "6D523BF3-8A6E-4F22-B27B-7FBEFBD35571 - 742b150efbd4094a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (Chazer.CDScheduledChazara) -&gt; Swift.Bool in Chazer.NewChazaraScheduleView.addScheduledChazara() throws -&gt; Chazer.Limud"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/NewChazaraScheduleView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "173"
+                  endingLineNumber = "173"
+                  offsetFromSymbolStart = "104">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "63E03F0B-3207-484B-843A-4E7DE8717B94"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/GraphViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "15"
+            endingLineNumber = "15"
+            landmarkName = "init(limud:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "33F5A040-5E2E-447A-B9A8-D6CAC4A9808E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/GraphView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "213"
+            endingLineNumber = "213"
+            landmarkName = "deleteSection(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D2B39139-B9D4-4CCD-AEB9-03B21C3B2AFF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/GraphView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2DEFD180-F480-4596-9976-10BDCF31C4B2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/GraphView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "458"
+            endingLineNumber = "458"
+            landmarkName = "init(context:section:scheduledChazara:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EFD31FBF-4AA5-4B70-BDA4-ACECA371CE4E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/ChazaraPoint.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
+            landmarkName = "getActiveDate(retryOnFail:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "94C40E0F-1E49-4373-89FB-8755C6D56264"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/ChazaraPoint.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "335"
+            endingLineNumber = "335"
+            landmarkName = "getActiveDate(retryOnFail:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
+         <BreakpointContent
+            uuid = "CB201C2B-F636-4FEB-971E-F3D24A9E18D0"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            symbolName = ""
+            moduleName = "">
+            <Locations>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
+         <BreakpointContent
+            uuid = "F115A0E8-210A-4199-A83A-8193A8333439"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            symbolName = "malloc_error_break"
+            moduleName = "">
+            <Locations>
+               <Location
+                  uuid = "F115A0E8-210A-4199-A83A-8193A8333439 - 9d096611641b4e7c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "malloc_error_break"
+                  moduleName = "libsystem_malloc.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  offsetFromSymbolStart = "0">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "992F6A65-6471-4EE6-AD23-AC73CE60D837"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/ChazaraPoint.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "319"
+            endingLineNumber = "319"
+            landmarkName = "getActiveDate(retryOnFail:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "992F6A65-6471-4EE6-AD23-AC73CE60D837 - ab0e74a863dac21"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Chazer.ChazaraPoint.getActiveDate(retryOnFail: Swift.Bool) async -&gt; Swift.Optional&lt;Foundation.Date&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "319"
+                  endingLineNumber = "319"
+                  offsetFromSymbolStart = "1882">
+               </Location>
+               <Location
+                  uuid = "992F6A65-6471-4EE6-AD23-AC73CE60D837 - ab0e74a863dac21"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Chazer.ChazaraPoint.getActiveDate(retryOnFail: Swift.Bool) async -&gt; Swift.Optional&lt;Foundation.Date&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "319"
+                  endingLineNumber = "319"
+                  offsetFromSymbolStart = "2092">
+               </Location>
+               <Location
+                  uuid = "992F6A65-6471-4EE6-AD23-AC73CE60D837 - ab0e74a863dac21"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Chazer.ChazaraPoint.getActiveDate(retryOnFail: Swift.Bool) async -&gt; Swift.Optional&lt;Foundation.Date&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "319"
+                  endingLineNumber = "319"
+                  offsetFromSymbolStart = "2369">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B3487C42-BCFD-43F2-9077-FB0E787B98D5"
+            shouldBeEnabled = "No"
+            condition = "self.status == .unknown"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/ChazaraPoint.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "441"
+            endingLineNumber = "441"
+            landmarkName = "updateCorrectChazaraStatus()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B3487C42-BCFD-43F2-9077-FB0E787B98D5 - 976d8b28367f11e5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Chazer.ChazaraPoint.updateCorrectChazaraStatus() async -&gt; ()"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "441"
+                  endingLineNumber = "441"
+                  offsetFromSymbolStart = "67">
+               </Location>
+               <Location
+                  uuid = "B3487C42-BCFD-43F2-9077-FB0E787B98D5 - 401687fae07931d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) await resume partial function for Chazer.ChazaraPoint.updateCorrectChazaraStatus() async -&gt; ()"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "441"
+                  endingLineNumber = "441"
+                  offsetFromSymbolStart = "37">
+               </Location>
+               <Location
+                  uuid = "B3487C42-BCFD-43F2-9077-FB0E787B98D5 - 2fddd9f990ace024"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for Chazer.ChazaraPoint.updateCorrectChazaraStatus() async -&gt; ()"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "442"
+                  endingLineNumber = "442"
+                  offsetFromSymbolStart = "39">
+               </Location>
+               <Location
+                  uuid = "B3487C42-BCFD-43F2-9077-FB0E787B98D5 - 2fddd9f990ace007"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for Chazer.ChazaraPoint.updateCorrectChazaraStatus() async -&gt; ()"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "441"
+                  endingLineNumber = "441"
+                  offsetFromSymbolStart = "51">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A2B56753-24FD-41F9-A654-A706AA4A4C04"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/GraphView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "433"
+            endingLineNumber = "433"
+            landmarkName = "updateDate()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
