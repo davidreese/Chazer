@@ -230,9 +230,7 @@ struct GraphView: View {
         fr.predicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
         
         let results = try viewContext.fetch(fr)
-        
-        
-        
+
         try withAnimation {
             for result in results {
                 viewContext.delete(result)
@@ -440,7 +438,7 @@ struct GraphView: View {
         private let sectionId: ID
         private let scId: ID
         
-        init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext, section: Section, scheduledChazara: ScheduledChazara) {
+        init(container: NSPersistentContainer = PersistenceController.shared.container, section: Section, scheduledChazara: ScheduledChazara) {
             self.sectionId = section.id
             self.scId = scheduledChazara.id
             
@@ -452,7 +450,7 @@ struct GraphView: View {
             fetchRequest.predicate = andPredicate
             
             do {
-                let results = try context.fetch(fetchRequest)
+                let results = try container.viewContext.fetch(fetchRequest)
                 
                 if results.count == 1, let result = results.first {
                     self.point = ChazaraPoint(result)
