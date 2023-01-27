@@ -119,6 +119,10 @@ class Section: Identifiable, Hashable {
         fatalError(nsSetSection.description)
     }
     
+    func generatePoints() {
+        print("This function has not yet been implemented.")
+    }
+    
     static func == (lhs: Section, rhs: Section) -> Bool {
         return lhs.id == rhs.id
     }

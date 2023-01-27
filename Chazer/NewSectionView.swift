@@ -123,13 +123,24 @@ struct NewSectionView: View {
 //        var cdLimud = limud.cdLimud()
         
         let newItem = CDSection(context: viewContext)
-        newItem.sectionId = "S\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+        newItem.sectionId = IDGenerator.generate(withPrefix: "S")
         newItem.sectionName = sectionName
-        newItem.initialDate = initialLearningDate
+        
+        if initialLearningDate.distance(to: Date.now) < 60 {
+            newItem.initialDate = initialLearningDate
+        } else {
+            newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
+        }
         newItem.limud = cdLimud
 //        newItem.
         
         cdLimud.sections = cdLimud.sections?.adding(newItem) as NSSet?
+        
+        guard let section = Section(newItem) else {
+            throw CreationError.unknownError
+        }
+        
+        section.generatePoints()
         
         guard let limud = Limud(cdLimud) else {
             throw CreationError.unknownError
