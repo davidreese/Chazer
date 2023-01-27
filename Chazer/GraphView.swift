@@ -430,7 +430,7 @@ struct GraphView: View {
             }
             
             func updateDate() throws {
-                self.chazaraPoint.setDate(date)
+                self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date))
             }
         }
     }
