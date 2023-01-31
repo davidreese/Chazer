@@ -52,7 +52,6 @@ struct ContentView: View {
                             })
                     }
                 }
-                
                 .onDelete(perform: { ix in
                     self.indicesToDelete = ix
                     showingDeleteAlert = true
@@ -72,6 +71,8 @@ struct ContentView: View {
                         }
                     )
                 }
+                
+                SettingsView()
             }
             .navigationTitle("Chazer")
             .toolbar {

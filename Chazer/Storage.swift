@@ -30,14 +30,10 @@ class Storage {
         print("Loading storage...")
         
         loadScheduledChazaras()
-        
-        Task {
-            await loadSections()
-        }
+        loadSections()
     }
     
     func loadScheduledChazaras() {
-        DispatchQueue.global(qos: .background).async {
             do {
                 let scFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
                 let scResults = try self.container.newBackgroundContext().fetch(scFetchRequest) as! [CDScheduledChazara]
@@ -58,54 +54,58 @@ class Storage {
             } catch {
                 print(error)
             }
-        }
     }
     
-    func loadSections(completion: (() -> Void)?) {
-        Task {
-            await loadSections()
-            completion?()
-        }
-    }
-    
-    func loadSections() async {
-        do {
-            let secFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
-            let secResults = try self.container.newBackgroundContext().fetch(secFetchRequest) as! [CDSection]
-            
-            self.cdSections = secResults
-            
-            var newSections: [Section]?
-            
-            for secResult in secResults {
-                if let sec = Section(secResult) {
-                    if newSections == nil {
-                        newSections = [sec]
-                    } else {
-                        newSections?.append(sec)
+    func loadSections() {
+            do {
+                let scFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
+                let secResults = try self.container.newBackgroundContext().fetch(scFetchRequest) as! [CDSection]
+                
+                self.cdSections = secResults
+                
+                self.sections = nil
+                
+                for secResult in secResults {
+                    if let sec = Section(secResult) {
+                        if self.sections == nil {
+                            self.sections = [sec]
+                        } else {
+                            self.sections?.append(sec)
+                        }
                     }
                 }
+            } catch {
+                print(error)
             }
-            
-            self.sections = newSections
-        } catch {
-            print("Failed to update sections: \(error)")
-        }
     }
     
     func getCDSection(cdSectionId: ID, reloadIfNeeded: Bool = true) -> CDSection? {
-        if let cdSection = self.cdSections?.first(where: { cds in
-            cds.id == cdSectionId
+        if let cdSection = self.cdSections?.first(where: { cdSection in
+            cdSection.sectionId == cdSectionId
         }) {
             return cdSection
         } else if reloadIfNeeded {
-//            loadSections()
+            loadSections()
             return getCDSection(cdSectionId: cdSectionId, reloadIfNeeded: false)
         } else {
             return nil
         }
     }
     
+    func getSection(sectionId: ID, reloadIfNeeded: Bool = true) -> Section? {
+        if let section = self.sections?.first(where: { section in
+            section.id == sectionId
+        }) {
+            return section
+        } else if reloadIfNeeded {
+            loadSections()
+            return getSection(sectionId: sectionId, reloadIfNeeded: false)
+        } else {
+            return nil
+        }
+    }
+    
+    /*
     func getSection(sectionId: ID, reloadIfNeeded: Bool = true) async -> Section? {
         if let section = self.sections?.first(where: { sec in
             sec.id == sectionId
@@ -118,13 +118,15 @@ class Storage {
             return nil
         }
     }
+     */
     
     func getCDScheduledChazara(cdSCId: ID, reloadIfNeeded: Bool = true) -> CDScheduledChazara? {
         if let cdSC = self.cdScheduledChazaras?.first(where: { cdsc in
-            cdsc.id == cdSCId
+            cdsc.scId == cdSCId
         }) {
             return cdSC
         } else if reloadIfNeeded {
+            loadScheduledChazaras()
             return getCDScheduledChazara(cdSCId: cdSCId, reloadIfNeeded: false)
         } else {
             return nil

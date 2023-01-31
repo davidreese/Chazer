@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 
 class UI {
     static let shadowRadius: CGFloat = 3
@@ -24,5 +25,34 @@ extension Color {
         let g = (rgbValue & 0xff00) >> 8
         let b = rgbValue & 0xff
         self.init(red: Double(r) / 0xff, green: Double(g) / 0xff, blue: Double(b) / 0xff)
+    }
+}
+
+class DocumentPickerViewController: UIDocumentPickerViewController {
+    private let onDismiss: () -> Void
+    private let onPick: (URL) -> ()
+
+    init(supportedTypes: [String], onPick: @escaping (URL) -> Void, onDismiss: @escaping () -> Void) {
+        self.onDismiss = onDismiss
+        self.onPick = onPick
+
+        super.init(documentTypes: supportedTypes, in: .open)
+
+        allowsMultipleSelection = false
+        delegate = self
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension DocumentPickerViewController: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        onPick(urls.first!)
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        onDismiss()
     }
 }

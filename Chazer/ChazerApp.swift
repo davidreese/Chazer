@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 @main
 struct ChazerApp: App {
@@ -17,15 +18,33 @@ struct ChazerApp: App {
 //        changeDelayedFrom(for: "SC1666222213.370898415", to: "SC1663787099.830631580")
 //        killScheduledChazara(id: "SC1668124907.7508678982")
 //        migrateData()
-//        killCDChazaraPoint()
-//        migrateData()
+//        ChazerApp.killCDChazaraPoint()
+//        ChazerApp.migrateData()
 //        printCDChazaras()
 //        printCDChazaraPoints()
     }
     
+    /*
+    static func downloadBackup() {
+        let text = "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
+        let fileName = "chazerbackup.txt"
+        
+        let path = NSTemporaryDirectory() + fileName
+            let url = URL(fileURLWithPath: path)
+            do {
+                try text.write(to: url, atomically: true, encoding: .utf8)
+            } catch {
+                print("Error writing file: \(error)")
+            }
+
+            let interactionController = UIDocumentInteractionController(url: url)
+            interactionController.presentOptionsMenu(from: view.frame, in: view, animated: true)
+            interactionController.delegate = Delegate()
+    }*/
+    
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
-    private func migrateData() {
-        let context = persistenceController.container.viewContext
+    private static func migrateData() {
+        let context = PersistenceController.shared.container.viewContext
         
         let cdChazaraPoints = printCDChazaraPoints()
         let cdChazaras = printCDChazaras()
@@ -126,16 +145,16 @@ struct ChazerApp: App {
         }
     }
     
-    private func changeDelayedFrom(for scId: ID, to delayedFromId: ID) {
+    private static func changeDelayedFrom(for scId: ID, to delayedFromId: ID) {
         let cdScheduledChazara = getCDScheduledChazara(for: scId)
         let newDelayedFrom = getCDScheduledChazara(for: delayedFromId)
         cdScheduledChazara.delayedFrom = newDelayedFrom
-        try! persistenceController.container.viewContext.save()
+        try! PersistenceController.shared.container.viewContext.save()
     }
     
-    private func printCDChazaras() -> [CDChazara] {
+    private static func printCDChazaras() -> [CDChazara] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazara.fetchRequest()
-        let results = try! persistenceController.container.viewContext.fetch(fetchRequest) as! [CDChazara]
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDChazara]
         
         print("Listing CDChazaras:")
         for result in results {
@@ -145,9 +164,9 @@ struct ChazerApp: App {
         return results
     }
     
-    private func printCDExemptions() -> [CDExemption] {
+    private static func printCDExemptions() -> [CDExemption] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDExemption.fetchRequest()
-        let results = try! persistenceController.container.viewContext.fetch(fetchRequest) as! [CDExemption]
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDExemption]
         
         print("Listing CDExemptions:")
         for result in results {
@@ -157,9 +176,48 @@ struct ChazerApp: App {
         return results
     }
     
-    private func printCDChazaraPoints() -> [CDChazaraPoint] {
+    private static func getCDChazaraPointData() -> String {
+        var text = ""
+        
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
-        let results = try! persistenceController.container.viewContext.fetch(fetchRequest) as! [CDChazaraPoint]
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDChazaraPoint]
+        
+        for result in results {
+            text += "CDChazaraPoint: ID=\(result.pointId ?? "nil") SECID=\(result.sectionId ?? "nil") SCID=\(result.scId ?? "nil") DATE=\(result.chazaraState?.date?.description ?? "nil") STATUS=\(result.chazaraState?.status ?? -3)\n"
+        }
+        
+        return text
+    }
+    
+    private static func getCDScheduledChazaraData() -> String {
+        var text = ""
+        
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
+        
+        for result in results {
+            text += "CDScheduledChazara: ID=\(result.scId ?? "nil"), NAME=\(result.scName ?? "nil"), DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil"), DELAY=\(result.delay)\n"
+        }
+        
+        return text
+    }
+    
+    private static func getCDSectionData() -> String {
+        var text = ""
+        
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDSection]
+        
+        for result in results {
+            text += "CDSection: ID=\(result.sectionId ?? "nil"), NAME=\(result.sectionName ?? "nil")\n"
+        }
+        
+        return text
+    }
+    
+    private static func printCDChazaraPoints() -> [CDChazaraPoint] {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDChazaraPoint]
         
         print("Listing CDChazaraPoints:")
         for result in results {
@@ -169,9 +227,9 @@ struct ChazerApp: App {
         return results
     }
     
-    private func printCDScheduledChazaras() -> [CDScheduledChazara] {
+    private static func printCDScheduledChazaras() -> [CDScheduledChazara] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
-        let results = try! persistenceController.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
         
         print("Listing CDScheduledChazaras:")
         for result in results {
@@ -181,9 +239,9 @@ struct ChazerApp: App {
         return results
     }
     
-    private func printCDSections() -> [CDSection] {
+    private static func printCDSections() -> [CDSection] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
-        let results = try! persistenceController.container.viewContext.fetch(fetchRequest) as! [CDSection]
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDSection]
         
         print("Listing CDSections:")
         for result in results {
@@ -193,7 +251,7 @@ struct ChazerApp: App {
         return results
     }
     
-    private func killCDScheduledChazara(id: ID? = nil) {
+    private static func killCDScheduledChazara(id: ID? = nil) {
         //        MARK: SAVIOR CODE!
         if id == nil {
             print("Deleting all CDScheduledChazaras. Printing a list of all that existed...")
@@ -205,10 +263,10 @@ struct ChazerApp: App {
             fetchRequest.predicate = NSPredicate(format: "scId == %@", id)
         }
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        try! persistenceController.container.viewContext.execute(deleteRequest)
+        try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
-    private func killCDChazaraPoint(id: ID? = nil) {
+    private static func killCDChazaraPoint(id: ID? = nil) {
         //        MARK: SAVIOR CODE!
         if id == nil {
             print("Deleting all CDChazaraPoints. Printing a list of all that existed...")
@@ -220,7 +278,7 @@ struct ChazerApp: App {
             fetchRequest.predicate = NSPredicate(format: "pointId == %@", id)
         }
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        try! persistenceController.container.viewContext.execute(deleteRequest)
+        try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
     /*
@@ -242,10 +300,10 @@ struct ChazerApp: App {
     }
      */
     
-    private func getCDScheduledChazara(for scId: ID) -> CDScheduledChazara {
+    private static func getCDScheduledChazara(for scId: ID) -> CDScheduledChazara {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "scId == %@", scId)
-        let cdScheduledChazara = try! persistenceController.container.viewContext.fetch(fetchRequest).first as! CDScheduledChazara
+        let cdScheduledChazara = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest).first as! CDScheduledChazara
         return cdScheduledChazara
     }
     
