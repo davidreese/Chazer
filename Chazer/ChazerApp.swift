@@ -21,7 +21,7 @@ struct ChazerApp: App {
 //        ChazerApp.killCDChazaraPoint()
 //        ChazerApp.migrateData()
 //        printCDChazaras()
-//        printCDChazaraPoints()
+//        ChazerApp.printCDChazaraPoints()
     }
     
     /*
@@ -176,7 +176,7 @@ struct ChazerApp: App {
         return results
     }
     
-    private static func getCDChazaraPointData() -> String {
+     static func getCDChazaraPointData() -> String {
         var text = ""
         
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()

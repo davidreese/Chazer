@@ -287,12 +287,10 @@ class ChazaraPoint: ObservableObject {
             entity.chazaraState?.status = status.rawValue
             entity.chazaraState?.date = date
             
-            try entity.managedObjectContext?.save()
+            try entity.managedObjectContext!.save()
             
-            DispatchQueue.main.async {
                 self.status = status
                 self.date = date
-            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
