@@ -115,7 +115,6 @@ struct NewSectionView: View {
         let fr = CDLimud.fetchRequest()
         fr.predicate = NSPredicate(format: "id == %@", limud.id)
         
-        
         guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
             throw CreationError.invalidData
         }

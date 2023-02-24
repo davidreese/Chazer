@@ -206,6 +206,15 @@ struct GraphView: View {
                     Text("New Section")
                 }
                 .buttonStyle(BorderedProminentButtonStyle())
+                .sheet(isPresented: $showingNewSectionView) {
+                    NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                        withAnimation {
+                            self.model.limud = limud
+                            self.model.objectWillChange.send()
+                        }
+                    })
+                    .environment(\.managedObjectContext, self.viewContext)
+                }
             }
     }
     
