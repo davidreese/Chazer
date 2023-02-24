@@ -71,8 +71,9 @@ struct ContentView: View {
                         }
                     )
                 }
-                
-                SettingsView()
+                NavigationLink(destination: SettingsView(), label: {
+                        Text("Settings")
+                    })
             }
             .navigationTitle("Chazer")
             .toolbar {

@@ -11,10 +11,12 @@ import UIKit
 struct SettingsView: View {
 //    @State var showingBrowser = false
     var body: some View {
-        Button {
-        } label: {
-            Text("Download Backup")
-        }
+        List {
+            Button {
+            } label: {
+                Text("Download Backup")
+            }
+        }.navigationTitle("Settings")
     }
     /*
     func selectFolder() {
