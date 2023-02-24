@@ -22,8 +22,17 @@ struct ChazerApp: App {
 //        ChazerApp.migrateData()
 //        printCDChazaras()
 //        ChazerApp.printCDChazaraPoints()
+        ChazerApp.printBackup()
     }
     
+    static func getBackup() -> String {
+        let text = "SECTIONS\n" + ChazerApp.getCDSectionData() + "SCHEDULEDCHAZARAS\n" + ChazerApp.getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + ChazerApp.getCDChazaraPointData()
+        return text
+    }
+    
+    static func printBackup() {
+        print(getBackup())
+    }
     /*
     static func downloadBackup() {
         let text = "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
