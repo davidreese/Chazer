@@ -334,8 +334,11 @@ struct GraphView: View {
                     .sheet(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
                             ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
-                                self.updateParent?()
+//                                self.updateParent?()
+                                self.model.point?.updatePointData()
+//                                print(model.point?.date)
                                 self.model.updateText()
+                                self.updateParent?()
                             })
                                 .environment(\.managedObjectContext, self.viewContext)
                             //                                .presentationDetents([.medium])
@@ -429,6 +432,8 @@ struct GraphView: View {
             
             func updateDate() throws {
                 self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date))
+                self.chazaraPoint.objectWillChange.send()
+                updateParent?()
             }
         }
     }

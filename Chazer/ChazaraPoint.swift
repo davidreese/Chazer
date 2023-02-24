@@ -100,8 +100,8 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
-    /// Updates the data that is only tied to the CDChazaraPoint.
-    /// - Note: To update all date, use ``updateData()``
+    /// Updates the data that is only tied to the CDChazaraPoint saved in CoreData.
+    /// - Note: To update all data, use ``updateData()``
     func updatePointData() {
         guard let cdPoint = fetchCDEntity() else {
             return
