@@ -169,4 +169,92 @@ class Storage {
             return nil
         }
     }
+    
+    func getActiveCDChazaraPoints() -> [CDChazaraPoint]? {
+        do {
+            let fr = CDChazaraState.fetchRequest()
+            
+            fr.predicate = NSPredicate(format: "status == %i", 2)
+            
+            let cdStates = try container.newBackgroundContext().fetch(fr)
+            
+            var points: [CDChazaraPoint] = []
+            for cdState in cdStates {
+                if let cdPoint = cdState.chazaraPoint {
+                    points.append(cdPoint)
+                }
+            }
+            
+            return points
+        } catch {
+            print("Error: Could not fetch active CDChazaraPoints, failed with \(error)")
+            return nil
+        }
+    }
+    
+    func getActiveChazaraPoints() -> [ChazaraPoint]? {
+        do {
+            let fr = CDChazaraState.fetchRequest()
+            
+            fr.predicate = NSPredicate(format: "status == %i", 2)
+            
+            let cdStates = try container.newBackgroundContext().fetch(fr)
+            
+            var points: [ChazaraPoint] = []
+            for cdState in cdStates {
+                if let cdPoint = cdState.chazaraPoint, let point = ChazaraPoint(cdPoint) {
+                    points.append(point)
+                }
+            }
+            
+            return points
+        } catch {
+            print("Error: Could not fetch active ChazaraPoints, failed with \(error)")
+            return nil
+        }
+    }
+    
+    func getActiveAndLateCDChazaraPoints() -> [CDChazaraPoint]? {
+        do {
+            let fr = CDChazaraState.fetchRequest()
+            
+            fr.predicate = NSPredicate(format: "status == %i OR status == %i", 2, 3)
+            
+            let cdStates = try container.newBackgroundContext().fetch(fr)
+            
+            var points: [CDChazaraPoint] = []
+            for cdState in cdStates {
+                if let cdPoint = cdState.chazaraPoint {
+                    points.append(cdPoint)
+                }
+            }
+            
+            return points
+        } catch {
+            print("Error: Could not fetch active/late CDChazaraPoints, failed with \(error)")
+            return nil
+        }
+    }
+    
+    func getActiveAndLateChazaraPoints() -> [ChazaraPoint]? {
+        do {
+            let fr = CDChazaraState.fetchRequest()
+            
+            fr.predicate = NSPredicate(format: "status == %i OR status == %i", 2, 3)
+            
+            let cdStates = try container.newBackgroundContext().fetch(fr)
+            
+            var points: [ChazaraPoint] = []
+            for cdState in cdStates {
+                if let cdPoint = cdState.chazaraPoint, let point = ChazaraPoint(cdPoint) {
+                    points.append(point)
+                }
+            }
+            
+            return points
+        } catch {
+            print("Error: Could not fetch active/late ChazaraPoints, failed with \(error)")
+            return nil
+        }
+    }
 }

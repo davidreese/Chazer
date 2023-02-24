@@ -15,9 +15,13 @@ struct Dashboard: View {
             HStack {
                 VStack {
                     Panel {
-//                        List {
-//                            ForEach
-//                        }
+                        if let actives = model.activeChazaraPoints {
+                            List {
+                                ForEach(actives) { point in
+                                    PointCell(point)
+                                }
+                            }
+                        }
                     }
                 }
                 VStack {
@@ -60,6 +64,36 @@ struct Dashboard: View {
                     .shadow(radius: UI.shadowRadius)
                 content
                     .padding()
+            }
+        }
+    }
+    
+    struct PointCell: View {
+        @ObservedObject var point: ChazaraPoint
+        @State var dueDate: Date?
+        
+        init(_ point: ChazaraPoint) {
+            self.point = point
+            
+            let dueDateTask = Task { [ self ] in
+                self.dueDate = await point.getDueDate()
+            }
+        }
+        
+        var body: some View {
+            if let sectionName = Storage.shared.getSection(sectionId: point.sectionId)?.name {
+                VStack {
+                    HStack {
+                        Text(sectionName)
+                            .font(Font.title)
+                        
+                        Spacer()
+                        
+                        if let dueDate = dueDate {
+                            Text(dueDate.formatted(date: Date.FormatStyle.DateStyle.abbreviated, time: .omitted))
+                        }
+                    }
+                }
             }
         }
     }

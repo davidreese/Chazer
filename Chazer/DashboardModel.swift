@@ -12,11 +12,18 @@ class DashboardModel: ObservableObject {
     @Published var lateChazaraPoints: [ChazaraPoint]?
     
     init() {
-//        load()
+        load()
     }
     
     private func load() {
-//        let fetchRequest =
-//        PersistenceController.shared.container.viewContext.fetch(<#T##request: NSFetchRequest<NSFetchRequestResult>##NSFetchRequest<NSFetchRequestResult>#>)
+        let points = Storage.shared.getActiveAndLateChazaraPoints()
+        
+        activeChazaraPoints = points?.filter({ point in
+            point.status == .active
+        })
+        
+        lateChazaraPoints = points?.filter({ point in
+            point.status == .late
+        })
     }
 }

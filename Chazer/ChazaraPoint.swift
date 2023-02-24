@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 /// A point on the visual graph with a certain status of chazara.
-class ChazaraPoint: ObservableObject {
+class ChazaraPoint: ObservableObject, Identifiable {
     final let id: ID
     final let sectionId: ID
     private var section: Section?
