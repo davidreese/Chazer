@@ -167,6 +167,10 @@ struct EditChazaraScheduleView: View {
             throw CreationError.missingData
         }
         
+//        Task {
+//            Storage.shared.loadScheduledChazaras()
+//        }
+        
         return limud
         /*
         

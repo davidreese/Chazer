@@ -36,178 +36,144 @@ struct GraphView: View {
     var headerCellHeight = 50.0
     
     var body: some View {
-//        VStack {
-            if !model.limud.sections.isEmpty {
-                List {
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-//                            Spacer()
-                            VStack {
+        //        VStack {
+        if !model.limud.sections.isEmpty {
+            List {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        //                            Spacer()
+                        VStack {
+                            Spacer()
+                            
+                            HStack {
                                 Spacer()
                                 
-                                HStack {
-                                    Spacer()
-                                    
-                                    Text("Section")
-                                        .bold()
-                                        .frame(width: nameWidth)
-                                    
-                                    Text("Date")
-                                        .frame(width: dateWidth)
-                                    //                                    LazyHStack {
-                                    ForEach(model.limud.scheduledChazaras) { sc in
-                                        Menu(content: {
-                                            Button("Delete Scheduled Chazara", action: {
-                                                try? deleteSC(sc)
-                                            })
-                                            Button("Edit Scheduled Chazara", action: {
-                                                self.model.scheduledChazaraToUpdate = sc
-                                                self.showingEditChazaraScheduleView = true
-                                            })
-                                        }) {
-                                            Text(sc.name)
-                                                .frame(width: chazaraWidth)
-                                                .foregroundColor(.primary)
-                                        }
+                                Text("Section")
+                                    .bold()
+                                    .frame(width: nameWidth)
+                                
+                                Text("Date")
+                                    .frame(width: dateWidth)
+                                //                                    LazyHStack {
+                                ForEach(model.limud.scheduledChazaras) { sc in
+                                    Menu(content: {
+                                        Button("Delete", action: {
+                                            try? deleteSC(sc)
+                                        })
+                                        Button("Manage", action: {
+                                            self.model.scheduledChazaraToUpdate = sc
+                                            self.showingEditChazaraScheduleView = true
+                                        })
+                                    }) {
+                                        Text(sc.name)
+                                            .frame(width: chazaraWidth)
+                                            .foregroundColor(.primary)
                                     }
                                 }
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(6)
-                                .shadow(radius: 2)
-                                .frame(height: headerCellHeight)
-                                
-                                let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
-                                    lhs.initialDate > rhs.initialDate
-                                })
-                                
-                                //                            LazyVStack {
-                                ForEach(sortedSections) { section in
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(6)
+                            .shadow(radius: 2)
+                            .frame(height: headerCellHeight)
+                            
+                            let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
+                                lhs.initialDate > rhs.initialDate
+                            })
+                            
+                            //                            LazyVStack {
+                            ForEach(sortedSections) { section in
+                                HStack {
                                     HStack {
-                                        HStack {
-                                            Menu(content: {
-                                                Button("Delete Section", action: {
-                                                    withAnimation {
-                                                        try? deleteSection(section)
-                                                    }
-                                                })
-                                            }) {
-                                                Text(section.name)
-                                                    .bold()
-                                                    .padding()
-                                                    .frame(width: nameWidth)
-                                                    .foregroundColor(.primary)
-                                            }
-                                            Text(section.initialDate.formatted(date: Date.FormatStyle.DateStyle.numeric, time: .omitted))
-                                                .font(.callout)
-                                                .frame(width: dateWidth)
-                                        }
-                                        
-                                        ForEach(model.limud.scheduledChazaras) { sc in
-                                            StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
-                                                model.objectWillChange.send()
+                                        Menu(content: {
+                                            Button("Delete", action: {
+                                                withAnimation {
+                                                    try? deleteSection(section)
+                                                }
                                             })
-                                            .frame(width: chazaraWidth)
-                                            
+                                        }) {
+                                            Text(section.name)
+                                                .bold()
+                                                .padding()
+                                                .frame(width: nameWidth)
+                                                .foregroundColor(.primary)
                                         }
-                                    }.frame(height: cellHeight)
-                                }
-                                .padding(.leading, 3)
+                                        Text(section.initialDate.formatted(date: Date.FormatStyle.DateStyle.numeric, time: .omitted))
+                                            .font(.callout)
+                                            .frame(width: dateWidth)
+                                    }
+                                    
+                                    ForEach(model.limud.scheduledChazaras) { sc in
+                                        StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
+                                            model.objectWillChange.send()
+                                        })
+                                        .frame(width: chazaraWidth)
+                                    }
+                                }.frame(height: cellHeight)
                             }
-//                            Spacer()
+                            .padding(.leading, 3)
                         }
-                                                .padding(.horizontal)
+                        //                            Spacer()
                     }
-                    .listRowInsets(EdgeInsets())
-                        .listRowSeparator(.hidden)
-                        .listSectionSeparator(.hidden)
-                        
-                    //                        .ignoresSafeArea([.container], edges: [.horizontal])
-                    
+                    .padding(.horizontal)
                 }
-                
-                .listStyle(PlainListStyle())
-                //                .background(Color.clear)
-                //                .navigationBarHidden(true)
-                .scrollIndicators(.hidden)
-//                .ignoresSafeArea([.container], edges: [.horizontal])
-                .listSectionSeparator(.hidden)
+                .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
-//                .ignoresSafeArea([.container], edges: [.horizontal])
-                .onAppear {
-                    self.model.objectWillChange.send()
-                }
-                .navigationTitle(model.limud.name)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu(content: {
-                            Button {
-                                self.showingNewSectionView = true
-                            } label: {
-                                Label("Add a Section", systemImage: "note.text")
-                            }
-                            Button {
-                                self.showingAddChazaraScheduleView = true
-                            } label: {
-                                Label("Add Scheduled Chazara", systemImage: "calendar")
-                            }
-                            //                        Button {
-                            //                            self.showingEditChazaraScheduleView = true
-                            //                        } label: {
-                            //                            Label("Edit the Chazara Schedule", systemImage: "calendar")
-                            //                        }
-                        }, label: {
-                            Label("Add", systemImage: "plus")
-                        }) {
-                            self.showingNewSectionView = true
-                        }
-                    }
-                }
-                .sheet(isPresented: $showingAddChazaraScheduleView) {
-                    NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
-                        withAnimation {
-                            self.model.limud = limud
-                            self.model.objectWillChange.send()
-                        }
-                    })
-                    .environment(\.managedObjectContext, self.viewContext)
-                }
-                .sheet(isPresented: $showingEditChazaraScheduleView) {
-                    if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
-                        EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
-                            withAnimation {
-                                self.model.limud = limud
-                                self.model.objectWillChange.send()
-                            }
-                        })
-                        .environment(\.managedObjectContext, self.viewContext)
-                    }
-                }
-                .sheet(isPresented: $showingNewSectionView) {
-                    NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
-                        withAnimation {
-                            self.model.limud = limud
-                            self.model.objectWillChange.send()
-                        }
-                    })
-                    .environment(\.managedObjectContext, self.viewContext)
-                }
-                //                .ignoresSafeArea([.container], edges: [.trailing])
+                .listSectionSeparator(.hidden)
                 
-            } else {
-                Text("You don't have any saved sections to chazer yet.")
-                    .font(Font.title3)
-                    .multilineTextAlignment(.center)
-                Button {
-                    //                            self.limudShowing = limud
-                    self.showingNewSectionView = true
-                } label: {
-                    Text("New Section")
+                //                        .ignoresSafeArea([.container], edges: [.horizontal])
+                
+            }
+            
+            .listStyle(PlainListStyle())
+            //                .background(Color.clear)
+            //                .navigationBarHidden(true)
+            .scrollIndicators(.hidden)
+            //                .ignoresSafeArea([.container], edges: [.horizontal])
+            .listSectionSeparator(.hidden)
+            .listRowSeparator(.hidden)
+            //                .ignoresSafeArea([.container], edges: [.horizontal])
+            .onAppear {
+                self.model.objectWillChange.send()
+            }
+            .navigationTitle(model.limud.name)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu(content: {
+                        Button {
+                            self.showingNewSectionView = true
+                        } label: {
+                            Label("Add a Section", systemImage: "note.text")
+                        }
+                        Button {
+                            self.showingAddChazaraScheduleView = true
+                        } label: {
+                            Label("Add Scheduled Chazara", systemImage: "calendar")
+                        }
+                        //                        Button {
+                        //                            self.showingEditChazaraScheduleView = true
+                        //                        } label: {
+                        //                            Label("Edit the Chazara Schedule", systemImage: "calendar")
+                        //                        }
+                    }, label: {
+                        Label("Add", systemImage: "plus")
+                    }) {
+                        self.showingNewSectionView = true
+                    }
                 }
-                .buttonStyle(BorderedProminentButtonStyle())
-                .sheet(isPresented: $showingNewSectionView) {
-                    NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+            }
+            .sheet(isPresented: $showingAddChazaraScheduleView) {
+                NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
+                    withAnimation {
+                        self.model.limud = limud
+                        self.model.objectWillChange.send()
+                    }
+                })
+                .environment(\.managedObjectContext, self.viewContext)
+            }
+            .sheet(isPresented: $showingEditChazaraScheduleView) {
+                if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
+                    EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
                         withAnimation {
                             self.model.limud = limud
                             self.model.objectWillChange.send()
@@ -216,6 +182,38 @@ struct GraphView: View {
                     .environment(\.managedObjectContext, self.viewContext)
                 }
             }
+            .sheet(isPresented: $showingNewSectionView) {
+                NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                    withAnimation {
+                        self.model.limud = limud
+                        self.model.objectWillChange.send()
+                    }
+                })
+                .environment(\.managedObjectContext, self.viewContext)
+            }
+            //                .ignoresSafeArea([.container], edges: [.trailing])
+            
+        } else {
+            Text("You don't have any saved sections to chazer yet.")
+                .font(Font.title3)
+                .multilineTextAlignment(.center)
+            Button {
+                //                            self.limudShowing = limud
+                self.showingNewSectionView = true
+            } label: {
+                Text("New Section")
+            }
+            .buttonStyle(BorderedProminentButtonStyle())
+            .sheet(isPresented: $showingNewSectionView) {
+                NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                    withAnimation {
+                        self.model.limud = limud
+                        self.model.objectWillChange.send()
+                    }
+                })
+                .environment(\.managedObjectContext, self.viewContext)
+            }
+        }
     }
     
     private func deleteSection(_ section: Section) throws {
@@ -239,7 +237,7 @@ struct GraphView: View {
         fr.predicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
         
         let results = try viewContext.fetch(fr)
-
+        
         try withAnimation {
             for result in results {
                 viewContext.delete(result)
@@ -250,7 +248,7 @@ struct GraphView: View {
         
     }
     
-    /// A view that displays the state of a single `ChazaraPoint`.
+    /// A view that displays the state of a single ``ChazaraPoint``.
     struct StatusBox: View {
         @Environment(\.managedObjectContext) private var viewContext
         //        private var viewContext: NSManagedObjectContext
@@ -343,13 +341,13 @@ struct GraphView: View {
                     .sheet(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
                             ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
-//                                self.updateParent?()
+                                //                                self.updateParent?()
                                 self.model.point?.updatePointData()
-//                                print(model.point?.date)
+                                //                                print(model.point?.date)
                                 self.model.updateText()
                                 self.updateParent?()
                             })
-                                .environment(\.managedObjectContext, self.viewContext)
+                            .environment(\.managedObjectContext, self.viewContext)
                             //                                .presentationDetents([.medium])
                             //                        }
                         }
@@ -464,7 +462,7 @@ struct GraphView: View {
             fetchRequest.predicate = andPredicate
             
             do {
-                let results = try container.viewContext.fetch(fetchRequest)
+                let results = try container.newBackgroundContext().fetch(fetchRequest)
                 
                 if results.count == 1, let result = results.first {
                     self.point = ChazaraPoint(result)
