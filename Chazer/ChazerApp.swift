@@ -21,7 +21,7 @@ struct ChazerApp: App {
 //        ChazerApp.killCDChazaraPoint()
 //        ChazerApp.migrateData()
 //        printCDChazaras()
-//        ChazerApp.printCDChazaraPoints()
+        ChazerApp.printBackup()
     }
     
     /*
@@ -41,6 +41,11 @@ struct ChazerApp: App {
             interactionController.presentOptionsMenu(from: view.frame, in: view, animated: true)
             interactionController.delegate = Delegate()
     }*/
+    
+    static func printBackup() {
+        let text = "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
+        print(text)
+    }
     
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
     private static func migrateData() {

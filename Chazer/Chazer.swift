@@ -94,7 +94,7 @@ class Limud: Identifiable, Hashable {
     }
 }
 
-class Section: Identifiable, Hashable {
+class Section: Identifiable, Hashable, Equatable {
     var id: ID
     var name: String
     var initialDate: Date
@@ -129,8 +129,6 @@ class Section: Identifiable, Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(name)
-        hasher.combine(initialDate)
     }
 }
 
@@ -140,7 +138,7 @@ class Shiur: Section {
     }
 }
 
-class ScheduledChazara: Identifiable, Hashable {
+class ScheduledChazara: Identifiable, Hashable, Equatable {
     var id: ID
     var name: String
     var fixedDueDate: Date?

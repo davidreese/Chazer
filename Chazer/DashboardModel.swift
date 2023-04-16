@@ -21,7 +21,7 @@ class DashboardModel: ObservableObject {
         activeChazaraPoints = points?.filter({ point in
             point.status == .active
         })
-        
+
         lateChazaraPoints = points?.filter({ point in
             point.status == .late
         })

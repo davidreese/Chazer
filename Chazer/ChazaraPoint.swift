@@ -8,8 +8,8 @@
 import Foundation
 import CoreData
 
-/// A point on the visual graph with a certain status of chazara.
-class ChazaraPoint: ObservableObject, Identifiable {
+/// A point on the visual graph with a set status of chazara.
+class ChazaraPoint: ObservableObject, Identifiable, Hashable, Equatable {
     final let id: ID
     final let sectionId: ID
     private var section: Section?
@@ -40,10 +40,18 @@ class ChazaraPoint: ObservableObject, Identifiable {
         self.id = id
         self.sectionId = cdChazaraPoint.sectionId!
         self.scheduledChazaraId = cdChazaraPoint.scId!
+        self.fetchSection()
+        self.fetchSC()
+        
+        if self.section == nil || self.scheduledChazara == nil {
+            print("Error: ChazaraPoint cannot be instansiated. Should delete CDChazaraPoint (pointId=\(cdChazaraPoint.pointId ?? "nil")), cannot find its relative CDScheduledChazara (scId=\(cdChazaraPoint.scId ?? "nil")) and/or CDSection.")
+            return nil
+        }
+        
         
         if let chazaraState = cdChazaraPoint.chazaraState {
             if chazaraState.status == -2 {
-//                The chazara status has not yet been set.
+//                The chazara status has not yet been set
                 print("Mesg: Chazara status has not yet been set. SECID=\(sectionId) SCID=\(scheduledChazaraId)")
                 fatalError()
             } else {
@@ -62,15 +70,18 @@ class ChazaraPoint: ObservableObject, Identifiable {
         }
     }
     
-    /*
-    /// Creates and saves a new ``CDChazaraPoint`` and returns a corresponding ``ChazaraPoint``.
-    init(sectionId: ID, scheduledChazaraId: ID) {
-        let cdPoint = CDChazaraPoint(context: <#T##NSManagedObjectContext#>)
-    }\
-     */
+    static func == (lhs: ChazaraPoint, rhs: ChazaraPoint) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     
     /// Fetches the ``CDChazaraPoint`` assosiated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
+        return Storage.shared.getCDChazaraPoint(sectionId: self.sectionId, scId: self.scheduledChazaraId)
+        /*
         //MARK: Very helpful code
         let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "pointId == %@", id)
@@ -98,9 +109,10 @@ class ChazaraPoint: ObservableObject, Identifiable {
             print("Error: There was a data issue finding the chazara point: too many points found. ID=\(id)")
             return nil
         }
+         */
     }
     
-    /// Updates the data that is only tied to the CDChazaraPoint saved in CoreData.
+    /// Updates the data that is only tied to the ``CDChazaraPoint`` saved in CoreData.
     /// - Note: To update all data, use ``updateData()``
     func updatePointData() {
         guard let cdPoint = fetchCDEntity() else {
@@ -108,7 +120,7 @@ class ChazaraPoint: ObservableObject, Identifiable {
         }
         
         self.date = cdPoint.chazaraState?.date
-        
+
         if let status = cdPoint.chazaraState?.status {
             self.status = ChazaraStatus(rawValue: status)
         } else {
@@ -116,72 +128,22 @@ class ChazaraPoint: ObservableObject, Identifiable {
         }
     }
     
-    /// Fetches the `Section` assosiated with this point's `sectionId` and saves it.
-    /// - Returns: The assosiated  `Section`, unless it wasn't found.
-    func fetchSection() async -> Section? {
-        self.section = await Storage.shared.getSection(sectionId: self.sectionId)
+    /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
+    /// - Returns: The assosiated  ``Section``, unless it wasn't found.
+    func fetchSection() -> Section? {
+        let section = Storage.shared.getSection(sectionId: self.sectionId)
+        self.section = section
+        print("Set section (\(section?.id ?? "nil"))")
         return self.section
-        
-//        MARK: Very helpful code
-        /*
-        let persistenceController = PersistenceController.shared
-        
-        let fetchRequest: NSFetchRequest<CDSection> = CDSection.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "sectionId == %@", sectionId)
-        
-        guard let results = try? persistenceController.container.viewContext.fetch(fetchRequest) else {
-            print("Error: Could not fetch the section for chazara point. SECID=\(sectionId)")
-            return nil
-        }
-        
-        
-        if results.count == 1 {
-            guard let result = results.first, let section = Section(result) else {
-                print("Error: Could not fetch the section for chazara point. SECID=\(sectionId)")
-                return nil
-            }
-            
-            self.section = section
-            return section
-        } else if results.isEmpty {
-            print("Error: Could not find the section for chazara point. SECID=\(sectionId)")
-            return nil
-        } else {
-            print("Error: There was a data issue finding a section for chazara point: too many sections found. SECID=\(sectionId)")
-            return nil
-        }
-        */
     }
     
-    /// Fetches the `ScheduledChazara` assosiated with this point's `scId` and saves it.
-    /// - Returns: The assosiated  `ScheduledChazara`, unless it wasn't found.
+    /// Fetches the ``ScheduledChazara`` assosiated with this point's `scId` and saves it.
+    /// - Returns: The assosiated  ``ScheduledChazara``, unless it wasn't found.
     func fetchSC() -> ScheduledChazara? {
-        let persistenceController = PersistenceController.shared
-        
-        let fetchRequest: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "scId == %@", scheduledChazaraId)
-        
-        guard let results = try? persistenceController.container.viewContext.fetch(fetchRequest) else {
-            print("Error: Could not fetch the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-            return nil
-        }
-        
-        
-        if results.count == 1 {
-            guard let result = results.first, let scheduledChazara = ScheduledChazara(result) else {
-                print("Error: Could not fetch the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-                return nil
-            }
-            
-            self.scheduledChazara = scheduledChazara
-            return scheduledChazara
-        } else if results.isEmpty {
-            print("Error: Could not find the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-            return nil
-        } else {
-            print("Error: There was a data issue finding a scheduled chazara for chazara point: too many scheduled chazaras found. SCID=\(scheduledChazaraId)")
-            return nil
-        }
+        let sc = Storage.shared.getScheduledChazara(scId: self.scheduledChazaraId)
+        self.scheduledChazara = sc
+        print("Set scheduledChazara (\(sc?.id ?? "nil"))")
+        return self.scheduledChazara
     }
     
     /// Gets the ``CDChazaraPoint`` for a given position.
@@ -235,9 +197,9 @@ class ChazaraPoint: ObservableObject, Identifiable {
     
 //    TODO: Check that this isn't being called too much
     func updateAllData() async {
-        await self.fetchSection()
+        self.fetchSection()
         self.fetchSC()
-        self.updatePointData()
+//        self.updatePointData()
         await self.updateCorrectChazaraStatus()
     }
     
@@ -267,7 +229,7 @@ class ChazaraPoint: ObservableObject, Identifiable {
             }
 
             entity.chazaraState?.status = status.rawValue
-            try entity.managedObjectContext?.save()
+//            try entity.managedObjectContext?.save()
 
             DispatchQueue.main.async {
                 self.status = status
