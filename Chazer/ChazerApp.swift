@@ -215,7 +215,7 @@ struct ChazerApp: App {
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
         
         for result in results {
-            text += "CDScheduledChazara: ID=\(result.scId ?? "nil"), NAME=\(result.scName ?? "nil"), DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil"), DELAY=\(result.delay)\n"
+            text += "CDScheduledChazara: ID=\(result.scId ?? "nil"), NAME=\(result.scName ?? "nil"), LIMUDID=\(result.limud?.id ?? "nil") DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil"), DELAY=\(result.delay), DAYSTOCOMPLETE=\(result.daysToComplete), FIXEDDUEDATE=\(result.fixedDueDate?.description ?? "nil"), ISDYNAMIC=\(result.isDynamic)\n"
         }
         
         return text
@@ -228,7 +228,7 @@ struct ChazerApp: App {
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDSection]
         
         for result in results {
-            text += "CDSection: ID=\(result.sectionId ?? "nil"), NAME=\(result.sectionName ?? "nil"), LIMUDID=\(result.limud?.id ?? "nil")\n"
+            text += "CDSection: ID=\(result.sectionId ?? "nil"), NAME=\(result.sectionName ?? "nil"), LIMUDID=\(result.limud?.id ?? "nil"), INITIALDATE=\(result.initialDate?.description ?? "nil")\n"
         }
         
         return text
