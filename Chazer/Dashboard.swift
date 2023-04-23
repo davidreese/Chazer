@@ -28,7 +28,8 @@ struct Dashboard: View {
                 Panel {
                     let now = Date.now
                     let calendar = Calendar.current
-                    if let month = calendar.component(.month, from: now), month <= 12 && month >= 1 {
+                    let month = calendar.component(.month, from: now)
+                    if month <= 12 && month >= 1 {
                         let monthName = calendar.shortMonthSymbols[month - 1]
                         VStack {
                             Text("\(monthName) \(calendar.component(.day, from: now))")
