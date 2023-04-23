@@ -418,7 +418,7 @@ struct GraphView: View {
                     }.navigationTitle("Change Chazara Date")
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(r) {
+                                Button {
                                     try? updateDate()
                                     updateParent?()
                                     presentationMode.wrappedValue.dismiss()
