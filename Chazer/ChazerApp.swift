@@ -22,6 +22,7 @@ struct ChazerApp: App {
 //        ChazerApp.migrateData()
 //        printCDChazaras()
 //        ChazerApp.printCDChazaraPoints()
+        ChazerApp.printBackup()
     }
     
     /*
@@ -41,6 +42,11 @@ struct ChazerApp: App {
             interactionController.presentOptionsMenu(from: view.frame, in: view, animated: true)
             interactionController.delegate = Delegate()
     }*/
+    
+    static func printBackup() {
+        let text = "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
+        print(text)
+    }
     
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
     private static func migrateData() {
@@ -176,6 +182,19 @@ struct ChazerApp: App {
         return results
     }
     
+    static func getCDLimudimData() -> String {
+       var text = ""
+       
+       let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDLimud.fetchRequest()
+       let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDLimud]
+       
+       for result in results {
+           text += "CDLimud: ID=\(result.id ?? "nil")|NAME=\(result.name ?? "nil")\n"
+       }
+       
+       return text
+   }
+    
      static func getCDChazaraPointData() -> String {
         var text = ""
         
@@ -183,7 +202,7 @@ struct ChazerApp: App {
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDChazaraPoint]
         
         for result in results {
-            text += "CDChazaraPoint: ID=\(result.pointId ?? "nil") SECID=\(result.sectionId ?? "nil") SCID=\(result.scId ?? "nil") DATE=\(result.chazaraState?.date?.description ?? "nil") STATUS=\(result.chazaraState?.status ?? -3)\n"
+            text += "CDChazaraPoint: ID=\(result.pointId ?? "nil")|SECID=\(result.sectionId ?? "nil")|SCID=\(result.scId ?? "nil")|DATE=\(result.chazaraState?.date?.description ?? "nil")|STATUS=\(result.chazaraState?.status ?? -3)\n"
         }
         
         return text
@@ -196,7 +215,7 @@ struct ChazerApp: App {
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
         
         for result in results {
-            text += "CDScheduledChazara: ID=\(result.scId ?? "nil"), NAME=\(result.scName ?? "nil"), DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil"), DELAY=\(result.delay)\n"
+            text += "CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil")|DELAY=\(result.delay)|DAYSTOCOMPLETE=\(result.daysToComplete)|FIXEDDUEDATE=\(result.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(result.isDynamic)\n"
         }
         
         return text
@@ -209,7 +228,7 @@ struct ChazerApp: App {
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDSection]
         
         for result in results {
-            text += "CDSection: ID=\(result.sectionId ?? "nil"), NAME=\(result.sectionName ?? "nil")\n"
+            text += "CDSection: ID=\(result.sectionId ?? "nil")|NAME=\(result.sectionName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|INITIALDATE=\(result.initialDate?.description ?? "nil")\n"
         }
         
         return text
@@ -233,7 +252,7 @@ struct ChazerApp: App {
         
         print("Listing CDScheduledChazaras:")
         for result in results {
-            print("CDScheduledChazara: ID=\(result.scId ?? "nil"), NAME=\(result.scName ?? "nil"), DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil"), DELAY=\(result.delay)")
+            print("CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil")|DELAY=\(result.delay)")
         }
         
         return results
@@ -245,7 +264,7 @@ struct ChazerApp: App {
         
         print("Listing CDSections:")
         for result in results {
-            print("CDSection: ID=\(result.sectionId ?? "nil"), NAME=\(result.sectionName ?? "nil")")
+            print("CDSection: ID=\(result.sectionId ?? "nil")|NAME=\(result.sectionName ?? "nil")")
         }
         
         return results
