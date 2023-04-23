@@ -51,7 +51,7 @@ struct NewLimudView: View {
         }
         
         let newItem = CDLimud(context: viewContext)
-        newItem.id = "L\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+        newItem.id = IDGenerator.generate(withPrefix: "L")
         newItem.name = limudName
         
         try withAnimation {

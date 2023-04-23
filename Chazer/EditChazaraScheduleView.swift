@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct EditChazaraScheduleView: View {
     @Environment(\.presentationMode) var presentationMode

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 // TODO: Update this documentation once ScheduledChazara class changes to not be universal
 /// A view that shows the `ChazaraState` for every `ScheduledChazara` of a `Limud`.
