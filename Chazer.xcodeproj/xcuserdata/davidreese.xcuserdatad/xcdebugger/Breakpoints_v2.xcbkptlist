@@ -252,8 +252,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -268,8 +268,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "168"
-            endingLineNumber = "168"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "addScheduledChazara()"
             landmarkType = "7">
          </BreakpointContent>
@@ -284,8 +284,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "175"
-            endingLineNumber = "175"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
             landmarkName = "addScheduledChazara()"
             landmarkType = "7">
          </BreakpointContent>
@@ -373,8 +373,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
             landmarkName = "addScheduledChazara()"
             landmarkType = "7">
          </BreakpointContent>
@@ -389,8 +389,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "146"
-            endingLineNumber = "146"
+            startingLineNumber = "147"
+            endingLineNumber = "147"
             landmarkName = "updateOtherScheduledChazaras()"
             landmarkType = "7">
          </BreakpointContent>
@@ -405,8 +405,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "207"
-            endingLineNumber = "207"
+            startingLineNumber = "208"
+            endingLineNumber = "208"
             landmarkName = "addScheduledChazara()"
             landmarkType = "7">
          </BreakpointContent>
@@ -437,8 +437,8 @@
             filePath = "Chazer/NewChazaraScheduleView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
             landmarkName = "addScheduledChazara()"
             landmarkType = "7">
             <Locations>
@@ -501,8 +501,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "220"
             endingLineNumber = "220"
+=======
+            startingLineNumber = "214"
+            endingLineNumber = "214"
+>>>>>>> settings
             landmarkName = "deleteSection(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -517,8 +522,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "91"
             endingLineNumber = "91"
+=======
+            startingLineNumber = "93"
+            endingLineNumber = "93"
+>>>>>>> settings
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -533,8 +543,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "468"
             endingLineNumber = "468"
+=======
+            startingLineNumber = "462"
+            endingLineNumber = "462"
+>>>>>>> settings
             landmarkName = "init(container:section:scheduledChazara:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -712,8 +727,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "282"
             endingLineNumber = "282"
+=======
+            startingLineNumber = "276"
+            endingLineNumber = "276"
+>>>>>>> settings
             landmarkName = "body"
             landmarkType = "24">
             <Locations>
@@ -823,8 +843,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "344"
             endingLineNumber = "344"
+=======
+            startingLineNumber = "338"
+            endingLineNumber = "338"
+>>>>>>> settings
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -839,8 +864,13 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
             startingLineNumber = "347"
             endingLineNumber = "347"
+=======
+            startingLineNumber = "341"
+            endingLineNumber = "341"
+>>>>>>> settings
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -848,6 +878,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
             uuid = "5FC17237-AADD-4428-A857-F9B4CC6B912D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -858,12 +889,25 @@
             startingLineNumber = "233"
             endingLineNumber = "233"
             landmarkName = "getActiveAndLateChazaraPoints()"
+=======
+            uuid = "F3A4D1A9-B9EC-4279-B6BF-1FE724C5BEE8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "278"
+            endingLineNumber = "278"
+            landmarkName = "scan()"
+>>>>>>> settings
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
             uuid = "FB116B46-CB6F-4AFD-855A-F38502FB232D"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -922,11 +966,41 @@
                   offsetFromSymbolStart = "993">
                </Location>
             </Locations>
+=======
+            uuid = "740FE77B-6ACC-4FF1-B215-87052F4EA268"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+            uuid = "BD8802DE-D4D0-4DBE-9B87-80E9C5625E7E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "392"
+            endingLineNumber = "392"
+            landmarkName = "parseSections(data:)"
+            landmarkType = "7">
+>>>>>>> settings
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+<<<<<<< HEAD
             uuid = "ACC82D52-D0D2-47B8-A98B-CE15FB92F033"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -937,12 +1011,57 @@
             startingLineNumber = "250"
             endingLineNumber = "250"
             landmarkName = "getActiveAndLateChazaraPoints()"
+=======
+            uuid = "F721BB98-666F-4C8D-B854-C7C0003E8F6F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "365"
+            endingLineNumber = "365"
+            landmarkName = "parseSections(data:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+            uuid = "214AED61-0356-44BA-B3A0-ABCD698DE37B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "373"
+            endingLineNumber = "373"
+            landmarkName = "parseSections(data:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "73E9A126-4575-4CDE-A9A1-2FD68007864F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "377"
+            endingLineNumber = "377"
+            landmarkName = "parseSections(data:)"
+>>>>>>> settings
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+<<<<<<< HEAD
             uuid = "8C69BDF0-26F5-4D32-8029-27F4CA468C6C"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -953,12 +1072,25 @@
             startingLineNumber = "27"
             endingLineNumber = "27"
             landmarkName = "load()"
+=======
+            uuid = "AEF43FD1-FABA-4FEB-BD51-6E324426BFB6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "405"
+            endingLineNumber = "405"
+            landmarkName = "parseSections(data:)"
+>>>>>>> settings
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
             uuid = "65081C39-2246-44EA-88EE-B2B22325AA20"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -1000,11 +1132,25 @@
                   offsetFromSymbolStart = "1313">
                </Location>
             </Locations>
+=======
+            uuid = "E42A4744-896D-4BEC-9251-4C457B885D16"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "410"
+            endingLineNumber = "410"
+            landmarkName = "parseSections(data:)"
+            landmarkType = "7">
+>>>>>>> settings
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
             uuid = "417CF9C9-7435-4B83-9697-C4B4CE8081B1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -1048,6 +1194,51 @@
                   offsetFromSymbolStart = "76">
                </Location>
             </Locations>
+=======
+            uuid = "53A39B5D-5619-41D4-B13C-9F95CE54D92F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/SettingsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "404"
+            endingLineNumber = "404"
+            landmarkName = "parseSections(data:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D43BDB39-BADA-49AC-A7C1-385E0816C1A9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Storage.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "update()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B8985C2E-3A13-4EFD-91A0-B3FB517FD181"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Chazer/Storage.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "187"
+            endingLineNumber = "187"
+            landmarkName = "wipe()"
+            landmarkType = "7">
+>>>>>>> settings
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
