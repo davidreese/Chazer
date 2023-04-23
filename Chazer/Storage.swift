@@ -169,4 +169,30 @@ class Storage {
             return nil
         }
     }
+    
+    /// Wipes CoreData for entities ``CDLimud``, ``CDSection``, ``CDScheduledChazara``, ``CDChazaraPoint``, and ``CDChazaraState``.
+     func wipe() throws {
+        print("Wiping data...")
+        let entities = ["CDLimud", "CDSection", "CDScheduledChazara", "CDChazaraPoint", "CDChazaraState"]
+            
+        for entityName in entities {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            
+            do {
+                let context = container.newBackgroundContext()
+                try context.execute(batchDeleteRequest)
+                try context.save()
+                
+                update()
+            } catch let error as NSError {
+                print("Could not wipe Core Data, failed on run for \(entityName). \(error), \(error.userInfo)")
+                throw StorageError.wipeFailure
+            }
+        }
+    }
+}
+
+enum StorageError: Error {
+    case wipeFailure
 }

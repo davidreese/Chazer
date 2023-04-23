@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct NewChazaraScheduleView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -174,7 +175,7 @@ struct NewChazaraScheduleView: View {
         
         let newItem = CDScheduledChazara(context: viewContext)
         if self.scId.isEmpty {
-            newItem.scId = "SC\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+            newItem.scId = IDGenerator.generate(withPrefix: "SC")
         } else {
             newItem.scId = self.scId
         }
