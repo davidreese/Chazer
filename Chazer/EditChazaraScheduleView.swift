@@ -137,7 +137,7 @@ struct EditChazaraScheduleView: View {
     
     
     private func updateScheduledChazara() throws -> Limud {
-        fatalError()
+//        fatalError()
         guard let cdSC = Storage.shared.getCDScheduledChazara(cdSCId: self.scheduledChazara.id) else {
             throw UpdateError.unknownError
         }
@@ -158,7 +158,7 @@ struct EditChazaraScheduleView: View {
         cdSC.delay = Int16(self.delay)
         
         try withAnimation {
-            try viewContext.save()
+            try cdSC.managedObjectContext!.save()
         }
         
         guard let limud = limudim.first(where: { limud in
@@ -166,6 +166,10 @@ struct EditChazaraScheduleView: View {
         }) else {
             throw CreationError.missingData
         }
+        
+//        Task {
+//            Storage.shared.loadScheduledChazaras()
+//        }
         
         return limud
         /*

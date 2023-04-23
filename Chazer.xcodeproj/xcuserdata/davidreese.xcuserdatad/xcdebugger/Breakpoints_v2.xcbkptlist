@@ -30,8 +30,8 @@
             filePath = "Chazer/NewSectionView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "132"
-            endingLineNumber = "132"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
             landmarkName = "addSection()"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "Chazer/NewSectionView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "145"
-            endingLineNumber = "145"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
             landmarkName = "addSection()"
             landmarkType = "7">
          </BreakpointContent>
@@ -501,8 +501,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "213"
-            endingLineNumber = "213"
+            startingLineNumber = "220"
+            endingLineNumber = "220"
             landmarkName = "deleteSection(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -517,8 +517,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "92"
-            endingLineNumber = "92"
+            startingLineNumber = "91"
+            endingLineNumber = "91"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -533,8 +533,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "461"
-            endingLineNumber = "461"
+            startingLineNumber = "468"
+            endingLineNumber = "468"
             landmarkName = "init(container:section:scheduledChazara:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -712,8 +712,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "275"
-            endingLineNumber = "275"
+            startingLineNumber = "282"
+            endingLineNumber = "282"
             landmarkName = "body"
             landmarkType = "24">
             <Locations>
@@ -823,8 +823,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "337"
-            endingLineNumber = "337"
+            startingLineNumber = "344"
+            endingLineNumber = "344"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -839,8 +839,8 @@
             filePath = "Chazer/GraphView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "340"
-            endingLineNumber = "340"
+            startingLineNumber = "347"
+            endingLineNumber = "347"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

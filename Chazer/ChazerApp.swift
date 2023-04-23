@@ -208,7 +208,7 @@ struct ChazerApp: App {
         return text
     }
     
-    private static func getCDScheduledChazaraData() -> String {
+    static func getCDScheduledChazaraData() -> String {
         var text = ""
         
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
@@ -246,7 +246,7 @@ struct ChazerApp: App {
         return results
     }
     
-    private static func printCDScheduledChazaras() -> [CDScheduledChazara] {
+     static func printCDScheduledChazaras() -> [CDScheduledChazara] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
         

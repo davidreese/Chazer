@@ -172,9 +172,9 @@ struct NewChazaraScheduleView: View {
             throw CreationError.invalidData
         }
         
-        let newItem = CDScheduledChazara(context: viewContext)
+        let newItem = CDScheduledChazara(context: cdLimud.managedObjectContext!)
         if self.scId.isEmpty {
-            newItem.scId = "SC\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
+            newItem.scId = IDGenerator.generate(withPrefix: "SC")
         } else {
             newItem.scId = self.scId
         }
@@ -215,9 +215,10 @@ struct NewChazaraScheduleView: View {
         }
         
         try withAnimation {
-            try viewContext.save()
+            try cdLimud.managedObjectContext!.save()
         }
         
+        ChazerApp.printCDScheduledChazaras()
         return limud
     }
 }
