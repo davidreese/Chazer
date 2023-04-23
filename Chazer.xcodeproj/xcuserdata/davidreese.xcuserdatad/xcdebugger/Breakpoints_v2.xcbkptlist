@@ -1016,6 +1016,38 @@
             endingLineNumber = "202"
             landmarkName = "updateAllData()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "417CF9C9-7435-4B83-9697-C4B4CE8081B1 - 8d594e10de48e3a4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "default argument 0 of static Chazer.ChazaraPoint.getCDChazaraPoint(context: __C.NSManagedObjectContext, section: Chazer.Section, scheduledChazara: Chazer.ScheduledChazara) -&gt; Swift.Optional&lt;Chazer.CDChazaraPoint&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "203"
+                  endingLineNumber = "203"
+                  offsetFromSymbolStart = "12">
+               </Location>
+               <Location
+                  uuid = "417CF9C9-7435-4B83-9697-C4B4CE8081B1 - bfbb3d177aaf1e6b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static Chazer.ChazaraPoint.getCDChazaraPoint(context: __C.NSManagedObjectContext, section: Chazer.Section, scheduledChazara: Chazer.ScheduledChazara) -&gt; Swift.Optional&lt;Chazer.CDChazaraPoint&gt;"
+                  moduleName = "Chazer"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davidreese/github/Chazer/Chazer/ChazaraPoint.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "204"
+                  endingLineNumber = "204"
+                  offsetFromSymbolStart = "76">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
