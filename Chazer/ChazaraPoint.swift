@@ -119,6 +119,8 @@ class ChazaraPoint: ObservableObject {
         } else {
             self.status = nil
         }
+        
+//        self.notes = cdPoint.notes
     }
     
     /// Fetches the `Section` assosiated with this point's `sectionId` and saves it.

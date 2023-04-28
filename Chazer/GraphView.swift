@@ -106,7 +106,7 @@ struct GraphView: View {
                                     
                                     ForEach(model.limud.scheduledChazaras) { sc in
                                         StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
-                                            model.objectWillChange.send()
+//                                            model.objectWillChange.send()
                                         })
                                         .frame(width: chazaraWidth)
                                     }
@@ -432,7 +432,7 @@ struct GraphView: View {
             //            self.model.point?.updateData()
             await self.model.point?.updateCorrectChazaraStatus()
             self.model.updateText()
-            self.model.objectWillChange.send()
+//            self.model.objectWillChange.send()
             updateParent?()
         }
         
@@ -449,6 +449,8 @@ struct GraphView: View {
             cdPoint.notes = notesSet.copy() as? NSOrderedSet
             
             try context.save()
+            
+            model.point?.updatePointData()
             
             withAnimation {
                 self.newNoteText = ""
@@ -595,7 +597,7 @@ struct GraphView: View {
                 let result = await getText()
                 DispatchQueue.main.async {
                     self.text = result
-                    self.objectWillChange.send()
+//                    self.objectWillChange.send()
                 }
             }
         }
