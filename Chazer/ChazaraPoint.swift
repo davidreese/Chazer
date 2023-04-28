@@ -123,10 +123,10 @@ class ChazaraPoint: ObservableObject {
 //        self.notes = cdPoint.notes
     }
     
-    /// Fetches the `Section` assosiated with this point's `sectionId` and saves it.
-    /// - Returns: The assosiated  `Section`, unless it wasn't found.
-    func fetchSection() async -> Section? {
-        self.section = await Storage.shared.getSection(sectionId: self.sectionId)
+    /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
+    /// - Returns: The assosiated  ``Section``, unless it wasn't found.
+    func fetchSection() -> Section? {
+        self.section = Storage.shared.getSection(sectionId: self.sectionId)
         return self.section
         
 //        MARK: Very helpful code
