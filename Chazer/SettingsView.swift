@@ -92,7 +92,7 @@ Proceeding will erase all app data and close the app.
                         .background(.regularMaterial)
                         .cornerRadius(10)
                         .padding([.horizontal, .bottom])
-                        .shadow(radius: 3)
+                        .shadow(radius: 2)
                     Spacer()
                 }
                 .toolbar {

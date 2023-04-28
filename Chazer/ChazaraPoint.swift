@@ -20,6 +20,8 @@ class ChazaraPoint: ObservableObject {
     @Published private(set) var status: ChazaraStatus!
     @Published private(set) var date: Date?
     
+    @Published private(set) var notes: NSOrderedSet?
+    
     private final let container = PersistenceController.shared.container
     
     init?(_ cdChazaraPoint: CDChazaraPoint) {
@@ -56,6 +58,9 @@ class ChazaraPoint: ObservableObject {
                 self.date = chazaraState.date
             }
         }
+        
+        self.notes = cdChazaraPoint.notes
+//        print("G\(notes?.count ?? 0)")
         
         Task {
             await updateAllData()

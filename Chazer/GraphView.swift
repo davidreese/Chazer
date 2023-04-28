@@ -9,7 +9,7 @@ import SwiftUI
 import CoreData
 
 // TODO: Update this documentation once ScheduledChazara class changes to not be universal
-/// A view that shows the `ChazaraState` for every `ScheduledChazara` of a `Limud`.
+/// A view that shows the ``ChazaraState`` for every ``ScheduledChazara`` of a ``Limud``.
 struct GraphView: View {
     @ObservedObject private var model: GraphViewModel
     @Environment(\.managedObjectContext) private var viewContext
@@ -260,6 +260,10 @@ struct GraphView: View {
         private let scheduledChazara: ScheduledChazara
         
         @State var showingDateChanger = false
+        @State var isShowingNewNotePopover = false
+        @State var newNoteText = ""
+        
+        @State var isShowingError = false
         
         var updateParent: (() -> Void)?
         
@@ -317,11 +321,13 @@ struct GraphView: View {
                         }
                     })
                 }
+                Button("Add a note", action: {
+                    isShowingNewNotePopover = true
+                })
             } label: {
                 Rectangle()
                     .fill(status.descriptionColor())
                     .cornerRadius(4)
-                    .padding()
                     .shadow(radius: 2)
                     .overlay(content: {
                         Text(model.text ?? "E")
@@ -334,6 +340,21 @@ struct GraphView: View {
                                 }
                             }
                     })
+                    .overlay {
+                        VStack {
+                            if !(model.point?.notes?.set.isEmpty ?? true) {
+                                HStack {
+                                    Spacer()
+                                    Circle()
+                                        .fill(.yellow)
+                                        .frame(width: 8, height: 8)
+                                        .shadow(radius: 2)
+                                }
+                                .padding(8)
+                                Spacer()
+                            }
+                        }
+                    }
                     .onAppear {
                         Task {
                             await update()
@@ -353,6 +374,31 @@ struct GraphView: View {
                             //                        }
                         }
                     }
+            }
+            .padding()
+            .popover(isPresented: $isShowingNewNotePopover) {
+                
+                    NavigationStack {
+                    TextEditor(text: $newNoteText)
+                        .toolbar {
+                            ToolbarItem(placement: .automatic) {
+                                Button("Done") {
+                                    do {
+                                        try saveNote()
+                                    } catch {
+                                        isShowingError = true
+                                    }
+                                }
+                            }
+                        }
+                        }
+                    .frame(width: 300, height: 200)
+            }
+            .alert(isPresented: $isShowingError) {
+                Alert(
+                    title: Text("Error"),
+                    message: Text("The operation could not be completed.")
+                )
             }
         }
         
@@ -388,6 +434,26 @@ struct GraphView: View {
             self.model.updateText()
             self.model.objectWillChange.send()
             updateParent?()
+        }
+        
+        private func saveNote() throws {
+            guard let cdPoint = model.point?.fetchCDEntity(), let context = cdPoint.managedObjectContext, let notesSet = cdPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
+                throw CreationError.unknownError
+            }
+            
+            let newNote = CDPointNote(context: context)
+            newNote.creationDate = Date.now
+            newNote.note = newNoteText
+            
+            notesSet.add(newNote)
+            cdPoint.notes = notesSet.copy() as? NSOrderedSet
+            
+            try context.save()
+            
+            withAnimation {
+                self.newNoteText = ""
+                isShowingNewNotePopover = false
+            }
         }
         
         struct ChazaraDateChanger: View {

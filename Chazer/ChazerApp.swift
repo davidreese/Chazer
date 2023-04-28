@@ -23,7 +23,7 @@ struct ChazerApp: App {
 //        ChazerApp.migrateData()
 //        printCDChazaras()
 //        ChazerApp.printCDChazaraPoints()
-        ChazerApp.printBackup()
+//        ChazerApp.printBackup()
     }
     
     /*
