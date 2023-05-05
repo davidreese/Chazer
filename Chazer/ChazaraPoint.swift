@@ -9,6 +9,7 @@ import Foundation
 import CoreData
 
 /// A point on the visual graph with a certain status of chazara.
+@MainActor
 class ChazaraPoint: ObservableObject {
     final let id: ID
     final let sectionId: ID
@@ -258,9 +259,9 @@ class ChazaraPoint: ObservableObject {
             entity.chazaraState?.date = date
             try entity.managedObjectContext?.save()
             
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 self.date = date
-            }
+//            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
@@ -276,9 +277,9 @@ class ChazaraPoint: ObservableObject {
             entity.chazaraState?.status = status.rawValue
             try entity.managedObjectContext?.save()
 
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 self.status = status
-            }
+//            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
