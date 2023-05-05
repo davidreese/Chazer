@@ -485,7 +485,7 @@ struct GraphView: View {
                             .datePickerStyle(GraphicalDatePickerStyle())
                     }.navigationTitle("Change Chazara Date")
                         .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
+                            ToolbarItem(placement: .automatic) {
                                 Button {
                                     try? updateDate()
                                     updateParent?()
@@ -494,7 +494,7 @@ struct GraphView: View {
                                     Text("Done")
                                 }
                             }
-                            ToolbarItem(placement: .automatic) {
+                            ToolbarItem(placement: .navigationBarLeading) {
                                 Button(role: .cancel) {
                                     presentationMode.wrappedValue.dismiss()
                                 } label: {
