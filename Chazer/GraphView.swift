@@ -514,6 +514,7 @@ struct GraphView: View {
         }
     }
     
+    @MainActor
     class StatusBoxModel: ObservableObject {
         @Published var point: ChazaraPoint?
         private let sectionId: ID
@@ -595,10 +596,10 @@ struct GraphView: View {
         func updateText() {
             Task {
                 let result = await getText()
-                DispatchQueue.main.async {
+//                DispatchQueue.main.async {
                     self.text = result
 //                    self.objectWillChange.send()
-                }
+//                }
             }
         }
     }
