@@ -22,41 +22,50 @@ struct SettingsView: View {
     
     var body: some View {
         List {
-            Button {
-                showRestoreView = true
-            } label: {
-                Text("Restore from Backup")
-            }
             /*
-            Button {
-                showUploadBackupView = true
-            } label: {
-                Text("Restore Backup")
+            SwiftUI.Section {
+                Button("About this application") {
+                    
+                }
             }*/
-            
-            Button {
-                showFileExporter = true
-//                let date = Date.now.formatted(date: .numeric, time: .shortened)
-            } label: {
-                Text("Download Backup")
-            }
-            .onAppear {
-    //                updates the backup file
-                self.backupDocument = BackupFile()
+            SwiftUI.Section("Data") {
+                Button {
+                    showRestoreView = true
+                } label: {
+                    Text("Restore from backup")
+                }
+                /*
+                 Button {
+                 showUploadBackupView = true
+                 } label: {
+                 Text("Restore Backup")
+                 }*/
                 
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
-                let formattedDate = dateFormatter.string(from: Date.now)
-                defaultFilename = "chazerbackup-\(formattedDate).txt"
-                print(defaultFilename)
-            }
-            .fileExporter(isPresented: $showFileExporter, document: backupDocument, contentType: .plainText, defaultFilename: defaultFilename, onCompletion: {result in})
-            Button(role: .destructive) {
-                showWipeConfirmation = true
-            } label: {
-                Text("Erase Data")
+                Button {
+                    showFileExporter = true
+                    //                let date = Date.now.formatted(date: .numeric, time: .shortened)
+                } label: {
+                    Text("Download backup")
+                }
+                .onAppear {
+                    //                updates the backup file
+                    self.backupDocument = BackupFile()
+                    
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+                    let formattedDate = dateFormatter.string(from: Date.now)
+                    defaultFilename = "chazerbackup-\(formattedDate).txt"
+                    print(defaultFilename)
+                }
+                .fileExporter(isPresented: $showFileExporter, document: backupDocument, contentType: .plainText, defaultFilename: defaultFilename, onCompletion: {result in})
+                Button(role: .destructive) {
+                    showWipeConfirmation = true
+                } label: {
+                    Text("Erase Data")
+                }
             }
         }
+//        .listStyle(ListSt())
         .navigationTitle("Settings")
             .sheet(isPresented: $showRestoreView) {
                 restoreView
