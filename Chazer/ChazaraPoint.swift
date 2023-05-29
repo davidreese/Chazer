@@ -9,7 +9,6 @@ import Foundation
 import CoreData
 
 /// A point on the visual graph with a certain status of chazara.
-@MainActor
 class ChazaraPoint: ObservableObject {
     final let id: ID
     final let sectionId: ID
@@ -119,6 +118,7 @@ class ChazaraPoint: ObservableObject {
     
     /// Updates the data that is only tied to the CDChazaraPoint saved in CoreData.
     /// - Note: To update all data, use ``updateData()``
+    @MainActor
     func updatePointData() {
         guard let cdPoint = fetchCDEntity() else {
             return
@@ -274,13 +274,16 @@ class ChazaraPoint: ObservableObject {
     }
     
 //    TODO: Check that this isn't being called too much
+    @MainActor
     func updateAllData() async {
-        await self.fetchSection()
+        print("Updating all data on point...")
+        self.fetchSection()
         self.fetchSC()
         self.updatePointData()
         await self.updateCorrectChazaraStatus()
     }
     
+    @MainActor
     func setDate(_ date: Date?) {
         do {
             guard let entity = self.fetchCDEntity() else {
@@ -299,6 +302,7 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
+    @MainActor
     func setStatus(_ status: ChazaraStatus) {
         do {
             guard let entity = self.fetchCDEntity() else {
@@ -317,6 +321,7 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
+    @MainActor
     func setState(status: ChazaraStatus, date: Date?) {
         do {
             guard let entity = self.fetchCDEntity() else {
@@ -336,19 +341,23 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
+    @MainActor
     func markAsChazered(date: Date) async {
         setState(status: .completed, date: date)
     }
     
+    @MainActor
     func markAsExempt() async {
         setState(status: .exempt, date: nil)
     }
     
+    @MainActor
     func removeChazara() async {
         self.setState(status: .unknown, date: nil)
         await self.updateCorrectChazaraStatus()
     }
     
+    @MainActor
     func removeExemption() async {
         self.setState(status: .unknown, date: nil)
         await self.updateCorrectChazaraStatus()
@@ -356,12 +365,10 @@ class ChazaraPoint: ObservableObject {
     
     /// Gets the date that this ``ChazaraPoint``becomes active, if there is one.
     func getActiveDate(retryOnFail: Bool = true) async -> Date? {
-//        updateData()
         if status == .completed || status == .exempt {
             return nil
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
-                
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
                         guard let delayedFromPoint = ChazaraPoint.getCDChazaraPoint(section: section, scheduledChazara: delayedFrom), let statusRaw = delayedFromPoint.chazaraState?.status, let status = ChazaraStatus(rawValue: statusRaw) else {
@@ -455,8 +462,8 @@ class ChazaraPoint: ObservableObject {
         } else if status == .exempt {
             return .exempt
         } else {
-            guard let dateActive = await getActiveDate(),
-                  let dueDate = await getDueDate() else {
+            guard let dateActive = await getActiveDate(retryOnFail: false),
+                  let dueDate = await getDueDate(retryOnFail: false) else {
                 guard let delayedFromId = self.scheduledChazara?.delayedFrom?.id else {
                     return .unknown
                 }
@@ -480,7 +487,8 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
-    func updateCorrectChazaraStatus() async {
+    @MainActor
+    func updateCorrectChazaraStatus(retryOnFail: Bool = true) async {
 //        Task {
         let status = await getCorrectChazaraStatus()
         self.setStatus(status)

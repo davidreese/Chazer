@@ -546,9 +546,6 @@ struct GraphView: View {
             
             try context.save()
             
-            
-            
-            
             withAnimation {
                 self.newNoteText = ""
                 isShowingNewNotePopover = false

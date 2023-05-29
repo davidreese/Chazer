@@ -13,12 +13,12 @@ class Storage {
     
     private var container: NSPersistentContainer
     
-    private(set) var sections: [Section]?
-    private(set) var cdSections: [CDSection]?
+    private(set) var sections: Set<Section>?
+    private(set) var cdSections: Set<CDSection>?
     private(set) var scheduledChazaras: [ScheduledChazara]?
     private(set) var cdScheduledChazaras: [CDScheduledChazara]?
-//    private(set) var cdChazaraPoints: [CDChazaraPoint]?
-//    private(set) var chazaraPoints: [ChazaraPoint]?
+    private(set) var cdChazaraPointsDictionary: [ID: CDChazaraPoint]?
+    private(set) var chazaraPointsDictionary: [ID: ChazaraPoint]?
     
     init(container: NSPersistentContainer) {
         self.container = container
@@ -31,6 +31,7 @@ class Storage {
         
         loadScheduledChazaras()
         loadSections()
+        loadChazaraPoints()
     }
     
     func loadScheduledChazaras() {
@@ -57,11 +58,12 @@ class Storage {
     }
     
     func loadSections() {
+        print("Loading sections...")
             do {
                 let scFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
                 let secResults = try self.container.newBackgroundContext().fetch(scFetchRequest) as! [CDSection]
                 
-                self.cdSections = secResults
+                self.cdSections = Set<CDSection>(secResults)
                 
                 self.sections = nil
                 
@@ -70,7 +72,39 @@ class Storage {
                         if self.sections == nil {
                             self.sections = [sec]
                         } else {
-                            self.sections?.append(sec)
+                            self.sections?.insert(sec)
+                        }
+                    }
+                }
+            } catch {
+                print(error)
+            }
+    }
+    
+    func loadChazaraPoints() {
+            do {
+                let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
+                let cpResults = try self.container.newBackgroundContext().fetch(cpFetchRequest) as! [CDChazaraPoint]
+                
+                for cpResult in cpResults {
+                    guard let pointId = cpResult.pointId else {
+                        continue
+                    }
+                    if self.cdChazaraPointsDictionary == nil {
+                        self.cdChazaraPointsDictionary = [pointId : cpResult]
+                    } else {
+                        self.cdChazaraPointsDictionary![pointId] = cpResult
+                    }
+                }
+                
+                self.chazaraPointsDictionary = nil
+                
+                for cpResult in cpResults {
+                    if let cp = ChazaraPoint(cpResult) {
+                        if self.chazaraPointsDictionary == nil {
+                            self.chazaraPointsDictionary = [cp.id : cp]
+                        } else {
+                            self.chazaraPointsDictionary![cp.id] = cp
                         }
                     }
                 }
@@ -104,21 +138,6 @@ class Storage {
             return nil
         }
     }
-    
-    /*
-    func getSection(sectionId: ID, reloadIfNeeded: Bool = true) async -> Section? {
-        if let section = self.sections?.first(where: { sec in
-            sec.id == sectionId
-        }) {
-            return section
-        } else if reloadIfNeeded {
-            await loadSections()
-            return await getSection(sectionId: sectionId, reloadIfNeeded: false)
-        } else {
-            return nil
-        }
-    }
-     */
     
     func getCDScheduledChazara(cdSCId: ID, reloadIfNeeded: Bool = true) -> CDScheduledChazara? {
         if let cdSC = self.cdScheduledChazaras?.first(where: { cdsc in
