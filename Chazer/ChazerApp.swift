@@ -23,7 +23,7 @@ struct ChazerApp: App {
 //        ChazerApp.migrateData()
 //        printCDChazaras()
 //        ChazerApp.printCDChazaraPoints()
-//        ChazerApp.printBackup()
+        ChazerApp.printBackup()
     }
     
     /*
@@ -45,8 +45,11 @@ struct ChazerApp: App {
     }*/
     
     static func printBackup() {
-        let text = "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
-        print(text)
+        print(getBackup())
+    }
+    
+    static func getBackup() -> String {
+        return "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
     }
     
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
@@ -212,11 +215,17 @@ struct ChazerApp: App {
     static func getCDScheduledChazaraData() -> String {
         var text = ""
         
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
-        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
+//        this will only collect CDScheduledChazara objects that are tied to a limud. the point is mainly to preserve ordering
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDLimud.fetchRequest()
+        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDLimud]
         
         for result in results {
-            text += "CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil")|DELAY=\(result.delay)|DAYSTOCOMPLETE=\(result.daysToComplete)|FIXEDDUEDATE=\(result.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(result.isDynamic)\n"
+            guard let cdScheduledChazaras = result.scheduledChazaras?.array as? [CDScheduledChazara] else {
+                continue
+            }
+            for cdSC in cdScheduledChazaras {
+                text += "CDScheduledChazara: ID=\(cdSC.scId ?? "nil")|NAME=\(cdSC.scName ?? "nil")|LIMUDID=\(cdSC.limud?.id ?? "nil")|DELAYEDFROM=\(cdSC.delayedFrom?.scId ?? "nil")|DELAY=\(cdSC.delay)|DAYSTOCOMPLETE=\(cdSC.daysToComplete)|FIXEDDUEDATE=\(cdSC.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(cdSC.isDynamic)\n"
+            }
         }
         
         return text

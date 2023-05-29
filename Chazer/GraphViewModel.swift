@@ -11,6 +11,7 @@ import Foundation
 class GraphViewModel: ObservableObject {
     @Published var limud: Limud
     @Published var scheduledChazaraToUpdate: ScheduledChazara?
+    @Published var sectionToUpdate: Section?
     
     init(limud: Limud) {
         self.limud = limud

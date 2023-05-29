@@ -19,6 +19,7 @@ struct GraphView: View {
     @State var showingNewSectionView = false
     @State var showingAddChazaraScheduleView = false
     @State var showingEditChazaraScheduleView = false
+    @State var showingManageSectionView = false
     
     
     //    var columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -87,6 +88,10 @@ struct GraphView: View {
                                 HStack {
                                     HStack {
                                         Menu(content: {
+                                            Button("Manage", action: {
+                                                self.model.sectionToUpdate = section
+                                                self.showingManageSectionView = true
+                                            })
                                             Button("Delete", action: {
                                                 withAnimation {
                                                     try? deleteSection(section)
@@ -192,6 +197,17 @@ struct GraphView: View {
                 })
                 .environment(\.managedObjectContext, self.viewContext)
             }
+            .sheet(isPresented: $showingManageSectionView) {
+                if let sectionToUpdate = self.model.sectionToUpdate {
+                    EditSectionView(limudId: self.model.limud.id, section: sectionToUpdate, onUpdate: { limud in
+                        withAnimation {
+                            self.model.limud = limud
+                            self.model.objectWillChange.send()
+                        }
+                    })
+                    .environment(\.managedObjectContext, self.viewContext)
+                }
+            }
             //                .ignoresSafeArea([.container], edges: [.trailing])
             
         } else {
@@ -254,13 +270,14 @@ struct GraphView: View {
         @Environment(\.managedObjectContext) private var viewContext
         //        private var viewContext: NSManagedObjectContext
         
-        @StateObject private var model: StatusBoxModel
+        @ObservedObject private var model: StatusBoxModel
         
         private let section: Section
         private let scheduledChazara: ScheduledChazara
         
         @State var showingDateChanger = false
         @State var isShowingNewNotePopover = false
+        @State var isShowingNotesPopover = false
         @State var newNoteText = ""
         
         @State var isShowingError = false
@@ -273,11 +290,15 @@ struct GraphView: View {
             //            self.viewContext = viewContext
             self.updateParent = updateParent
             //            self.status = getChazaraStatus()
-            self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
+            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
+            
+            
+//            self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
         }
         
         var body: some View {
             let status = model.point?.status ?? .unknown
+            let hasNotes = !(model.point?.notes?.isEmpty ?? true)
             Menu {
                 if status == .completed {
                     Button("Unmark", action: {
@@ -290,7 +311,7 @@ struct GraphView: View {
                             }
                         }
                     })
-                    Button("Change Chazara Date", action: showCompletionDateEditor)
+                    Button("Change chazara date", action: showCompletionDateEditor)
                 } else if status == .exempt {
                     Button("Unexempt", action: {
                         Task {
@@ -302,7 +323,7 @@ struct GraphView: View {
                         }
                     })
                 } else {
-                    Button("Mark as Chazered", action: {
+                    Button("Mark as chazered", action: {
                         Task {
                             do {
                                 try await markAsChazered()
@@ -311,7 +332,7 @@ struct GraphView: View {
                             }
                         }
                     })
-                    Button("Exempt", action: {
+                    Button("Mark as exempt", action: {
                         Task {
                             do {
                                 try await markExempt()
@@ -321,16 +342,25 @@ struct GraphView: View {
                         }
                     })
                 }
+                
                 Button("Add a note", action: {
                     isShowingNewNotePopover = true
                 })
+                
+                if hasNotes {
+                    Button("Notes", action: {
+//                        model.printNotes("E")
+//                        print(model.point?.notes)
+                        isShowingNotesPopover = true
+                    })
+                }
             } label: {
                 Rectangle()
                     .fill(status.descriptionColor())
                     .cornerRadius(4)
                     .shadow(radius: 2)
                     .overlay(content: {
-                        Text(model.text ?? "E")
+                        Text(model.text ?? "")
                             .font(.callout)
                             .bold()
                             .foregroundColor(.primary)
@@ -342,7 +372,7 @@ struct GraphView: View {
                     })
                     .overlay {
                         VStack {
-                            if !(model.point?.notes?.set.isEmpty ?? true) {
+                            if hasNotes {
                                 HStack {
                                     Spacer()
                                     Circle()
@@ -377,22 +407,87 @@ struct GraphView: View {
             }
             .padding()
             .popover(isPresented: $isShowingNewNotePopover) {
-                
-                    NavigationStack {
+                NavigationStack {
                     TextEditor(text: $newNoteText)
                         .toolbar {
                             ToolbarItem(placement: .automatic) {
                                 Button("Done") {
-                                    do {
-                                        try saveNote()
-                                    } catch {
-                                        isShowingError = true
+                                    if !newNoteText.isEmpty {
+                                        do {
+                                            try saveNote()
+                                        } catch {
+                                            isShowingError = true
+                                        }
                                     }
                                 }
                             }
                         }
+                }
+                    .frame(width: 300, height: 175)
+            }
+            .popover(isPresented: $isShowingNotesPopover) {
+                
+//                Text("Notes")
+//                    .font(.title)
+                if let notes = model.point?.notes {
+//                    NavigationStack {\
+                    VStack {
+                        HStack {
+                            Text("Notes")
+                                .font(.headline)
+                            Spacer()
+                            Button {
+                                isShowingNotesPopover = false
+                            } label: {
+                                Image(systemName: "checkmark")
+                            }
                         }
-                    .frame(width: 300, height: 200)
+                            .padding([.top, .horizontal])
+                        List {
+                            ForEach(notes) { note in
+                                if let noteText = note.note {
+                                    TextField("Note", text: .constant(noteText), axis: .vertical)
+                                        .lineLimit(5)
+                                }
+                            }.onDelete { indexSet in
+                                guard let min = indexSet.min(), let max = indexSet.max() else {
+                                    return
+                                }
+                                
+                                var elementsToRemove: [PointNote] = []
+                                for i in min...max {
+                                    elementsToRemove.append(notes[i])
+                                }
+                                
+                                for note in elementsToRemove {
+                                    do {
+                                        let fetchRequest = CDPointNote.fetchRequest()
+                                        fetchRequest.predicate = NSPredicate(format: "noteId == %@", note.id)
+                                        
+                                        let results = try viewContext.fetch(fetchRequest)
+                                        
+                                        for result in results {
+                                            viewContext.delete(result)
+                                        }
+                                        
+                                        try viewContext.save()
+                                    } catch {
+                                        print("Error: Failed to delete point note from data store.")
+                                    }
+                                }
+                                
+//                                view updates
+                                withAnimation {
+                                    isShowingNotesPopover = false
+                                    model.point?.updatePointData()
+                                    model.objectWillChange.send()
+                                }
+                            }
+                        }
+                        //                    }
+                    }
+                        .frame(width: 300, height: 200)
+                }
             }
             .alert(isPresented: $isShowingError) {
                 Alert(
@@ -444,17 +539,21 @@ struct GraphView: View {
             let newNote = CDPointNote(context: context)
             newNote.creationDate = Date.now
             newNote.note = newNoteText
+            newNote.noteId = IDGenerator.generate(withPrefix: "PN")
             
             notesSet.add(newNote)
             cdPoint.notes = notesSet.copy() as? NSOrderedSet
             
             try context.save()
             
-            model.point?.updatePointData()
+            
+            
             
             withAnimation {
                 self.newNoteText = ""
                 isShowingNewNotePopover = false
+                model.point?.updatePointData()
+                model.objectWillChange.send()
             }
         }
         
@@ -535,7 +634,8 @@ struct GraphView: View {
                 let results = try container.newBackgroundContext().fetch(fetchRequest)
                 
                 if results.count == 1, let result = results.first {
-                    self.point = ChazaraPoint(result)
+                    let newChazaraPoint = ChazaraPoint(result)
+                    self.point = newChazaraPoint
                     //                    self.point?.updateCorrectChazaraStatus()//updateCorrectChazaraStatus()
                     //                    print("P \(point?.status.rawValue)")
                     
@@ -559,7 +659,8 @@ struct GraphView: View {
                         
                         try context.save()
                         
-                        self.point = ChazaraPoint(point)
+                        let newChazaraPoint = ChazaraPoint(point)
+                        self.point = newChazaraPoint
                         
                         print("Generated and saved a CDChazaraPoint.")
                     } catch {
@@ -572,6 +673,9 @@ struct GraphView: View {
                 print("Error: Couldn't find CDChazaraPoint for StatusBox.")
                 //                return
             }
+            
+//            self.notes = self.point?.notes?.array as? [CDPointNote]
+//            printNotes()
         }
         
         @Published var text: String?
@@ -596,10 +700,7 @@ struct GraphView: View {
         func updateText() {
             Task {
                 let result = await getText()
-//                DispatchQueue.main.async {
                     self.text = result
-//                    self.objectWillChange.send()
-//                }
             }
         }
     }
@@ -610,5 +711,3 @@ struct GraphView_Previews: PreviewProvider {
         GraphView(limud: Limud(id: "L", name: "Gittin", sections: [Section(id: "S", name: "Shiur 1", initialDate: Date())], scheduledChazaras: [ScheduledChazara(id: "SC", delaySinceInitial: 1)]))
     }
 }
-
-

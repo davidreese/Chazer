@@ -21,7 +21,7 @@ class ChazaraPoint: ObservableObject {
     @Published private(set) var status: ChazaraStatus!
     @Published private(set) var date: Date?
     
-    @Published private(set) var notes: NSOrderedSet?
+    @Published private(set) var notes: [PointNote]?
     
     private final let container = PersistenceController.shared.container
     
@@ -60,7 +60,18 @@ class ChazaraPoint: ObservableObject {
             }
         }
         
-        self.notes = cdChazaraPoint.notes
+//        moving saved notes array into this object
+        if let objects = cdChazaraPoint.notes?.array {
+            for obj in objects {
+                if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
+                    if self.notes == nil {
+                        self.notes = [note]
+                    } else {
+                        self.notes?.append(note)
+                    }
+                }
+            }
+        }
 //        print("G\(notes?.count ?? 0)")
         
         Task {
@@ -75,7 +86,7 @@ class ChazaraPoint: ObservableObject {
     }\
      */
     
-    /// Fetches the ``CDChazaraPoint`` assosiated with this point.
+    /// Fetches the ``CDChazaraPoint`` associated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
         //MARK: Very helpful code
         let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
@@ -121,7 +132,28 @@ class ChazaraPoint: ObservableObject {
             self.status = nil
         }
         
-//        self.notes = cdPoint.notes
+        self.notes = nil
+        //        moving saved notes array into this object
+        if let objects = cdPoint.notes?.array {
+            for obj in objects {
+                if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
+                    if self.notes == nil {
+                        self.notes = [note]
+                    } else {
+                        self.notes?.append(note)
+                    }
+                }
+            }
+        }
+        /*
+        if let notes = self.notes, !notes.isEmpty {
+            print("---")
+            for note in notes {
+                print(note.note)
+            }
+            print("---")
+        }
+         */
     }
     
     /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
