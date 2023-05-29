@@ -9,6 +9,7 @@ import Foundation
 import CoreData
 
 /// A point on the visual graph with a certain status of chazara.
+@MainActor
 class ChazaraPoint: ObservableObject {
     final let id: ID
     final let sectionId: ID
@@ -19,6 +20,8 @@ class ChazaraPoint: ObservableObject {
     
     @Published private(set) var status: ChazaraStatus!
     @Published private(set) var date: Date?
+    
+    @Published private(set) var notes: [PointNote]?
     
     private final let container = PersistenceController.shared.container
     
@@ -57,6 +60,20 @@ class ChazaraPoint: ObservableObject {
             }
         }
         
+//        moving saved notes array into this object
+        if let objects = cdChazaraPoint.notes?.array {
+            for obj in objects {
+                if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
+                    if self.notes == nil {
+                        self.notes = [note]
+                    } else {
+                        self.notes?.append(note)
+                    }
+                }
+            }
+        }
+//        print("G\(notes?.count ?? 0)")
+        
         Task {
             await updateAllData()
         }
@@ -69,7 +86,7 @@ class ChazaraPoint: ObservableObject {
     }\
      */
     
-    /// Fetches the ``CDChazaraPoint`` assosiated with this point.
+    /// Fetches the ``CDChazaraPoint`` associated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
         //MARK: Very helpful code
         let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
@@ -114,12 +131,35 @@ class ChazaraPoint: ObservableObject {
         } else {
             self.status = nil
         }
+        
+        self.notes = nil
+        //        moving saved notes array into this object
+        if let objects = cdPoint.notes?.array {
+            for obj in objects {
+                if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
+                    if self.notes == nil {
+                        self.notes = [note]
+                    } else {
+                        self.notes?.append(note)
+                    }
+                }
+            }
+        }
+        /*
+        if let notes = self.notes, !notes.isEmpty {
+            print("---")
+            for note in notes {
+                print(note.note)
+            }
+            print("---")
+        }
+         */
     }
     
-    /// Fetches the `Section` assosiated with this point's `sectionId` and saves it.
-    /// - Returns: The assosiated  `Section`, unless it wasn't found.
-    func fetchSection() async -> Section? {
-        self.section = await Storage.shared.getSection(sectionId: self.sectionId)
+    /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
+    /// - Returns: The assosiated  ``Section``, unless it wasn't found.
+    func fetchSection() -> Section? {
+        self.section = Storage.shared.getSection(sectionId: self.sectionId)
         return self.section
         
 //        MARK: Very helpful code
@@ -251,9 +291,9 @@ class ChazaraPoint: ObservableObject {
             entity.chazaraState?.date = date
             try entity.managedObjectContext?.save()
             
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 self.date = date
-            }
+//            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
@@ -269,9 +309,9 @@ class ChazaraPoint: ObservableObject {
             entity.chazaraState?.status = status.rawValue
             try entity.managedObjectContext?.save()
 
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 self.status = status
-            }
+//            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }

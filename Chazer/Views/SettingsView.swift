@@ -7,11 +7,18 @@
 
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @State var showRestoreView = false
     @State var showWipeConfirmation = false
     @State var showWipeFailureAlert = false
+    @State var showFileExporter = false
+    
+    @State var backupDocument: BackupFile = BackupFile()
+    @State var defaultFilename = "chazerbackup.txt"
+    
+    @State var restoreView: RestoreView = RestoreView()
     
     var body: some View {
         List {
@@ -20,18 +27,39 @@ struct SettingsView: View {
             } label: {
                 Text("Restore from Backup")
             }
+            /*
             Button {
+                showUploadBackupView = true
+            } label: {
+                Text("Restore Backup")
+            }*/
+            
+            Button {
+                showFileExporter = true
+//                let date = Date.now.formatted(date: .numeric, time: .shortened)
             } label: {
                 Text("Download Backup")
             }
+            .onAppear {
+    //                updates the backup file
+                self.backupDocument = BackupFile()
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+                let formattedDate = dateFormatter.string(from: Date.now)
+                defaultFilename = "chazerbackup-\(formattedDate).txt"
+                print(defaultFilename)
+            }
+            .fileExporter(isPresented: $showFileExporter, document: backupDocument, contentType: .plainText, defaultFilename: defaultFilename, onCompletion: {result in})
             Button(role: .destructive) {
                 showWipeConfirmation = true
             } label: {
                 Text("Erase Data")
             }
-        }.navigationTitle("Settings")
+        }
+        .navigationTitle("Settings")
             .sheet(isPresented: $showRestoreView) {
-                RestoreView()
+                restoreView
             }
             .alert("Confirmation", isPresented: $showWipeConfirmation) {
                 Button(role: .cancel) {
@@ -65,6 +93,30 @@ Proceeding will erase all app data and close the app.
             }
     }
     
+    /// Based on https://www.hackingwithswift.com/quick-start/swiftui/how-to-export-files-using-fileexporter
+    struct BackupFile: FileDocument {
+        // tell the system we support only plain text
+        static var readableContentTypes = [UTType.plainText]
+
+        // by default our document is empty
+        var text = ChazerApp.getBackup()
+        
+        init() {}
+
+        // this initializer loads data that has been saved previously
+        init(configuration: ReadConfiguration) throws {
+            if let data = configuration.file.regularFileContents {
+                text = String(decoding: data, as: UTF8.self)
+            }
+        }
+
+        // this will be called when the system wants to write our data to disk
+        func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+            let data = Data(text.utf8)
+            return FileWrapper(regularFileWithContents: data)
+        }
+    }
+    
     struct RestoreView: View {
         @Environment(\.managedObjectContext) private var viewContext
         @Environment(\.presentationMode) var presentationMode
@@ -73,6 +125,8 @@ Proceeding will erase all app data and close the app.
         
         @State private var showFailAlert = false
         @State private var errorToShow: LocalizedError?
+        
+        @State var showUploadBackupView = false
         
         @State private var showConfirmation = false
         
@@ -83,6 +137,30 @@ Proceeding will erase all app data and close the app.
         
         var body: some View {
             NavigationView {
+                List {
+                    Button {
+                        showUploadBackupView = true
+                    } label: {
+                        Text("Restore Backup")
+                    }
+                    .fileImporter(isPresented: $showUploadBackupView, allowedContentTypes: [.plainText]) { result in
+                        switch result {
+                        case .success(let file):
+                            do {
+                                let backupText = try String(contentsOf: file)
+                                scan(data: backupText)
+                            } catch {
+                                print("Failed to convert file to a string: \(error.localizedDescription)")
+                            }
+                        case .failure(let error):
+                            print("Failed to import file: \(error.localizedDescription)")
+                        }
+                    }
+                    .onAppear {
+                        showUploadBackupView = true
+                    }
+                }
+                /*
                 VStack {
                     Spacer()
 //                    Text("Restore Data:")
@@ -92,15 +170,17 @@ Proceeding will erase all app data and close the app.
                         .background(.regularMaterial)
                         .cornerRadius(10)
                         .padding([.horizontal, .bottom])
-                        .shadow(radius: 3)
+                        .shadow(radius: 2)
                     Spacer()
                 }
+                 */
                 .toolbar {
+                    /*
                     ToolbarItem(placement: .automatic) {
                         Button("Scan") {
                             scan()
                         }
-                    }
+                    }*/
                     
                     ToolbarItem(placement: .cancellationAction) {
                         Button {
@@ -251,23 +331,25 @@ This action will wipe all existing data and close the app.
                 self.showFailAlert = true
                 return
             } catch {
+                print("Error: Cannot restore.")
                 self.errorToShow = error as? LocalizedError
                 showFailAlert = true
                 return
             }
             
+            try! viewContext.save()
         }
         
         
         
         /// Scans the restore data to detect if it is valid, holds onto the data if it is valid, and notifies the user of the results.
-        func scan() {
+        func scan(data: String) {
             let babyLimudim: Set<BabyLimud>
             let babySections: Set<BabySection>
             let babySCs: [BabySC]
             let babyChazaraPoints: Set<BabyChazaraPoint>
             
-            let cleanedRestoreString = rawRestoreString.trimmingCharacters(in: .newlines)
+            let cleanedRestoreString = data.trimmingCharacters(in: .newlines)
             
             do {
                 babyLimudim = try parseLimudim(data: cleanedRestoreString)

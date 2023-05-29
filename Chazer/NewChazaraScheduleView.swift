@@ -204,7 +204,7 @@ struct NewChazaraScheduleView: View {
         }
         //        newItem.
         
-        //        fix: what if this is nil
+        //        TODO: what if this is nil
         guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
             throw CreationError.unknownError
         }
