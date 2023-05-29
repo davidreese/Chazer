@@ -10,7 +10,7 @@ import Foundation
 class Limud: Identifiable, Hashable {
     var id: ID
     var name: String
-    var sections: [Section]
+    var sections: Set<Section>
     var scheduledChazaras: [ScheduledChazara]
     
 //    init() {
@@ -20,7 +20,7 @@ class Limud: Identifiable, Hashable {
 //        self.scheduledChazaras = []
 //    }
     
-    init(id: ID, name: String, sections: [Section], scheduledChazaras: [ScheduledChazara]) {
+    init(id: ID, name: String, sections: Set<Section>, scheduledChazaras: [ScheduledChazara]) {
         self.id = id
         self.name = name
         self.sections = sections
@@ -36,10 +36,10 @@ class Limud: Identifiable, Hashable {
         self.id = id
         self.name = name
         
-        var sections: [Section] = []
+        var sections: Set<Section> = Set()
         for cdSection in cdSections {
             if let section = Section(cdSection) {
-                sections.append(section)
+                sections.insert(section)
             } else {
                 print("Failed to append section: \(cdSection)")
             }
