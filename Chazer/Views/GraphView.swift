@@ -59,12 +59,12 @@ struct GraphView: View {
                                 //                                    LazyHStack {
                                 ForEach(model.limud.scheduledChazaras) { sc in
                                     Menu(content: {
-                                        Button("Delete", action: {
-                                            try? deleteSC(sc)
-                                        })
                                         Button("Manage", action: {
                                             self.model.scheduledChazaraToUpdate = sc
                                             self.showingEditChazaraScheduleView = true
+                                        })
+                                        Button("Delete", action: {
+                                            try? deleteSC(sc)
                                         })
                                     }) {
                                         Text(sc.name)
@@ -201,6 +201,7 @@ struct GraphView: View {
                 if let sectionToUpdate = self.model.sectionToUpdate {
                     EditSectionView(limudId: self.model.limud.id, section: sectionToUpdate, onUpdate: { limud in
                         withAnimation {
+                            
                             self.model.limud = limud
                             self.model.objectWillChange.send()
                         }
