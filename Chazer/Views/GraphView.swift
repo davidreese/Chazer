@@ -201,7 +201,6 @@ struct GraphView: View {
                 if let sectionToUpdate = self.model.sectionToUpdate {
                     EditSectionView(limudId: self.model.limud.id, section: sectionToUpdate, onUpdate: { limud in
                         withAnimation {
-                            
                             self.model.limud = limud
                             self.model.objectWillChange.send()
                         }

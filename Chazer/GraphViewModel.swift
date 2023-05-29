@@ -10,8 +10,8 @@ import Foundation
 @MainActor
 class GraphViewModel: ObservableObject {
     @Published var limud: Limud
-    @Published var scheduledChazaraToUpdate: ScheduledChazara?
-    @Published var sectionToUpdate: Section?
+    var scheduledChazaraToUpdate: ScheduledChazara?
+    var sectionToUpdate: Section?
     
     init(limud: Limud) {
         self.limud = limud
