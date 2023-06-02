@@ -143,6 +143,7 @@ Proceeding will erase all app data and close the app.
         @State private var babySections: Set<BabySection>?
         @State private var babySCs: [BabySC]?
         @State private var babyChazaraPoints: Set<BabyChazaraPoint>?
+        @State private var babyPointNotes: Set<BabyPointNote>?
         
         var body: some View {
             NavigationView {
@@ -224,7 +225,7 @@ Proceeding will erase all app data and close the app.
                     }
                 } message: {
                     Text("""
-Valid Results: \(babyLimuds?.count.description ?? "nil") limudim, \(babySections?.count.description ?? "nil") sections, \(babySCs?.count.description ?? "nil") Scheduled Chazaras, \(babyChazaraPoints?.count.description ?? "nil") Chazara Points
+Valid Results: \(babyLimuds?.count.description ?? "nil") limudim, \(babySections?.count.description ?? "nil") sections, \(babySCs?.count.description ?? "nil") Scheduled Chazaras, \(babyChazaraPoints?.count.description ?? "nil") Chazara Points, \(babyPointNotes?.count.description ?? "nil") Point Notes
 This action will wipe all existing data and close the app.
 """)
                 }
@@ -234,7 +235,7 @@ This action will wipe all existing data and close the app.
         
         /// Executes the wipe and the adding of new data.
         private func restore() {
-            guard let babyLimuds = babyLimuds, let babySections = babySections, let babySCs = babySCs, let babyChazaraPoints = babyChazaraPoints else {
+            guard let babyLimuds = babyLimuds, let babySections = babySections, let babySCs = babySCs, let babyChazaraPoints = babyChazaraPoints, let babyPointNotes = babyPointNotes else {
                 print("Error: Local baby groups are nil.")
                 self.errorToShow = RestoreError.unknownError
                 self.showFailAlert = true
@@ -319,6 +320,8 @@ This action will wipe all existing data and close the app.
                     })
                 }
                 
+                var cdChazaraPoints: [CDChazaraPoint] = []
+                
             cps: for baby in babyChazaraPoints {
                 let newPoint = CDChazaraPoint(context: viewContext)
                 newPoint.pointId = baby.id
@@ -331,6 +334,29 @@ This action will wipe all existing data and close the app.
                 state.date = baby.date
                 
                 newPoint.chazaraState = state
+                
+                cdChazaraPoints.append(newPoint)
+            }
+                
+            pns: for babyPointNote in babyPointNotes {
+                let newPointNote = CDPointNote(context: viewContext)
+                newPointNote.noteId = babyPointNote.id
+                newPointNote.creationDate = babyPointNote.creationDate
+                newPointNote.note = babyPointNote.note
+                
+                guard let chazaraPoint = cdChazaraPoints.first(where: { point in
+                    point.pointId == babyPointNote.cpId
+                }) else {
+                    print("Point note must belong to a chazara point to be added.")
+                    continue pns
+                }
+                
+                guard let ms = chazaraPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
+                    throw CreationError.unknownError
+                }
+                ms.add(newPointNote)
+                chazaraPoint.notes = ms.copy() as? NSOrderedSet
+                newPointNote.point = chazaraPoint
             }
                 
                 try viewContext.save()
@@ -340,7 +366,7 @@ This action will wipe all existing data and close the app.
                 self.showFailAlert = true
                 return
             } catch {
-                print("Error: Cannot restore.")
+                print("Error: Cannot restore: \(error)")
                 self.errorToShow = error as? LocalizedError
                 showFailAlert = true
                 return
@@ -357,6 +383,7 @@ This action will wipe all existing data and close the app.
             let babySections: Set<BabySection>
             let babySCs: [BabySC]
             let babyChazaraPoints: Set<BabyChazaraPoint>
+            let babyPointNotes: Set<BabyPointNote>
             
             let cleanedRestoreString = data.trimmingCharacters(in: .newlines)
             
@@ -365,6 +392,7 @@ This action will wipe all existing data and close the app.
                 babySections = try parseSections(data: cleanedRestoreString)
                 babySCs = try parseScheduledChazaras(data: cleanedRestoreString)
                 babyChazaraPoints = try parseChazaraPoints(data: cleanedRestoreString)
+                babyPointNotes = try parsePointNotes(data: cleanedRestoreString)
             } catch ParseError.invalidFormat {
                 self.errorToShow = ParseError.invalidFormat
                 showFailAlert = true
@@ -375,26 +403,11 @@ This action will wipe all existing data and close the app.
                 return
             }
             
-            let scsArray = cleanedRestoreString.components(separatedBy: "SCHEDULEDCHAZARAS")
-            let pointsArray = cleanedRestoreString.components(separatedBy: "CHAZARAPOINTS")
-            
-            guard scsArray.count == 2 && pointsArray.count == 2 else {
-                self.errorToShow = ParseError.invalidFormat
-                showFailAlert = true
-                return
-            }
-            
-            guard let scs = scsArray[1].components(separatedBy: "CHAZARAPOINTS").first else {
-                self.errorToShow = ParseError.invalidFormat
-                showFailAlert = true
-                return
-            }
-            let points = pointsArray[1]
-            
             self.babyLimuds = babyLimudim
             self.babySections = babySections
             self.babySCs = babySCs
             self.babyChazaraPoints = babyChazaraPoints
+            self.babyPointNotes = babyPointNotes
             self.showConfirmation = true
         }
         
@@ -686,6 +699,78 @@ This action will wipe all existing data and close the app.
             print("Found \(babyChazaraPoints.count) valid chazara points.")
             return babyChazaraPoints
         }
+        
+        private func parsePointNotes(data: String) throws -> Set<BabyPointNote> {
+            let pointNotesArray = data.components(separatedBy: "POINTNOTES")
+            
+            guard pointNotesArray.count == 2 else {
+                throw ParseError.invalidFormat
+            }
+            
+            let pointNotesData = pointNotesArray[1]
+            
+            var babyPointNotes: Set<BabyPointNote> = Set()
+            let pointNoteData = pointNotesData.components(separatedBy: "CDPointNote: ")
+            
+            object: for data in pointNoteData {
+                var id: ID?
+                var creationDate: Date?
+                var note: String?
+                var cpId: ID?
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
+                        
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                print("CDPointNote ID is invalid, skipping data point")
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "CREATIONDATE":
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                            creationDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                        case "NOTE":
+                            if value == "nil" {
+                                print("CDPointNote note is invalid, skipping data point")
+                                continue object
+                            } else {
+                                note = value
+                            }
+                        case "CPID":
+                            if value == "nil" {
+                                print("CDPointNote cpId is invalid, skipping data point")
+                                continue object
+                            } else {
+                                cpId = value.trimmingCharacters(in: .newlines)
+                            }
+                        default:
+                            print("Failed to parse data for CDPointNote: \(pair)")
+                            continue object;
+                        }
+                    } else if pair == "" {
+                    } else {
+                        print("Failed to parse data for CDPointNote: \(pair)")
+                        continue object;
+                    }
+                }
+                
+                guard let id = id, let note = note, let cpId = cpId else {
+                    print("Didn't find full data for CDPointNote: \(data)")
+                    continue object;
+                }
+                babyPointNotes.insert(BabyPointNote(id: id, creationDate: creationDate, note: note, cpId: cpId))
+            }
+            
+            print("Found \(babyPointNotes.count) valid point notes.")
+            return babyPointNotes
+        }
 
         
         enum ParseError: LocalizedError {
@@ -746,6 +831,13 @@ This action will wipe all existing data and close the app.
         let sectionId: ID
         let status: Int16
         let date: Date?
+    }
+    
+    private struct BabyPointNote: Hashable {
+        let id: ID
+        let creationDate: Date?
+        let note: String
+        let cpId: ID
     }
     
     /*

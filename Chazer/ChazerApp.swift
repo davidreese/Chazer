@@ -14,42 +14,16 @@ struct ChazerApp: App {
     let persistenceController = PersistenceController.shared
     
     init() {
-//        storage = Storage(context: persistenceController.container.viewContext)
-//        printScheduledChazaras()
-//        changeDelayedFrom(for: "SC1666222213.370898415", to: "SC1663787099.830631580")
-//        killScheduledChazara(id: "SC1668124907.7508678982")
-//        migrateData()
-//        ChazerApp.killCDChazaraPoint()
-//        ChazerApp.migrateData()
-//        printCDChazaras()
-//        ChazerApp.printCDChazaraPoints()
-        ChazerApp.printBackup()
+        Storage.shared.update()
+//        ChazerApp.printBackup()
     }
-    
-    /*
-    static func downloadBackup() {
-        let text = "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
-        let fileName = "chazerbackup.txt"
-        
-        let path = NSTemporaryDirectory() + fileName
-            let url = URL(fileURLWithPath: path)
-            do {
-                try text.write(to: url, atomically: true, encoding: .utf8)
-            } catch {
-                print("Error writing file: \(error)")
-            }
-
-            let interactionController = UIDocumentInteractionController(url: url)
-            interactionController.presentOptionsMenu(from: view.frame, in: view, animated: true)
-            interactionController.delegate = Delegate()
-    }*/
     
     static func printBackup() {
         print(getBackup())
     }
     
     static func getBackup() -> String {
-        return "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData()
+        return "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData() + "POINTNOTES\n" + getCDPointNoteData()
     }
     
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
@@ -211,6 +185,23 @@ struct ChazerApp: App {
         
         return text
     }
+    
+    static func getCDPointNoteData() -> String {
+       var text = ""
+       
+       let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDPointNote.fetchRequest()
+       let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDPointNote]
+       
+       for result in results {
+           guard let id = result.noteId, let note = result.note, let cpId = result.point?.pointId else {
+               print("Not backing up note without expected data.")
+               continue
+           }
+           text += "CDPointNote: ID=\(id)|CREATIONDATE=\(result.creationDate?.description ?? "nil")|NOTE=\(note)|CPID=\(cpId)\n"
+       }
+       
+       return text
+   }
     
     static func getCDScheduledChazaraData() -> String {
         var text = ""

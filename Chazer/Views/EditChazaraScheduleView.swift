@@ -44,6 +44,7 @@ struct EditChazaraScheduleView: View {
         self.scName = scheduledChazara.name
         self.delay = scheduledChazara.delay ?? 1
         self.delayedFromId = scheduledChazara.delayedFrom?.id
+        self.onUpdate = onUpdate
     }
     
     var body: some View {
@@ -136,7 +137,7 @@ struct EditChazaraScheduleView: View {
         }
     }
     
-    
+    /// Applies custom changes to the ``CDScheduledChazara`` object.
     private func updateScheduledChazara() throws -> Limud {
 //        fatalError()
         guard let cdSC = Storage.shared.getCDScheduledChazara(cdSCId: self.scheduledChazara.id) else {
@@ -144,18 +145,6 @@ struct EditChazaraScheduleView: View {
         }
         
         cdSC.scName = self.scName
-//        if let delayedFromId = self.delayedFromId, self.delayedFromId != result.scId && self.delayedFromId != result.delayedFrom?.scId {
-//            let dfFr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
-//            dfFr.predicate = NSPredicate(format: "scId == %@", delayedFromId)
-//
-//            let dfResults = try viewContext.fetch(dfFr)
-//
-//            guard let dfResult = dfResults.first else {
-//                throw UpdateError.unknownError
-//            }
-//
-//            result.delayedFrom = dfResult
-//        }
         cdSC.delay = Int16(self.delay)
         
         try withAnimation {

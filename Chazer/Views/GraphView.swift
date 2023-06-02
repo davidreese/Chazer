@@ -11,7 +11,7 @@ import CoreData
 // TODO: Update this documentation once ScheduledChazara class changes to not be universal
 /// A view that shows the ``ChazaraState`` for every ``ScheduledChazara`` of a ``Limud``.
 struct GraphView: View {
-    @ObservedObject private var model: GraphViewModel
+    @StateObject private var model: GraphViewModel
     @Environment(\.managedObjectContext) private var viewContext
     
     var onUpdate: (() -> Void)?
@@ -25,7 +25,7 @@ struct GraphView: View {
     //    var columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     init(limud: Limud, onUpdate: (() -> Void)? = nil) {
-        self.model = GraphViewModel(limud: limud)
+        self._model = StateObject(wrappedValue: GraphViewModel(limud: limud))
         self.onUpdate = onUpdate
         
         //        UIScrollView.appearance().bounces = false
@@ -173,6 +173,7 @@ struct GraphView: View {
                     withAnimation {
                         self.model.limud = limud
                         self.model.objectWillChange.send()
+                        Storage.shared.update()
                     }
                 })
                 .environment(\.managedObjectContext, self.viewContext)
@@ -180,10 +181,13 @@ struct GraphView: View {
             .sheet(isPresented: $showingEditChazaraScheduleView) {
                 if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
                     EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
+                        /*print("Updating...")
                         withAnimation {
                             self.model.limud = limud
                             self.model.objectWillChange.send()
-                        }
+                            self.onUpdate?()
+                            Storage.shared.update()
+                        }*/
                     })
                     .environment(\.managedObjectContext, self.viewContext)
                 }
@@ -200,10 +204,9 @@ struct GraphView: View {
             .sheet(isPresented: $showingManageSectionView) {
                 if let sectionToUpdate = self.model.sectionToUpdate {
                     EditSectionView(limudId: self.model.limud.id, section: sectionToUpdate, onUpdate: { limud in
-                        withAnimation {
-                            self.model.limud = limud
-                            self.model.objectWillChange.send()
-                        }
+                        /*self.model.limud = limud
+                        self.model.objectWillChange.send()
+                        self.onUpdate?()*/
                     })
                     .environment(\.managedObjectContext, self.viewContext)
                 }
@@ -270,7 +273,7 @@ struct GraphView: View {
         @Environment(\.managedObjectContext) private var viewContext
         //        private var viewContext: NSManagedObjectContext
         
-        @ObservedObject private var model: StatusBoxModel
+        @StateObject private var model: StatusBoxModel
         
         private let section: Section
         private let scheduledChazara: ScheduledChazara
@@ -290,10 +293,10 @@ struct GraphView: View {
             //            self.viewContext = viewContext
             self.updateParent = updateParent
             //            self.status = getChazaraStatus()
-            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
+//            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
             
             
-//            self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
+            self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
         }
         
         var body: some View {
@@ -620,6 +623,8 @@ struct GraphView: View {
             self.sectionId = section.id
             self.scId = scheduledChazara.id
             
+            self.point = Storage.shared.getChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: true)
+            /*
             let fetchRequest = CDChazaraPoint.fetchRequest()
             
             let sectionPredicate = NSPredicate(format: "sectionId == %@", section.id)
@@ -673,6 +678,7 @@ struct GraphView: View {
             
 //            self.notes = self.point?.notes?.array as? [CDPointNote]
 //            printNotes()
+             */
         }
         
         @Published var text: String?

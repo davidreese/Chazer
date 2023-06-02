@@ -42,6 +42,7 @@ struct EditSectionView: View {
         self.section = section
         self.secName = section.name
         self.initialDate = section.initialDate
+        self.onUpdate = onUpdate
     }
     
     var body: some View {

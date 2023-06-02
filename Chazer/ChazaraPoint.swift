@@ -25,8 +25,19 @@ class ChazaraPoint: ObservableObject {
     private final let container = PersistenceController.shared.container
     
     init?(_ cdChazaraPoint: CDChazaraPoint) {
-        guard let id = cdChazaraPoint.pointId else {
-            print("Error: Invalid CDChazaraPoint.")
+        guard let id = cdChazaraPoint.pointId, let sectionId = cdChazaraPoint.sectionId, let scheduledChazaraId = cdChazaraPoint.scId, let chazaraState = cdChazaraPoint.chazaraState else {
+            print("Error: Invalid CDChazaraPoint. Deleting...")
+            return nil
+            
+            do {
+                let context = container.newBackgroundContext()
+                context.delete(cdChazaraPoint)
+                try context.save()
+                print("Deleted invalid CDChazaraPoint.")
+            } catch {
+                print("Failed to delete invalid CDChazaraPoint")
+            }
+            
             return nil
         }
         
@@ -40,10 +51,9 @@ class ChazaraPoint: ObservableObject {
          */
         
         self.id = id
-        self.sectionId = cdChazaraPoint.sectionId!
-        self.scheduledChazaraId = cdChazaraPoint.scId!
+        self.sectionId = sectionId
+        self.scheduledChazaraId = scheduledChazaraId
         
-        if let chazaraState = cdChazaraPoint.chazaraState {
             if chazaraState.status == -2 {
 //                The chazara status has not yet been set.
                 print("Mesg: Chazara status has not yet been set. SECID=\(sectionId) SCID=\(scheduledChazaraId)")
@@ -57,7 +67,6 @@ class ChazaraPoint: ObservableObject {
                 self.status = status
                 self.date = chazaraState.date
             }
-        }
         
 //        moving saved notes array into this object
         if let objects = cdChazaraPoint.notes?.array {
@@ -87,6 +96,7 @@ class ChazaraPoint: ObservableObject {
     
     /// Fetches the ``CDChazaraPoint`` associated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
+        return Storage.shared.getCDChazaraPoint(pointId: self.id)
         //MARK: Very helpful code
         let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "pointId == %@", id)
@@ -159,7 +169,7 @@ class ChazaraPoint: ObservableObject {
     /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
     /// - Returns: The assosiated  ``Section``, unless it wasn't found.
     func fetchSection() -> Section? {
-        self.section = Storage.shared.getSection(sectionId: self.sectionId)
+        self.section = Storage.shared.updateSection(sectionId: self.sectionId)
         return self.section
         
 //        MARK: Very helpful code
@@ -193,9 +203,11 @@ class ChazaraPoint: ObservableObject {
         */
     }
     
-    /// Fetches the `ScheduledChazara` assosiated with this point's `scId` and saves it.
-    /// - Returns: The assosiated  `ScheduledChazara`, unless it wasn't found.
+    /// Fetches the ``ScheduledChazara`` assosiated with this point's `scId` and saves it.
+    /// - Returns: The assosiated  ``ScheduledChazara``, unless it wasn't found.
     func fetchSC() -> ScheduledChazara? {
+        return Storage.shared.updateScheduledChazara(scId: self.scheduledChazaraId)
+        
         let persistenceController = PersistenceController.shared
         
         let fetchRequest: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
@@ -226,11 +238,10 @@ class ChazaraPoint: ObservableObject {
     
     /// Gets the ``CDChazaraPoint`` for a given position.
     /// - Parameters:
-    ///   - context: The context of data in which to search.
     ///   - sectionId: The ``ID`` of the ``Section`` coordinate to search for.
     ///   - scheduledChazaraId: The ``ID`` of the  ``ScheduledChazara`` coordinate to search for.
     /// - Returns: A ``CDChazaraPoint`` if only one is found for the given coordinates.
-    private static func getCDChazaraPoint(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext, sectionId: ID, scheduledChazaraId: ID) -> CDChazaraPoint? {
+    private static func getCDChazaraPoint(sectionId: ID, scheduledChazaraId: ID) -> CDChazaraPoint? {
         return Storage.shared.getCDChazaraPoint(sectionId: sectionId, scId: scheduledChazaraId)
     }
     
@@ -240,8 +251,8 @@ class ChazaraPoint: ObservableObject {
     ///   - section: The ``Section`` coordinate to search for.
     ///   - scheduledChazara: The ``ScheduledChazara`` coordinate to search for.
     /// - Returns: A ``CDChazaraPoint`` if only one is found for the given coordinates.
-    private static func getCDChazaraPoint(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext, section: Section, scheduledChazara: ScheduledChazara) -> CDChazaraPoint? {
-        return getCDChazaraPoint(context: context, sectionId: section.id, scheduledChazaraId: scheduledChazara.id)
+    private static func getCDChazaraPoint(section: Section, scheduledChazara: ScheduledChazara) -> CDChazaraPoint? {
+        return getCDChazaraPoint(sectionId: section.id, scheduledChazaraId: scheduledChazara.id)
     }
     
     /// Default caller for ``getCDChazaraPoint(context:section:scheduledChazara:)``.
@@ -253,8 +264,8 @@ class ChazaraPoint: ObservableObject {
         return ChazaraPoint.getCDChazaraPoint(section: section, scheduledChazara: scheduledChazara)
     }
     
-    private static func getChazaraPoint(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext, section: Section, scheduledChazara: ScheduledChazara) -> ChazaraPoint? {
-        guard let cdChazaraPoint = getCDChazaraPoint(context: context, section: section, scheduledChazara: scheduledChazara) else {
+    private static func getChazaraPoint(section: Section, scheduledChazara: ScheduledChazara) -> ChazaraPoint? {
+        guard let cdChazaraPoint = getCDChazaraPoint(section: section, scheduledChazara: scheduledChazara) else {
             return nil
         }
         
@@ -273,14 +284,25 @@ class ChazaraPoint: ObservableObject {
         return ChazaraPoint(cdChazaraPoint)
     }
     
+    var isUpdating = false
+    
 //    TODO: Check that this isn't being called too much
+    /// Updates all data on this ``ChazaraPoint`` to be consistent with data in the database.
     @MainActor
     func updateAllData() async {
-        print("Updating all data on point...")
-        self.fetchSection()
-        self.fetchSC()
-        self.updatePointData()
-        await self.updateCorrectChazaraStatus()
+        if !isUpdating {
+            isUpdating = true
+            print("Updating all data on point... (PID=\(self.id))")
+            
+//            Update the relevant section and scheduled chazara objects
+            self.section = self.fetchSection()
+            self.scheduledChazara = self.fetchSC()
+            
+            self.updatePointData()
+            await self.updateCorrectChazaraStatus()
+            
+            isUpdating = false
+        }
     }
     
     @MainActor
@@ -363,12 +385,14 @@ class ChazaraPoint: ObservableObject {
         await self.updateCorrectChazaraStatus()
     }
     
-    /// Gets the date that this ``ChazaraPoint``becomes active, if there is one.
+    /// Gets the ``Date`` that this ``ChazaraPoint``becomes active, if there is one available.
     func getActiveDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
+//            no date available
             return nil
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
+//                will now try to calculate the right date
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
                         guard let delayedFromPoint = ChazaraPoint.getCDChazaraPoint(section: section, scheduledChazara: delayedFrom), let statusRaw = delayedFromPoint.chazaraState?.status, let status = ChazaraStatus(rawValue: statusRaw) else {
@@ -398,7 +422,7 @@ class ChazaraPoint: ObservableObject {
                 await updateAllData()
                 return await getActiveDate(retryOnFail: false)
             } else {
-                print("Error: Cannot find information for this ChazaraPoint to getActiveDate.")
+                print("Error: Cannot find information for this ChazaraPoint to getActiveDate. (PID=\(self.id))")
                 return nil
             }
         }
@@ -408,7 +432,7 @@ class ChazaraPoint: ObservableObject {
         return date.advanced(by: TimeInterval(delay * 60 * 60 * 24))
     }
     
-    /// Gets the date that this `ChazaraPoint`is due, if there is one.
+    /// Gets the date that this ``ChazaraPoint``is due, if there is one.
     func getDueDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
             return nil

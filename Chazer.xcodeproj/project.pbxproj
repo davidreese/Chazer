@@ -133,9 +133,18 @@
 		F2D1B4EA2A23C864002B2E2A /* Structure */ = {
 			isa = PBXGroup;
 			children = (
+				F2E131E52A253E4F00142365 /* Utilities */,
 				F2D1B4EB2A23C86D002B2E2A /* PointNote.swift */,
 			);
 			path = Structure;
+			sourceTree = "<group>";
+		};
+		F2E131E52A253E4F00142365 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F218147829814940002D35C4 /* Storage.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		F2FE271128D29E7C006CFDFA = {
@@ -163,7 +172,6 @@
 			children = (
 				F2E634A428D353E60039463B /* Chazer.entitlements */,
 				F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */,
-				F218147829814940002D35C4 /* Storage.swift */,
 				F2FE271F28D29E7C006CFDFA /* ContentView.swift */,
 				F2E0E5C4296DAF9A00F3575B /* Dashboard.swift */,
 				F2E0E5C8296DC92200F3575B /* UI.swift */,
