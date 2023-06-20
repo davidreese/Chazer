@@ -255,9 +255,15 @@ enum CreationError: Error {
 }
 
 enum UpdateError: Error {
+    /// Thrown when the submitted name is invalid.
     case invalidName
+    
+    /// Thrown when not all required data is submitted.
     case missingData
+    
+    /// Thrown when some of the data submitted is invalid.
     case invalidData
+    
     case unknownError
 }
 
