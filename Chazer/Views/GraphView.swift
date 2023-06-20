@@ -149,12 +149,12 @@ struct GraphView: View {
                         Button {
                             self.showingNewSectionView = true
                         } label: {
-                            Label("Add a Section", systemImage: "note.text")
+                            Label("Add section", systemImage: "note.text")
                         }
                         Button {
                             self.showingAddChazaraScheduleView = true
                         } label: {
-                            Label("Add Scheduled Chazara", systemImage: "calendar")
+                            Label("Add scheduled chazara", systemImage: "calendar")
                         }
                         //                        Button {
                         //                            self.showingEditChazaraScheduleView = true
@@ -173,7 +173,6 @@ struct GraphView: View {
                     withAnimation {
                         self.model.limud = limud
                         self.model.objectWillChange.send()
-                        Storage.shared.update()
                     }
                 })
                 .environment(\.managedObjectContext, self.viewContext)
@@ -181,13 +180,12 @@ struct GraphView: View {
             .sheet(isPresented: $showingEditChazaraScheduleView) {
                 if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
                     EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
-                        /*print("Updating...")
+                        print("Updating...")
                         withAnimation {
                             self.model.limud = limud
                             self.model.objectWillChange.send()
                             self.onUpdate?()
-                            Storage.shared.update()
-                        }*/
+                        }
                     })
                     .environment(\.managedObjectContext, self.viewContext)
                 }
@@ -197,6 +195,7 @@ struct GraphView: View {
                     withAnimation {
                         self.model.limud = limud
                         self.model.objectWillChange.send()
+                        self.onUpdate?()
                     }
                 })
                 .environment(\.managedObjectContext, self.viewContext)
@@ -204,9 +203,11 @@ struct GraphView: View {
             .sheet(isPresented: $showingManageSectionView) {
                 if let sectionToUpdate = self.model.sectionToUpdate {
                     EditSectionView(limudId: self.model.limud.id, section: sectionToUpdate, onUpdate: { limud in
-                        /*self.model.limud = limud
-                        self.model.objectWillChange.send()
-                        self.onUpdate?()*/
+                        withAnimation {
+                            self.model.limud = limud
+                            self.model.objectWillChange.send()
+                            self.onUpdate?()
+                        }
                     })
                     .environment(\.managedObjectContext, self.viewContext)
                 }
