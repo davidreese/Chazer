@@ -512,7 +512,7 @@ class ChazaraPoint: ObservableObject {
     }
     
     @MainActor
-    func updateCorrectChazaraStatus(retryOnFail: Bool = true) async {
+    func updateCorrectChazaraStatus() async {
 //        Task {
         let status = await getCorrectChazaraStatus()
         self.setStatus(status)

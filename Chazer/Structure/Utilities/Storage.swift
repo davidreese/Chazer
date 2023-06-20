@@ -142,6 +142,7 @@ class Storage {
 //    var isLoadingChazaraPoints = false
     
     func loadChazaraPoints() async {
+//        return
         /*if isLoadingChazaraPoints {
             return
         } else {
@@ -219,6 +220,7 @@ class Storage {
     
     func loadChazaraPointsSynchronously() {
         print("Loading chazara points synchronously...")
+        
         do {
             let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
             let cpResults = try self.container.newBackgroundContext().fetch(cpFetchRequest) as! [CDChazaraPoint]
@@ -261,9 +263,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdSection = pinCDSection(id: cdSectionId) {
-                Task {
-                    await loadSections()
-                }
+//                Task {
+//                    await loadSections()
+//                }
                 
                 return cdSection
             } else {
@@ -347,7 +349,7 @@ class Storage {
         }
     }
     
-    /// Returns the requested ``getCDScheduledChazara`` from local storage without fetching from the database.
+    /// Returns the requested ``CDScheduledChazara`` from local storage without fetching from the database.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire scheduled chazara storage to match the database.
     func getCDScheduledChazara(cdSCId: ID) -> CDScheduledChazara? {
         if let cdSC = self.cdScheduledChazaras?.first(where: { cdSC in
@@ -357,9 +359,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdSC = pinCDScheduledChazara(id: cdSCId) {
-                Task {
-                    await loadScheduledChazaras()
-                }
+//                Task {
+//                    await loadScheduledChazaras()
+//                }
                 
                 return cdSC
             } else {
@@ -371,7 +373,7 @@ class Storage {
     /// Fetches this ``ScheduledChazara`` data from the database and updates it here, or adds it if it has not been found in storage yet.
     func updateScheduledChazara(scId: ID) -> ScheduledChazara? {
         guard let cdScheduledChazara = pinCDScheduledChazara(id: scId) else {
-            print("Couldn't update CDScheduledChazara, not found in database")
+            print("Couldn't update CDScheduledChazara, not found in database (SCID=\(scId))")
             
 //            removing from local storage if it exists
             self.cdScheduledChazaras?.removeAll(where: { cdSC in
@@ -424,9 +426,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdCP = pinCDChazaraPoint(id: pointId) {
-                Task {
-                    await loadChazaraPoints()
-                }
+//                Task {
+//                    await loadChazaraPoints()
+//                }
                 
                 return cdCP
             } else {
@@ -480,14 +482,20 @@ class Storage {
     }
     
         
-        func getChazaraPoint(pointId: ID, reloadIfNeeded: Bool = true) -> ChazaraPoint? {
-            if let cp = chazaraPointsDictionary?[pointId] {
-                return cp
-            } else if reloadIfNeeded {
-                loadChazaraPointsSynchronously()
-                return getChazaraPoint(pointId: pointId, reloadIfNeeded: false)
+        func getChazaraPoint(pointId: ID) -> ChazaraPoint? {
+            if let cdCP = cdChazaraPointsDictionary?[pointId], let chazaraPoint = ChazaraPoint(cdCP) {
+                    return chazaraPoint
             } else {
-                return nil
+                //TODO: Make all the functions here work like this
+                if let cdCP = pinCDChazaraPoint(id: pointId), let chazaraPoint = ChazaraPoint(cdCP)  {
+//                    Task {
+//                        await loadChazaraPoints()
+//                    }
+                    
+                    return chazaraPoint
+                } else {
+                    return nil
+                }
             }
         }
         

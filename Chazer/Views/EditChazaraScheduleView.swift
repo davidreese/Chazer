@@ -17,21 +17,6 @@ struct EditChazaraScheduleView: View {
     var limudId: ID
     var scheduledChazara: ScheduledChazara
     
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)],
-        animation: .default)
-    private var cdLimudim: FetchedResults<CDLimud>
-    
-    var limudim: [Limud] {
-        var temp: [Limud] = []
-        for cdLimud in cdLimudim {
-            if let limud = Limud(cdLimud) {
-                temp.append(limud)
-            }
-        }
-        return temp
-    }
-    
     @State private var cdScheduledChazaras: [CDScheduledChazara] = []
 
     @State var scName: String = ""
@@ -140,6 +125,8 @@ struct EditChazaraScheduleView: View {
     /// Applies custom changes to the ``CDScheduledChazara`` object.
     private func updateScheduledChazara() throws -> Limud {
 //        fatalError()
+        
+        
         guard let cdSC = Storage.shared.getCDScheduledChazara(cdSCId: self.scheduledChazara.id) else {
             throw UpdateError.unknownError
         }
@@ -151,15 +138,13 @@ struct EditChazaraScheduleView: View {
             try cdSC.managedObjectContext!.save()
         }
         
-        guard let limud = limudim.first(where: { limud in
-            limud.id == limudId
-        }) else {
-            throw CreationError.missingData
+        guard let cdLimud = cdSC.limud, let limud = Limud(cdLimud) else {
+            throw UpdateError.unknownError
         }
         
-//        Task {
-//            Storage.shared.loadScheduledChazaras()
-//        }
+        if let scId = cdSC.scId {
+            Storage.shared.updateScheduledChazara(scId: scId)
+        }
         
         return limud
         /*

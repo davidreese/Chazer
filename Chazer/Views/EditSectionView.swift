@@ -17,21 +17,6 @@ struct EditSectionView: View {
     var limudId: ID
     var section: Section
     
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)],
-        animation: .default)
-    private var cdLimudim: FetchedResults<CDLimud>
-    
-    var limudim: [Limud] {
-        var temp: [Limud] = []
-        for cdLimud in cdLimudim {
-            if let limud = Limud(cdLimud) {
-                temp.append(limud)
-            }
-        }
-        return temp
-    }
-    
     @State private var cdSections: [CDSection] = []
 
     @State var secName: String = ""
@@ -131,11 +116,14 @@ struct EditSectionView: View {
             try cdSection.managedObjectContext!.save()
         }
         
-        guard let limud = limudim.first(where: { limud in
-            limud.id == limudId
-        }) else {
-            throw CreationError.missingData
+        guard let cdLimud = cdSection.limud, let limud = Limud(cdLimud) else {
+            throw UpdateError.unknownError
         }
+        
+        if let sectionId = cdSection.sectionId {
+            Storage.shared.updateSection(sectionId: sectionId)
+        }
+
         
 //        Task {
 //            Storage.shared.loadScheduledChazaras()
