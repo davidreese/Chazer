@@ -463,8 +463,8 @@ struct GraphView: View {
                                     elementsToRemove.append(notes[i])
                                 }
                                 
-                                for note in elementsToRemove {
-                                    do {
+                                do {
+                                    for note in elementsToRemove {
                                         let fetchRequest = CDPointNote.fetchRequest()
                                         fetchRequest.predicate = NSPredicate(format: "noteId == %@", note.id)
                                         
@@ -473,11 +473,11 @@ struct GraphView: View {
                                         for result in results {
                                             viewContext.delete(result)
                                         }
-                                        
-                                        try viewContext.save()
-                                    } catch {
-                                        print("Error: Failed to delete point note from data store.")
                                     }
+                                    
+                                    try viewContext.save()
+                                } catch {
+                                    print("Error: Failed to delete point notes from data store.")
                                 }
                                 
 //                                view updates

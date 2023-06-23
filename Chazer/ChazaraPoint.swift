@@ -96,47 +96,21 @@ class ChazaraPoint: ObservableObject {
     
     /// Fetches the ``CDChazaraPoint`` associated with this point.
     func fetchCDEntity() -> CDChazaraPoint? {
-        return Storage.shared.getCDChazaraPoint(pointId: self.id)
-        //MARK: Very helpful code
-        let fetchRequest: NSFetchRequest<CDChazaraPoint> = CDChazaraPoint.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "pointId == %@", id)
-        
-        guard let results = try? container.newBackgroundContext().fetch(fetchRequest) else {
-            print("Error: Could not fetch the chazara point. ID=\(id)")
-            return nil
-        }
-        
-        if results.count == 1 {
-            guard let result = results.first else {
-                print("Error: Could not fetch the chazara point. ID=\(id)")
-                return nil
-            }
-            if result.sectionId == sectionId && result.scId == scheduledChazaraId {
-                return result
-            } else {
-                print("Error: The found chazara point did not match in critical values. ID=\(id)")
-                return nil
-            }
-        } else if results.isEmpty {
-            print("Error: Could not find the chazara point. ID=\(id)")
-            return nil
-        } else {
-            print("Error: There was a data issue finding the chazara point: too many points found. ID=\(id)")
-            return nil
-        }
+        return Storage.shared.pinCDChazaraPoint(id: self.id)
     }
     
     /// Updates the data that is only tied to the CDChazaraPoint saved in CoreData.
     /// - Note: To update all data, use ``updateData()``
     @MainActor
     func updatePointData() {
-        guard let cdPoint = fetchCDEntity() else {
+//        return
+        guard let cdChazaraPoint = Storage.shared.updateChazaraPoint(pointId: self.id) else {
             return
         }
         
-        self.date = cdPoint.chazaraState?.date
+        self.date = cdChazaraPoint.chazaraState?.date
         
-        if let status = cdPoint.chazaraState?.status {
+        if let status = cdChazaraPoint.chazaraState?.status {
             self.status = ChazaraStatus(rawValue: status)
         } else {
             self.status = nil
@@ -144,7 +118,7 @@ class ChazaraPoint: ObservableObject {
         
         self.notes = nil
         //        moving saved notes array into this object
-        if let objects = cdPoint.notes?.array {
+        if let objects = cdChazaraPoint.notes?.array {
             for obj in objects {
                 if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
                     if self.notes == nil {
@@ -155,15 +129,6 @@ class ChazaraPoint: ObservableObject {
                 }
             }
         }
-        /*
-        if let notes = self.notes, !notes.isEmpty {
-            print("---")
-            for note in notes {
-                print(note.note)
-            }
-            print("---")
-        }
-         */
     }
     
     /// Fetches the ``Section`` assosiated with this point's `sectionId` and saves it.
@@ -207,33 +172,6 @@ class ChazaraPoint: ObservableObject {
     /// - Returns: The assosiated  ``ScheduledChazara``, unless it wasn't found.
     func fetchSC() -> ScheduledChazara? {
         return Storage.shared.updateScheduledChazara(scId: self.scheduledChazaraId)
-        
-        let persistenceController = PersistenceController.shared
-        
-        let fetchRequest: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "scId == %@", scheduledChazaraId)
-        
-        guard let results = try? persistenceController.container.viewContext.fetch(fetchRequest) else {
-            print("Error: Could not fetch the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-            return nil
-        }
-        
-        
-        if results.count == 1 {
-            guard let result = results.first, let scheduledChazara = ScheduledChazara(result) else {
-                print("Error: Could not fetch the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-                return nil
-            }
-            
-            self.scheduledChazara = scheduledChazara
-            return scheduledChazara
-        } else if results.isEmpty {
-            print("Error: Could not find the scheduled chazara for chazara point. SCID=\(scheduledChazaraId)")
-            return nil
-        } else {
-            print("Error: There was a data issue finding a scheduled chazara for chazara point: too many scheduled chazaras found. SCID=\(scheduledChazaraId)")
-            return nil
-        }
     }
     
     /// Gets the ``CDChazaraPoint`` for a given position.
@@ -242,7 +180,7 @@ class ChazaraPoint: ObservableObject {
     ///   - scheduledChazaraId: The ``ID`` of the  ``ScheduledChazara`` coordinate to search for.
     /// - Returns: A ``CDChazaraPoint`` if only one is found for the given coordinates.
     private static func getCDChazaraPoint(sectionId: ID, scheduledChazaraId: ID) -> CDChazaraPoint? {
-        return Storage.shared.getCDChazaraPoint(sectionId: sectionId, scId: scheduledChazaraId)
+        return Storage.shared.pinCDChazaraPoint(sectionId: sectionId, scId: scheduledChazaraId)
     }
     
     /// Gets the ``CDChazaraPoint`` for a given position.
@@ -476,7 +414,7 @@ class ChazaraPoint: ObservableObject {
     }
     
     
-    /// Gets the chazara status that should be assigned to this `ChazaraPoint` based on its section and scheduled chazara.
+    /// Gets the chazara status that should be assigned to this ``ChazaraPoint`` based on its section and scheduled chazara.
     /// - Returns: The correct ``ChazaraStatus`` that should be applied, based on the local variables.
     private func getCorrectChazaraStatus() async -> ChazaraStatus {
 //        await updateAllData()
@@ -511,6 +449,7 @@ class ChazaraPoint: ObservableObject {
         }
     }
     
+    /// Assigns the corect computed ``ChazaraStatus`` based on the variables available.
     @MainActor
     func updateCorrectChazaraStatus() async {
 //        Task {

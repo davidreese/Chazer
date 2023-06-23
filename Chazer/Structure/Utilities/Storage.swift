@@ -253,6 +253,23 @@ class Storage {
         }
     }
     
+    /// Fetches this ``CDChazaraPoint`` data from the database and updates it here, or adds it if it has not been found in storage yet.
+    func updateChazaraPoint(pointId: ID) -> CDChazaraPoint? {
+        guard let cdChazaraPoint = pinCDChazaraPoint(id: pointId) else {
+            print("Couldn't update chazara point, not found in database (POINTID=\(pointId))")
+            
+//            removing from local storage if it exists
+            cdChazaraPointsDictionary?.removeValue(forKey: pointId)
+            chazaraPointsDictionary?.removeValue(forKey: pointId)
+            
+            return nil
+        }
+        
+        cdChazaraPointsDictionary?.updateValue(cdChazaraPoint, forKey: pointId)
+
+        return cdChazaraPoint
+    }
+    
     /// Returns the requested ``CDSection`` from local storage without fetching from the database.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
     func getCDSection(cdSectionId: ID) -> CDSection? {
@@ -420,12 +437,12 @@ class Storage {
         }
     }
     
-    func getCDChazaraPoint(pointId: ID) -> CDChazaraPoint? {
-        if let cdCP = cdChazaraPointsDictionary?[pointId] {
+    func getCDChazaraPoint(id: ID) -> CDChazaraPoint? {
+        if let cdCP = cdChazaraPointsDictionary?[id] {
             return cdCP
         } else {
             //TODO: Make all the functions here work like this
-            if let cdCP = pinCDChazaraPoint(id: pointId) {
+            if let cdCP = pinCDChazaraPoint(id: id) {
 //                Task {
 //                    await loadChazaraPoints()
 //                }
@@ -500,6 +517,7 @@ class Storage {
         }
         
     /// Returns the requested ``ChazaraPoint`` from local storage.
+    /// - Note: This function does not neccesarily update with CoreData.
         func getChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
             guard let cdChazaraPoint = getCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded) else {
                 return nil
