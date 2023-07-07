@@ -15,35 +15,84 @@ struct Dashboard: View {
             HStack {
                 VStack {
                     Panel {
-//                        List {
-//                            ForEach
-//                        }
+                        VStack {
+                            HStack {
+                                Text("Active")
+                                    .font(.title)
+                                    .bold()
+                                Spacer()
+                            }
+                            
+                            Divider()
+                            
+                            if let activeChazaraPoints = model.activeChazaraPoints {
+                                VStack {
+                                    ForEach(activeChazaraPoints.sorted(by: { lhs, rhs in
+                                        if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                            return lhsDate < rhsDate
+                                        } else {
+                                            //                                    this isn't really supposed to occur
+                                            return true
+                                        }
+                                    })) { point in
+                                        DashboardPointBar(chazaraPoint: point)
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                    Panel {
+                        if let lateChazaraPoints = model.lateChazaraPoints {
+                            VStack {
+                                ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
+                                    if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                        return lhsDate < rhsDate
+                                    } else {
+                                        //                                    this isn't really supposed to occur
+                                        return true
+                                    }
+                                })) { point in
+                                    DashboardPointBar(chazaraPoint: point)
+                                }
+                            }
+                        }
                     }
                 }
                 VStack {
-                Panel {
-                    let now = Date.now
-                    let calendar = Calendar.current
-                    let month = calendar.component(.month, from: now)
-                    if month <= 12 && month >= 1 {
-                        let monthName = calendar.shortMonthSymbols[month - 1]
-                        VStack {
-                            Text("\(monthName) \(calendar.component(.day, from: now))")
-                                .font(.largeTitle)
-                                .bold()
-                            Text(String(format: "%d", calendar.component(.year, from: now)))
-                                .font(.largeTitle)
-                                .bold()
+                    Panel {
+                        let now = Date.now
+                        let calendar = Calendar.current
+                        let month = calendar.component(.month, from: now)
+                        if month <= 12 && month >= 1 {
+                            let monthName = calendar.shortMonthSymbols[month - 1]
+                            VStack {
+                                Text("\(monthName) \(calendar.component(.day, from: now))")
+                                    .font(.largeTitle)
+                                    .bold()
+                                Text(String(format: "%d", calendar.component(.year, from: now)))
+                                    .font(.largeTitle)
+                                    .bold()
+                            }
+                        } else {
+                            Text("An error occured.")
                         }
-                    } else {
-                        Text("An error occured.")
-                    }
-                }.frame(width: 300, height: 300)
-                Spacer()
+                    }.frame(width: 300, height: 300)
+                    Spacer()
+                }
             }
         }
-        }
         .navigationTitle("Dashboard")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    model.objectWillChange.send()
+                } label: {
+                    Text("Update")
+                }
+
+            }
+        }
     }
     
     struct Panel<Content: View>: View {
@@ -62,6 +111,36 @@ struct Dashboard: View {
                 content
                     .padding()
             }
+        }
+    }
+    
+    /// A view used on the dashboard for a detailed presentation of a given ``ChazaraPoint``.
+    struct DashboardPointBar: View {
+        //TODO: Evaluate if this should be changed to its own model
+        @StateObject var model: StatusBoxModel
+        
+        init(chazaraPoint: ChazaraPoint) {
+            self._model = StateObject(wrappedValue: StatusBoxModel(point: chazaraPoint))
+        }
+        
+        var body: some View {
+            HStack {
+                Spacer()
+//                Text(model.point?.getSection()?.limud.name ?? "nil")
+                Text(model.point?.fetchSection()?.name ?? "nil")
+                Text(model.text ?? "time does not exist")
+                    .onAppear {
+                        Task {
+                            await update()
+                        }
+                    }
+                Spacer()
+            }
+            .background(RoundedRectangle(cornerRadius: 3).fill(Color.white))
+        }
+        
+        private func update() async {
+            model.updateText()
         }
     }
 }

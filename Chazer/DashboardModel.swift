@@ -8,15 +8,32 @@
 import Foundation
 
 class DashboardModel: ObservableObject {
-    @Published var activeChazaraPoints: [ChazaraPoint]?
-    @Published var lateChazaraPoints: [ChazaraPoint]?
+    @Published var activeChazaraPoints: Set<ChazaraPoint>?
+    @Published var lateChazaraPoints: Set<ChazaraPoint>?
     
     init() {
-//        load()
+        Task {
+            await load()
+        }
     }
     
-    private func load() {
-//        let fetchRequest =
-//        PersistenceController.shared.container.viewContext.fetch(<#T##request: NSFetchRequest<NSFetchRequestResult>##NSFetchRequest<NSFetchRequestResult>#>)
+    private func load() async {
+        guard let data = Storage.shared.getActiveAndLateChazaraPoints() else {
+            return
+        }
+        activeChazaraPoints = data.active
+        lateChazaraPoints = data.late
+        
+        if let activeChazaraPoints = activeChazaraPoints {
+            for point in activeChazaraPoints {
+                await point.getDueDate()
+            }
+        }
+        
+        if let lateChazaraPoints = lateChazaraPoints {
+            for point in lateChazaraPoints {
+                await point.getDueDate()
+            }
+        }
     }
 }

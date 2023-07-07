@@ -13,19 +13,6 @@ class Limud: Identifiable, Hashable {
     var sections: Set<Section>
     var scheduledChazaras: [ScheduledChazara]
     
-//    init() {
-//        self.id = ""
-//        self.name = ""
-//        self.sections = []
-//        self.scheduledChazaras = []
-//    }
-    
-    init(id: ID, name: String, sections: Set<Section>, scheduledChazaras: [ScheduledChazara]) {
-        self.id = id
-        self.name = name
-        self.sections = sections
-        self.scheduledChazaras = scheduledChazaras
-    }
     
     init?(_ cdLimud: CDLimud) {
         guard let id = cdLimud.id, let name = cdLimud.name, let cdSections = cdLimud.sections?.allObjects as? [CDSection], let cdScheduledChazaras = cdLimud.scheduledChazaras?.array as? [CDScheduledChazara] else {
@@ -60,30 +47,6 @@ class Limud: Identifiable, Hashable {
 //        print("Initialized CDLimud")
     }
     
-//    func save(name: String) {
-//      guard let delegate = UIApplication.shared.delegate as? AppDelegate else {
-//          return
-//      }
-//      
-//      let managedContext = delegate.persistentContainer.viewContext
-//      
-////      let entity = 
-//      
-//      let person = NSManagedObject(entity: entity,
-//                                   insertInto: managedContext)
-//      
-//      // 3
-//      person.setValue(name, forKeyPath: "name")
-//      
-//      // 4
-//      do {
-//        try managedContext.save()
-//        people.append(person)
-//      } catch let error as NSError {
-//        print("Could not save. \(error), \(error.userInfo)")
-//      }
-//    }
-    
     static func == (lhs: Limud, rhs: Limud) -> Bool {
         lhs.id == rhs.id
     }
@@ -95,24 +58,20 @@ class Limud: Identifiable, Hashable {
 }
 
 class Section: Identifiable, Hashable {
-    var id: ID
-    var name: String
-    var initialDate: Date
-    
-    init(id: ID, name: String, initialDate: Date) {
-        self.id = id
-        self.name = name
-        self.initialDate = initialDate
-    }
+    final let id: ID
+    private(set) var name: String
+    private(set) var initialDate: Date
+    private(set) var limudId: ID
     
     init?(_ cdSection: CDSection) {
-        guard let id = cdSection.sectionId, let name = cdSection.sectionName, let initalDate = cdSection.initialDate else {
+        guard let id = cdSection.sectionId, let name = cdSection.sectionName, let initalDate = cdSection.initialDate, let cdLimud = cdSection.limud, let limudId = cdLimud.id else {
             return nil
         }
         
         self.id = id
         self.name = name
         self.initialDate = initalDate
+        self.limudId = limudId
     }
     
     init?(_ nsSetSection: NSSet) {
@@ -131,12 +90,6 @@ class Section: Identifiable, Hashable {
         hasher.combine(id)
         hasher.combine(name)
         hasher.combine(initialDate)
-    }
-}
-
-class Shiur: Section {
-    init(id: ID, shiurNumber: Int, initialDate: Date) {
-        super.init(id: id, name: "Shiur #\(shiurNumber)", initialDate: initialDate)
     }
 }
 
@@ -209,39 +162,7 @@ class ScheduledChazara: Identifiable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
-//    enum DelayType {
-//        case sinceInitial
-//        case sinceLast
-//    }
 }
-
-/*
-class Chazara: Identifiable {
-    var id: ID
-    var date: Date
-    var sectionId: ID
-    var scId: ID
-    
-    init(id: ID, date: Date, sectionId: ID, scId: ID) {
-        self.id = id
-        self.date = date
-        self.sectionId = sectionId
-        self.scId = scId
-    }
-    
-    init?(_ cdChazara: CDChazara) {
-        guard let id = cdChazara.id, let date = cdChazara.date, let sectionId = cdChazara.sectionId, let scId = cdChazara.scId else {
-            return nil
-        }
-        
-        self.id = id
-        self.date = date
-        self.sectionId = sectionId
-        self.scId = scId
-    }
-}
-*/
 
 func delayFormatted(_ delay: Int) -> String {
     return "\(delay)"

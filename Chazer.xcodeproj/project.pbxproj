@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F20B34C72A4A86C7004CA9F9 /* StatusBoxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20B34C62A4A86C7004CA9F9 /* StatusBoxModel.swift */; };
 		F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */; };
 		F218147929814940002D35C4 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F218147829814940002D35C4 /* Storage.swift */; };
 		F243EC962A23FB78001093C9 /* EditSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F243EC952A23FB78001093C9 /* EditSectionView.swift */; };
@@ -54,6 +55,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F20B34C62A4A86C7004CA9F9 /* StatusBoxModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBoxModel.swift; sourceTree = "<group>"; };
 		F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChazaraScheduleView.swift; sourceTree = "<group>"; };
 		F218147829814940002D35C4 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		F243EC952A23FB78001093C9 /* EditSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSectionView.swift; sourceTree = "<group>"; };
@@ -117,6 +119,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F20B34C52A4A857D004CA9F9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F20B34C62A4A86C7004CA9F9 /* StatusBoxModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		F243EC942A23D585001093C9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -180,9 +190,10 @@
 				F2E0E5C2296DACE700F3575B /* ChazaraPoint.swift */,
 				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
 				F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */,
-				F2E7990428D900FF00295041 /* GraphViewModel.swift */,
-				F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */,
 				F2FE274C28D29E8E006CFDFA /* Chazer.swift */,
+				F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */,
+				F2E7990428D900FF00295041 /* GraphViewModel.swift */,
+				F20B34C52A4A857D004CA9F9 /* Models */,
 				F243EC942A23D585001093C9 /* Views */,
 				F2D1B4EA2A23C864002B2E2A /* Structure */,
 				F2FE272128D29E7D006CFDFA /* Assets.xcassets */,
@@ -360,6 +371,7 @@
 				F28D23EE28E5BF6D006CFB1B /* EditChazaraScheduleView.swift in Sources */,
 				F2E0E5C9296DC92200F3575B /* UI.swift in Sources */,
 				F2FE272028D29E7C006CFDFA /* ContentView.swift in Sources */,
+				F20B34C72A4A86C7004CA9F9 /* StatusBoxModel.swift in Sources */,
 				F2E0E5C5296DAF9A00F3575B /* Dashboard.swift in Sources */,
 				F2E0E5C7296DAFC800F3575B /* DashboardModel.swift in Sources */,
 				F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */,

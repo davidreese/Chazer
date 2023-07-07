@@ -61,7 +61,7 @@ struct SettingsView: View {
                 Button(role: .destructive) {
                     showWipeConfirmation = true
                 } label: {
-                    Text("Erase Data")
+                    Text("Erase all data")
                 }
             }
         }

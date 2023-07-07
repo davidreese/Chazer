@@ -24,12 +24,14 @@ class Storage {
         self.container = container
     }
     
+    /// Used to request an update of the entire local storage system to match what is in CoreData.
+    /// - Warning: This function does not update ``ChazaraPoint`` objects right now.
     func update() {
         print("Loading storage...")
         
         loadScheduledChazarasSynchronously()
         loadSectionsSynchronously()
-        loadChazaraPointsSynchronously()
+//        loadChazaraPointsSynchronously()
     }
     
     func loadScheduledChazarasSynchronously() {
@@ -219,6 +221,7 @@ class Storage {
     }
     
     func loadChazaraPointsSynchronously() {
+        return
         print("Loading chazara points synchronously...")
         
         do {
@@ -252,7 +255,7 @@ class Storage {
             print(error)
         }
     }
-    
+
     /// Fetches this ``CDChazaraPoint`` data from the database and updates it here, or adds it if it has not been found in storage yet.
     func updateChazaraPoint(pointId: ID) -> CDChazaraPoint? {
         guard let cdChazaraPoint = pinCDChazaraPoint(id: pointId) else {
@@ -500,7 +503,7 @@ class Storage {
     
         
         func getChazaraPoint(pointId: ID) -> ChazaraPoint? {
-            if let cdCP = cdChazaraPointsDictionary?[pointId], let chazaraPoint = ChazaraPoint(cdCP) {
+            if let chazaraPoint = chazaraPointsDictionary?[pointId] {
                     return chazaraPoint
             } else {
                 //TODO: Make all the functions here work like this
@@ -508,6 +511,8 @@ class Storage {
 //                    Task {
 //                        await loadChazaraPoints()
 //                    }
+                    cdChazaraPointsDictionary?[pointId] = cdCP
+                    chazaraPointsDictionary?[pointId] = chazaraPoint
                     
                     return chazaraPoint
                 } else {
@@ -519,11 +524,11 @@ class Storage {
     /// Returns the requested ``ChazaraPoint`` from local storage.
     /// - Note: This function does not neccesarily update with CoreData.
         func getChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
-            guard let cdChazaraPoint = getCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded) else {
-                return nil
-            }
-            
-            if let chazaraPoint = ChazaraPoint(cdChazaraPoint) {
+            if let chazaraPoint = chazaraPointsDictionary?.values.first(where: { chazaraPoint in
+                chazaraPoint.sectionId == sectionId && chazaraPoint.scheduledChazaraId == scId
+            }) {
+                return chazaraPoint
+            } else if let cdChazaraPoint = getCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded), let chazaraPoint = ChazaraPoint(cdChazaraPoint) {
                 return chazaraPoint
             } else {
                 return nil
@@ -598,7 +603,55 @@ class Storage {
                 }
             }
         }
+    
+    // MARK: Dashboard Functions
+    
+    private func getActiveAndLateCDChazaraPoints() -> (active: Set<CDChazaraPoint>, late: Set<CDChazaraPoint>)? {
+        do {
+            let activeRequest = CDChazaraPoint.fetchRequest()
+            let activePredicate = NSPredicate(format: "chazaraState.status == %i", 2)
+            activeRequest.predicate = activePredicate
+            
+            let activeCDPoints = try self.container.newBackgroundContext().fetch(activeRequest)
+            
+            let lateRequest = CDChazaraPoint.fetchRequest()
+            let latePredicate = NSPredicate(format: "chazaraState.status == %i", 3)
+            lateRequest.predicate = latePredicate
+            
+            let lateCDPoints = try self.container.newBackgroundContext().fetch(lateRequest)
+            
+            return (Set(activeCDPoints), Set(lateCDPoints))
+        } catch {
+            print("Error fetching data: \(error)")
+            return nil
+        }
     }
+    
+
+ func getActiveAndLateChazaraPoints() -> (active: Set<ChazaraPoint>, late: Set<ChazaraPoint>)? {
+    guard let data = self.getActiveAndLateCDChazaraPoints() else {
+        return nil
+    }
+    
+    var activePoints = Set<ChazaraPoint>()
+    for cdPointActive in data.active {
+        guard let chazaraPoint = ChazaraPoint(cdPointActive) else {
+            continue
+        }
+        activePoints.update(with: chazaraPoint)
+    }
+    
+    var latePoints = Set<ChazaraPoint>()
+    for cdPointLate in data.late {
+        guard let chazaraPoint = ChazaraPoint(cdPointLate) else {
+            continue
+        }
+        latePoints.update(with: chazaraPoint)
+    }
+    
+    return (activePoints, latePoints)
+}
+}
     
     enum StorageError: Error {
         case wipeFailure

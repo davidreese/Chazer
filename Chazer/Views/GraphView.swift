@@ -288,10 +288,9 @@ struct GraphView: View {
         
         var updateParent: (() -> Void)?
         
-        init(section: Section, scheduledChazara: ScheduledChazara/*, viewContext: NSManagedObjectContext*/, onUpdate updateParent: (() -> Void)? = nil) {
+        init(section: Section, scheduledChazara: ScheduledChazara, onUpdate updateParent: (() -> Void)? = nil) {
             self.section = section
             self.scheduledChazara = scheduledChazara
-            //            self.viewContext = viewContext
             self.updateParent = updateParent
             //            self.status = getChazaraStatus()
 //            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
@@ -613,105 +612,12 @@ struct GraphView: View {
             }
         }
     }
-    
-    @MainActor
-    class StatusBoxModel: ObservableObject {
-        @Published var point: ChazaraPoint?
-        private let sectionId: ID
-        private let scId: ID
-        
-        init(container: NSPersistentContainer = PersistenceController.shared.container, section: Section, scheduledChazara: ScheduledChazara) {
-            self.sectionId = section.id
-            self.scId = scheduledChazara.id
-            
-            self.point = Storage.shared.getChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: true)
-            /*
-            let fetchRequest = CDChazaraPoint.fetchRequest()
-            
-            let sectionPredicate = NSPredicate(format: "sectionId == %@", section.id)
-            let scPredicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
-            let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scPredicate])
-            fetchRequest.predicate = andPredicate
-            
-            do {
-                let results = try container.newBackgroundContext().fetch(fetchRequest)
-                
-                if results.count == 1, let result = results.first {
-                    let newChazaraPoint = ChazaraPoint(result)
-                    self.point = newChazaraPoint
-                    //                    self.point?.updateCorrectChazaraStatus()//updateCorrectChazaraStatus()
-                    //                    print("P \(point?.status.rawValue)")
-                    
-                } else if results.isEmpty {
-                    print("Warning: Couldn't find CDChazaraPoint for StatusBox.")
-                    
-                    do {
-                        print("Creating a CDChazaraPoint for this spot...")
-                        let context = PersistenceController.shared.container.viewContext
-                        let point = CDChazaraPoint(context: context)
-                        
-                        point.pointId = IDGenerator.generate(withPrefix: "CP")
-                        point.sectionId = self.sectionId
-                        point.scId = self.scId
-                        
-                        let state = CDChazaraState(context: context)
-                        state.stateId = IDGenerator.generate(withPrefix: "CS")
-                        state.status = -1
-                        
-                        point.chazaraState = state
-                        
-                        try context.save()
-                        
-                        let newChazaraPoint = ChazaraPoint(point)
-                        self.point = newChazaraPoint
-                        
-                        print("Generated and saved a CDChazaraPoint.")
-                    } catch {
-                        print("Error: Couldn't save new CDChazaraPoint.")
-                    }
-                } else if results.count > 1 {
-                    print("Error: Found multiple CDChazaraPoints for StatusBox.")
-                }
-            } catch {
-                print("Error: Couldn't find CDChazaraPoint for StatusBox.")
-                //                return
-            }
-            
-//            self.notes = self.point?.notes?.array as? [CDPointNote]
-//            printNotes()
-             */
-        }
-        
-        @Published var text: String?
-        
-        func getText() async -> String? {
-            switch point?.status ?? .unknown {
-            case .early:
-                return await point?.getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
-            case .active:
-                return await point?.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
-            case .late:
-                return await point?.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
-            case .completed:
-                return point?.getCompletionDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
-            case .unknown:
-                return nil
-            case .exempt:
-                return ""
-            }
-        }
-        
-        func updateText() {
-            Task {
-                let result = await getText()
-                    self.text = result
-            }
-        }
-    }
 }
 
+/*
 struct GraphView_Previews: PreviewProvider {
     static var previews: some View {
         GraphView(limud: Limud(id: "L", name: "Gittin", sections: [Section(id: "S", name: "Shiur 1", initialDate: Date())], scheduledChazaras: [ScheduledChazara(id: "SC", delaySinceInitial: 1)]))
     }
 }
+*/
