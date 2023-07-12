@@ -80,6 +80,7 @@ struct Dashboard: View {
                     })
                     .padding()
                 }
+                
                 VStack {
                     Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.25879200395331325, saturation: 0.872023249246988, brightness: 0.8, opacity: 1.0), location: 0.2376201923076922), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.6892803485576923)]), center: UnitPoint.topLeading, angle: .radians(3.3970877559323203))) {
                         let now = Date.now
@@ -98,7 +99,9 @@ struct Dashboard: View {
                         } else {
                             Text("An error occured.")
                         }
-                    }.frame(width: 300, height: 300)
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                        .frame(maxWidth: 300)
                         .padding()
                     Spacer()
                 }
@@ -150,19 +153,29 @@ struct Dashboard: View {
                 HStack {
                     Text(model.point?.fetchSection()?.name ?? "nil")
                     Spacer()
-                }
+                }.frame(minWidth: 60, maxWidth: 150)
                 
                 Spacer()
                 
+                Divider()
+            HStack {
+                Text(model.point?.fetchSC()?.name ?? "nil")
+                Spacer()
+            }.frame(minWidth: 150)
+            
+            Spacer()
+                
+                Divider()
+                
                 HStack {
-                    Text(model.text ?? "time does not exist")
+                    Text(model.text ?? "nil")
                         .onAppear {
                             Task {
                                 await update()
                             }
                         }
                     Spacer()
-                }
+                }.frame(minWidth: 100)
                 Spacer()
             }
             .font(.title3)

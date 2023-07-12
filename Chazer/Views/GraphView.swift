@@ -74,7 +74,7 @@ struct GraphView: View {
                                 }
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color(uiColor: .systemBackground))
                             .cornerRadius(6)
                             .shadow(radius: 2)
                             .frame(height: headerCellHeight)
