@@ -56,3 +56,22 @@ extension DocumentPickerViewController: UIDocumentPickerDelegate {
         onDismiss()
     }
 }
+
+/// https://stackoverflow.com/a/64301261
+struct BackgroundBlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+    
+    init(style: UIBlurEffect.Style = .light) {
+        self.style = style
+    }
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIVisualEffectView(effect: UIBlurEffect(style: style))
+        DispatchQueue.main.async {
+            view.superview?.superview?.backgroundColor = .clear
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}

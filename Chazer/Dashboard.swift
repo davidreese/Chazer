@@ -14,7 +14,41 @@ struct Dashboard: View {
         ScrollView(.vertical) {
             HStack {
                 VStack {
-                    Panel {
+                    
+                    
+                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 1.0, saturation: 0.6854498070406627, brightness: 0.8, opacity: 1.0), location: 0.19659705528846155), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.7326472355769231)]), center: UnitPoint.topLeading, angle: .radians(5.007772431542131))) {
+                        VStack {
+                            HStack {
+                                Text("Late")
+                                    .font(.title)
+                                    .bold()
+                                Spacer()
+                            }
+                            
+                            Divider()
+                            
+                            if let lateChazaraPoints = model.lateChazaraPoints {
+                                VStack {
+                                    ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
+                                        if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                            return lhsDate < rhsDate
+                                        } else {
+                                            //                                    this isn't really supposed to occur
+                                            return true
+                                        }
+                                    })) { point in
+                                        DashboardPointBar(chazaraPoint: point)
+                                            .background(BackgroundBlurView(style: .regular)
+                                                .cornerRadius(UI.cornerRadius))
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+                    .padding()
+                    
+                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.5453719173569278, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 0.950868905308735, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.6383263221153845)]), center: UnitPoint.topLeading, angle: .radians(6.2744539114252245)), content:  {
                         VStack {
                             HStack {
                                 Text("Active")
@@ -36,31 +70,18 @@ struct Dashboard: View {
                                         }
                                     })) { point in
                                         DashboardPointBar(chazaraPoint: point)
+                                            .background(BackgroundBlurView(style: .regular)
+                                                .cornerRadius(UI.cornerRadius))
                                     }
                                 }
                             }
                         }
                         .padding()
-                    }
-                    Panel {
-                        if let lateChazaraPoints = model.lateChazaraPoints {
-                            VStack {
-                                ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
-                                    if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
-                                        return lhsDate < rhsDate
-                                    } else {
-                                        //                                    this isn't really supposed to occur
-                                        return true
-                                    }
-                                })) { point in
-                                    DashboardPointBar(chazaraPoint: point)
-                                }
-                            }
-                        }
-                    }
+                    })
+                    .padding()
                 }
                 VStack {
-                    Panel {
+                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.25879200395331325, saturation: 0.872023249246988, brightness: 0.8, opacity: 1.0), location: 0.2376201923076922), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.6892803485576923)]), center: UnitPoint.topLeading, angle: .radians(3.3970877559323203))) {
                         let now = Date.now
                         let calendar = Calendar.current
                         let month = calendar.component(.month, from: now)
@@ -78,6 +99,7 @@ struct Dashboard: View {
                             Text("An error occured.")
                         }
                     }.frame(width: 300, height: 300)
+                        .padding()
                     Spacer()
                 }
             }
@@ -97,16 +119,17 @@ struct Dashboard: View {
     
     struct Panel<Content: View>: View {
         var content: Content
+        var gradient: AngularGradient
         
-        init(@ViewBuilder content: @escaping () -> Content) {
+        init(gradient: AngularGradient = AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.4572532378047346, saturation: 0.18340398030108718, brightness: 0.8, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 0.45274495503988615, saturation: 0.36811144955186964, brightness: 0.8, opacity: 1.0), location: 0.35195647019606374)]), center: UnitPoint.topLeading, angle: .radians(0.0)), @ViewBuilder content: @escaping () -> Content) {
             self.content = content()
+            self.gradient = gradient
         }
         
         var body: some View {
             ZStack {
-                AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.4572532378047346, saturation: 0.18340398030108718, brightness: 0.8, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 0.45274495503988615, saturation: 0.36811144955186964, brightness: 0.8, opacity: 1.0), location: 0.35195647019606374)]), center: UnitPoint.topLeading, angle: .radians(0.0))
+                gradient
                     .cornerRadius(UI.cornerRadius)
-                    .padding()
                     .shadow(radius: UI.shadowRadius)
                 content
                     .padding()
@@ -125,18 +148,34 @@ struct Dashboard: View {
         
         var body: some View {
             HStack {
+                HStack {
+                    Text(model.point?.getLimud()?.name ?? "nil")
+                    Spacer()
+                }
+                    .frame(width: 150)
+                
+                    Divider()
+                HStack {
+                    Text(model.point?.fetchSection()?.name ?? "nil")
+                    Spacer()
+                }
+                
                 Spacer()
-//                Text(model.point?.getSection()?.limud.name ?? "nil")
-                Text(model.point?.fetchSection()?.name ?? "nil")
-                Text(model.text ?? "time does not exist")
-                    .onAppear {
-                        Task {
-                            await update()
+                
+                HStack {
+                    Text(model.text ?? "time does not exist")
+                        .onAppear {
+                            Task {
+                                await update()
+                            }
                         }
-                    }
+                    Spacer()
+                }
                 Spacer()
             }
-            .background(RoundedRectangle(cornerRadius: 3).fill(Color.white))
+            .font(.title3)
+            .padding()
+//            .background(RoundedRectangle(cornerRadius: 3).fill(Color.white))
         }
         
         private func update() async {

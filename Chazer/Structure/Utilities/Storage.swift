@@ -141,6 +141,35 @@ class Storage {
         }
     }
     
+    /// Find and return the ``CDLimud`` corresponding to the given `id` from the database.
+    private func pinCDLimud(id: ID) -> CDLimud? {
+        do {
+            let request = CDLimud.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id)
+            
+            let results = try self.container.newBackgroundContext().fetch(request)
+            
+            if results.count == 1 {
+                return results.first
+            } else if results.count > 1 {
+                print("Error: Something went wrong in pinning down the CDLimud, there is more than one match. Returning nil")
+                return nil
+            } else {
+                return nil
+            }
+        } catch {
+            print("Error: Failed to query to pin down a CDLimud: (id=\(id))")
+            return nil
+        }
+    }
+    
+    func fetchLimud(id: ID) -> Limud? {
+        guard let cdLimud = pinCDLimud(id: id) else {
+            return nil
+        }
+        return Limud(cdLimud)
+    }
+    
 //    var isLoadingChazaraPoints = false
     
     func loadChazaraPoints() async {

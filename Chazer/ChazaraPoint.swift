@@ -17,6 +17,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     final let scheduledChazaraId: ID
     private var scheduledChazara: ScheduledChazara?
     
+    final var limudId: ID?
+    private var limud: Limud?
+    
     @Published private(set) var status: ChazaraStatus!
     /// The date this point was marked to have been chazered
     /// - Note: This value should be `nil` if it has not been marked as chazered
@@ -159,6 +162,32 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             return sc
         } else {
             return fetchSC()
+        }
+    }
+    
+    /// Fetches the ``Limud`` assosiated with this point's `limudId` and saves it.
+    /// - Returns: The associated  ``Limud``, unless it wasn't found.
+    func fetchLimud() -> Limud? {
+        if let limudId = self.limudId {
+            self.limud = Storage.shared.fetchLimud(id: limudId)
+        } else {
+            guard let limudId = getSection()?.limudId else {
+                return nil
+            }
+            self.limudId = limudId
+            self.limud = Storage.shared.fetchLimud(id: limudId)
+        }
+        
+        return self.limud
+    }
+    
+    /// Gets the ``Limud`` associated with this point if it is saved, or if not, fetches it from storage and saves it.
+    /// - Returns: The associated  ``Limud``, unless it wasn't found.
+    func getLimud() -> Limud? {
+        if let limud = self.limud {
+            return limud
+        } else {
+            return fetchLimud()
         }
     }
     
