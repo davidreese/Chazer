@@ -105,16 +105,6 @@ struct Dashboard: View {
             }
         }
         .navigationTitle("Dashboard")
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    model.objectWillChange.send()
-                } label: {
-                    Text("Update")
-                }
-
-            }
-        }
     }
     
     struct Panel<Content: View>: View {
@@ -147,9 +137,11 @@ struct Dashboard: View {
         }
         
         var body: some View {
+            let hasNotes = !(model.point?.notes?.isEmpty ?? true)
             HStack {
                 HStack {
                     Text(model.point?.getLimud()?.name ?? "nil")
+                        .bold()
                     Spacer()
                 }
                     .frame(width: 150)
@@ -175,6 +167,21 @@ struct Dashboard: View {
             }
             .font(.title3)
             .padding()
+            .overlay {
+                VStack {
+                    if hasNotes {
+                        HStack {
+                            Spacer()
+                            Circle()
+                                .fill(.yellow)
+                                .frame(width: 8, height: 8)
+                                .shadow(radius: 2)
+                        }
+                        .padding(8)
+                        Spacer()
+                    }
+                }
+            }
 //            .background(RoundedRectangle(cornerRadius: 3).fill(Color.white))
         }
         
