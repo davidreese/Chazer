@@ -40,6 +40,7 @@ struct Dashboard: View {
                                         DashboardPointBar(chazaraPoint: point)
                                             .background(BackgroundBlurView(style: .regular)
                                                 .cornerRadius(UI.cornerRadius))
+                                            .frame(maxHeight: 75)
                                     }
                                 }
                             }
@@ -72,6 +73,7 @@ struct Dashboard: View {
                                         DashboardPointBar(chazaraPoint: point)
                                             .background(BackgroundBlurView(style: .regular)
                                                 .cornerRadius(UI.cornerRadius))
+                                            .frame(maxHeight: 75)
                                     }
                                 }
                             }
@@ -80,7 +82,7 @@ struct Dashboard: View {
                     })
                     .padding()
                 }
-                
+                /*
                 VStack {
                     Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.25879200395331325, saturation: 0.872023249246988, brightness: 0.8, opacity: 1.0), location: 0.2376201923076922), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.6892803485576923)]), center: UnitPoint.topLeading, angle: .radians(3.3970877559323203))) {
                         let now = Date.now
@@ -105,9 +107,15 @@ struct Dashboard: View {
                         .padding()
                     Spacer()
                 }
+                 */
             }
         }
         .navigationTitle("Dashboard")
+        .onAppear {
+            Task {
+                await model.update()
+            }
+        }
     }
     
     struct Panel<Content: View>: View {

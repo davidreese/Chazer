@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 class DashboardModel: ObservableObject {
     @Published var activeChazaraPoints: Set<ChazaraPoint>?
@@ -13,27 +14,40 @@ class DashboardModel: ObservableObject {
     
     init() {
         Task {
-            await load()
+            await update()
         }
     }
     
-    private func load() async {
+    func update() async {
         guard let data = Storage.shared.getActiveAndLateChazaraPoints() else {
             return
         }
-        activeChazaraPoints = data.active
-        lateChazaraPoints = data.late
-        
-        if let activeChazaraPoints = activeChazaraPoints {
-            for point in activeChazaraPoints {
-                await point.getDueDate()
+//        DispatchQueue.main.async {
+                    await MainActor.run {
+//                        withAnimation {
+            self.activeChazaraPoints = data.active
+            self.lateChazaraPoints = data.late
+            
+//        }
+        Task {
+            if let activeChazaraPoints = self.activeChazaraPoints {
+                for point in activeChazaraPoints {
+                    await point.getDueDate()
+                }
             }
-        }
-        
-        if let lateChazaraPoints = lateChazaraPoints {
-            for point in lateChazaraPoints {
-                await point.getDueDate()
+            
+            if let lateChazaraPoints = self.lateChazaraPoints {
+                for point in lateChazaraPoints {
+                    await point.getDueDate()
+                }
             }
+            self.objectWillChange.send()
         }
+        }
+                
+//            }
+//        }
+        
+        
     }
 }
