@@ -28,20 +28,26 @@ struct Dashboard: View {
                             Divider()
                             
                             if let lateChazaraPoints = model.lateChazaraPoints {
-                                VStack {
-                                    ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
-                                        if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
-                                            return lhsDate < rhsDate
-                                        } else {
-                                            //                                    this isn't really supposed to occur
-                                            return true
+                                if !lateChazaraPoints.isEmpty {
+                                    VStack {
+                                        ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
+                                            if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                                return lhsDate < rhsDate
+                                            } else {
+                                                //                                    this isn't really supposed to occur
+                                                return true
+                                            }
+                                        })) { point in
+                                            DashboardPointBar(chazaraPoint: point)
+                                                .background(BackgroundBlurView(style: .regular)
+                                                    .cornerRadius(UI.cornerRadius))
+                                                .frame(maxHeight: 75)
                                         }
-                                    })) { point in
-                                        DashboardPointBar(chazaraPoint: point)
-                                            .background(BackgroundBlurView(style: .regular)
-                                                .cornerRadius(UI.cornerRadius))
-                                            .frame(maxHeight: 75)
                                     }
+                                } else {
+                                    Text("You are not late on any chazaras.")
+                                        .font(.title3)
+                                        .padding()
                                 }
                             }
                         }
@@ -61,20 +67,26 @@ struct Dashboard: View {
                             Divider()
                             
                             if let activeChazaraPoints = model.activeChazaraPoints {
-                                VStack {
-                                    ForEach(activeChazaraPoints.sorted(by: { lhs, rhs in
-                                        if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
-                                            return lhsDate < rhsDate
-                                        } else {
-                                            //                                    this isn't really supposed to occur
-                                            return true
+                                if !activeChazaraPoints.isEmpty {
+                                    VStack {
+                                        ForEach(activeChazaraPoints.sorted(by: { lhs, rhs in
+                                            if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                                return lhsDate < rhsDate
+                                            } else {
+                                                //                                    this isn't really supposed to occur
+                                                return true
+                                            }
+                                        })) { point in
+                                            DashboardPointBar(chazaraPoint: point)
+                                                .background(BackgroundBlurView(style: .regular)
+                                                    .cornerRadius(UI.cornerRadius))
+                                                .frame(maxHeight: 75)
                                         }
-                                    })) { point in
-                                        DashboardPointBar(chazaraPoint: point)
-                                            .background(BackgroundBlurView(style: .regular)
-                                                .cornerRadius(UI.cornerRadius))
-                                            .frame(maxHeight: 75)
                                     }
+                                } else {
+                                    Text("You have no assigned chazaras to be done at the moment.")
+                                        .font(.title3)
+                                        .padding()
                                 }
                             }
                         }
