@@ -31,7 +31,7 @@ class Storage {
         
         loadScheduledChazarasSynchronously()
         loadSectionsSynchronously()
-//        loadChazaraPointsSynchronously()
+//        loadChazaraPointsSy/nchronously()
     }
     
     func loadScheduledChazarasSynchronously() {
@@ -173,25 +173,21 @@ class Storage {
 //    var isLoadingChazaraPoints = false
     
     func loadChazaraPoints() async {
-//        return
-        /*if isLoadingChazaraPoints {
-            return
-        } else {
-            isLoadingChazaraPoints = true
-        }*/
         
         print("Loading chazara points asynchronously...")
         
+        
+    await MainActor.run {
         do {
-            let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
-             let cpResults = try  self.container.newBackgroundContext().fetch(cpFetchRequest) as! [CDChazaraPoint]
                 
-            await MainActor.run {
+                let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
+                let cpResults = try  self.container.newBackgroundContext().fetch(cpFetchRequest) as! [CDChazaraPoint]
                 for cpResult in cpResults {
                     guard let pointId = cpResult.pointId else {
                         print("Error: Couldn't find pointId on CDChazaraPoint.")
                         continue
                     }
+                    print("TEMP1: \(pointId)")
                     if self.cdChazaraPointsDictionary == nil {
                         self.cdChazaraPointsDictionary = [pointId : cpResult]
                     } else {
@@ -212,7 +208,6 @@ class Storage {
                         print("\(cpResult.pointId ?? "nil") \(cpResult.sectionId ?? "nil")")
                     }
                 }
-            }
             
             /*
             try await self.container.performBackgroundTask({ context in
@@ -245,6 +240,8 @@ class Storage {
         } catch {
             print(error)
         }
+        
+    }
         
 //        isLoadingChazaraPoints = false
     }

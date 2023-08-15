@@ -296,9 +296,11 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
 
 //            DispatchQueue.main.async {
                 self.status = status
+            
+            print("Set status of \(status.rawValue) for ChazaraPoint (\(self.id))")
 //            }
         } catch {
-            print("Error: Could not set the chazara date: \(error)")
+            print("Error: Could not set the chazara status: \(error)")
         }
     }
     

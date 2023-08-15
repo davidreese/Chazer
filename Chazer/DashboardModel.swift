@@ -14,10 +14,12 @@ class DashboardModel: ObservableObject {
     
     init() {
         Task {
+            await Storage.shared.loadChazaraPoints()
             await update()
         }
     }
     
+    /// Updates the dashboard to reflect the latest updated data saved in the database.
     func update() async {
         guard let data = Storage.shared.getActiveAndLateChazaraPoints() else {
             return
