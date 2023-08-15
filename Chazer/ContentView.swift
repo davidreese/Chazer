@@ -77,9 +77,6 @@ struct ContentView: View {
             }
             .navigationTitle("Chazer")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
                 ToolbarItem {
                     Button(action: {
                         self.showingNewLimudView = true
