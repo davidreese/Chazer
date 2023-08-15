@@ -414,7 +414,7 @@ struct GraphView: View {
                     TextEditor(text: $newNoteText)
                         .toolbar {
                             ToolbarItem(placement: .automatic) {
-                                Button("Done") {
+                                Button("Save") {
                                     if !newNoteText.isEmpty {
                                         do {
                                             try saveNote()
