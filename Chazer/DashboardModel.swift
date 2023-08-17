@@ -9,13 +9,19 @@ import Foundation
 import SwiftUI
 
 class DashboardModel: ObservableObject {
-    @Published var activeChazaraPoints: Set<ChazaraPoint>?
-    @Published var lateChazaraPoints: Set<ChazaraPoint>?
+    @Published var activeChazaraPoints: [ChazaraPoint]?
+    @Published var lateChazaraPoints: [ChazaraPoint]?
     
     init() {
         Task {
             await Storage.shared.loadChazaraPoints()
             await update()
+        }
+        
+        Timer.scheduledTimer(withTimeInterval: 90, repeats: true) { _ in
+            Task {
+                await self.update()
+            }
         }
     }
     
@@ -24,13 +30,37 @@ class DashboardModel: ObservableObject {
         guard let data = Storage.shared.getActiveAndLateChazaraPoints() else {
             return
         }
-//        DispatchQueue.main.async {
+        for point in data.active {
+                await point.getDueDate()
+            }
+        
+        
+        for point in data.late {
+                await point.getDueDate()
+            }
+        
                     await MainActor.run {
-//                        withAnimation {
-            self.activeChazaraPoints = data.active
-            self.lateChazaraPoints = data.late
+                        
+                        
+                        
+                        self.activeChazaraPoints = data.active.sorted(by: { lhs, rhs in
+                            if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                                return lhsDate < rhsDate
+                            } else {
+                                //                                    this isn't really supposed to occur
+                                return true
+                            }
+                        })
+            self.lateChazaraPoints = data.late.sorted(by: { lhs, rhs in
+                if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                    return lhsDate < rhsDate
+                } else {
+                    //                                    this isn't really supposed to occur
+                    return true
+                }
+            })
             
-//        }
+/*
         Task {
             if let activeChazaraPoints = self.activeChazaraPoints {
                 for point in activeChazaraPoints {
@@ -44,12 +74,7 @@ class DashboardModel: ObservableObject {
                 }
             }
             self.objectWillChange.send()
+        }*/
         }
-        }
-                
-//            }
-//        }
-        
-        
     }
 }

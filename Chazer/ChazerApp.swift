@@ -15,12 +15,6 @@ struct ChazerApp: App {
     
     init() {
         Storage.shared.update()
-        
-        Timer.scheduledTimer(withTimeInterval: 90, repeats: true) { _ in
-            Task {
-                await Storage.shared.loadChazaraPoints()
-            }
-        }
     }
     
     static func printBackup() {

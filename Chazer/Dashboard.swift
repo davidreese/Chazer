@@ -30,14 +30,7 @@ struct Dashboard: View {
                             if let lateChazaraPoints = model.lateChazaraPoints {
                                 if !lateChazaraPoints.isEmpty {
                                     VStack {
-                                        ForEach(lateChazaraPoints.sorted(by: { lhs, rhs in
-                                            if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
-                                                return lhsDate < rhsDate
-                                            } else {
-                                                //                                    this isn't really supposed to occur
-                                                return true
-                                            }
-                                        })) { point in
+                                        ForEach(lateChazaraPoints) { point in
                                             DashboardPointBar(chazaraPoint: point)
                                                 .background(BackgroundBlurView(style: .regular)
                                                     .cornerRadius(UI.cornerRadius))
@@ -69,14 +62,7 @@ struct Dashboard: View {
                             if let activeChazaraPoints = model.activeChazaraPoints {
                                 if !activeChazaraPoints.isEmpty {
                                     VStack {
-                                        ForEach(activeChazaraPoints.sorted(by: { lhs, rhs in
-                                            if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
-                                                return lhsDate < rhsDate
-                                            } else {
-                                                //                                    this isn't really supposed to occur
-                                                return true
-                                            }
-                                        })) { point in
+                                        ForEach(activeChazaraPoints) { point in
                                             DashboardPointBar(chazaraPoint: point)
                                                 .background(BackgroundBlurView(style: .regular)
                                                     .cornerRadius(UI.cornerRadius))

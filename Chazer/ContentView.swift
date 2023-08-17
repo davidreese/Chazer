@@ -34,6 +34,11 @@ struct ContentView: View {
     
     init() {
 //        viewContext.automaticallyMergesChangesFromParent = true
+        Timer.scheduledTimer(withTimeInterval: 90, repeats: true) { _ in
+            Task {
+                await Storage.shared.loadChazaraPoints()
+            }
+        }
     }
     
     var body: some View {
