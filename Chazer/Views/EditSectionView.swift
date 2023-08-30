@@ -103,9 +103,12 @@ struct EditSectionView: View {
     }
     
     
+    /// Updates the ``Section`` being considered by this view
+    /// - Returns: The updated ``Limud`` object holding the updated ``Section``
+    @MainActor
     private func updateSection() throws -> Limud {
 //        fatalError()
-        guard let cdSection = Storage.shared.getCDSection(cdSectionId: self.section.id) else {
+        guard let cdSection = Storage.shared.pinCDSection(id: self.section.id) else {
             throw UpdateError.unknownError
         }
         

@@ -14,7 +14,7 @@ class Storage {
     private var container: NSPersistentContainer
     
     private(set) var sections: Set<Section>?
-    private(set) var cdSections: Set<CDSection>?
+//    private(set) var cdSections: Set<CDSection>?
     private(set) var scheduledChazaras: [ScheduledChazara]?
     private(set) var cdScheduledChazaras: [CDScheduledChazara]?
     private(set) var cdChazaraPointsDictionary: [ID: CDChazaraPoint]?
@@ -31,7 +31,7 @@ class Storage {
         
         loadScheduledChazarasSynchronously()
         loadSectionsSynchronously()
-//        loadChazaraPointsSy/nchronously()
+        //        loadChazaraPointsSy/nchronously()
     }
     
     func loadScheduledChazarasSynchronously() {
@@ -92,13 +92,13 @@ class Storage {
             
             /*
              var secResults: [CDSection]
-            try await self.container.performBackgroundTask({ context in
-                secResults = try context.fetch(scFetchRequest) as! [CDSection]
-            })*/
+             try await self.container.performBackgroundTask({ context in
+             secResults = try context.fetch(scFetchRequest) as! [CDSection]
+             })*/
             let secResults = try self.container.newBackgroundContext().fetch(scFetchRequest) as! [CDSection]
             
             await MainActor.run {
-                self.cdSections = Set<CDSection>(secResults)
+//                self.cdSections = Set<CDSection>(secResults)
                 
                 self.sections = nil
                 
@@ -123,7 +123,7 @@ class Storage {
             let scFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDSection.fetchRequest()
             let secResults = try self.container.newBackgroundContext().fetch(scFetchRequest) as! [CDSection]
             
-            self.cdSections = Set<CDSection>(secResults)
+//            self.cdSections = Set<CDSection>(secResults)
             
             self.sections = nil
             
@@ -170,16 +170,14 @@ class Storage {
         return Limud(cdLimud)
     }
     
-//    var isLoadingChazaraPoints = false
+    //    var isLoadingChazaraPoints = false
     
     func loadChazaraPoints() async {
         
         print("Loading chazara points asynchronously...")
         
-        
-    await MainActor.run {
-        do {
-                
+        await MainActor.run {
+            do {
                 let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
                 let cpResults = try  self.container.newBackgroundContext().fetch(cpFetchRequest) as! [CDChazaraPoint]
                 for cpResult in cpResults {
@@ -187,7 +185,6 @@ class Storage {
                         print("Error: Couldn't find pointId on CDChazaraPoint.")
                         continue
                     }
-                    print("TEMP1: \(pointId)")
                     if self.cdChazaraPointsDictionary == nil {
                         self.cdChazaraPointsDictionary = [pointId : cpResult]
                     } else {
@@ -208,42 +205,42 @@ class Storage {
                         print("\(cpResult.pointId ?? "nil") \(cpResult.sectionId ?? "nil")")
                     }
                 }
+                
+                /*
+                 try await self.container.performBackgroundTask({ context in
+                 let cpResults = try context.fetch(cpFetchRequest) as! [CDChazaraPoint]
+                 
+                 for cpResult in cpResults {
+                 guard let pointId = cpResult.pointId else {
+                 continue
+                 }
+                 if self.cdChazaraPointsDictionary == nil {
+                 self.cdChazaraPointsDictionary = [pointId : cpResult]
+                 } else {
+                 self.cdChazaraPointsDictionary![pointId] = cpResult
+                 }
+                 }
+                 
+                 self.chazaraPointsDictionary = nil
+                 
+                 for cpResult in cpResults {
+                 if let cp = ChazaraPoint(cpResult) {
+                 if self.chazaraPointsDictionary == nil {
+                 self.chazaraPointsDictionary = [cp.id : cp]
+                 } else {
+                 self.chazaraPointsDictionary![cp.id] = cp
+                 }
+                 }
+                 }
+                 })
+                 */
+            } catch {
+                print(error)
+            }
             
-            /*
-            try await self.container.performBackgroundTask({ context in
-                let cpResults = try context.fetch(cpFetchRequest) as! [CDChazaraPoint]
-                
-                for cpResult in cpResults {
-                    guard let pointId = cpResult.pointId else {
-                        continue
-                    }
-                    if self.cdChazaraPointsDictionary == nil {
-                        self.cdChazaraPointsDictionary = [pointId : cpResult]
-                    } else {
-                        self.cdChazaraPointsDictionary![pointId] = cpResult
-                    }
-                }
-                
-                self.chazaraPointsDictionary = nil
-                
-                for cpResult in cpResults {
-                    if let cp = ChazaraPoint(cpResult) {
-                        if self.chazaraPointsDictionary == nil {
-                            self.chazaraPointsDictionary = [cp.id : cp]
-                        } else {
-                            self.chazaraPointsDictionary![cp.id] = cp
-                        }
-                    }
-                }
-            })
-             */
-        } catch {
-            print(error)
         }
         
-    }
-        
-//        isLoadingChazaraPoints = false
+        //        isLoadingChazaraPoints = false
     }
     
     func loadChazaraPointsSynchronously() {
@@ -281,13 +278,13 @@ class Storage {
             print(error)
         }
     }
-
+    
     /// Fetches this ``CDChazaraPoint`` data from the database and updates it here, or adds it if it has not been found in storage yet.
     func updateChazaraPoint(pointId: ID) -> CDChazaraPoint? {
         guard let cdChazaraPoint = pinCDChazaraPoint(id: pointId) else {
             print("Couldn't update chazara point, not found in database (POINTID=\(pointId))")
             
-//            removing from local storage if it exists
+            //            removing from local storage if it exists
             cdChazaraPointsDictionary?.removeValue(forKey: pointId)
             chazaraPointsDictionary?.removeValue(forKey: pointId)
             
@@ -295,10 +292,11 @@ class Storage {
         }
         
         cdChazaraPointsDictionary?.updateValue(cdChazaraPoint, forKey: pointId)
-
+        
         return cdChazaraPoint
     }
     
+    /*
     /// Returns the requested ``CDSection`` from local storage without fetching from the database.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
     func getCDSection(cdSectionId: ID) -> CDSection? {
@@ -309,9 +307,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdSection = pinCDSection(id: cdSectionId) {
-//                Task {
-//                    await loadSections()
-//                }
+                //                Task {
+                //                    await loadSections()
+                //                }
                 
                 return cdSection
             } else {
@@ -319,7 +317,10 @@ class Storage {
             }
         }
     }
+    */
     
+    /// Returns the requested ``Section`` from local storage without fetching from the database.
+    /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
     func getSection(sectionId: ID) -> Section? {
         if let section = self.sections?.first(where: { section in
             section.id == sectionId
@@ -328,9 +329,12 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdSection = pinCDSection(id: sectionId) {
-                Task {
-                    await loadSections()
+                defer {
+                    Task {
+                        await loadSections()
+                    }
                 }
+                
                 if let section = Section(cdSection) {
                     return section
                 } else {
@@ -343,38 +347,57 @@ class Storage {
     }
     
     /// Fetches this ``Section`` data from the database and updates it here, or adds it if it has not been found in storage yet.
+    @MainActor
     func updateSection(sectionId: ID) -> Section? {
         guard let cdSection = pinCDSection(id: sectionId) else {
             print("Couldn't update section, not found in database (SECID=\(sectionId))")
             
-//            removing from local storage if it exists
+            /*
+            //            removing from local storage if it exists
             if let cdSection = self.cdSections?.first(where: { cdSection in
                 cdSection.sectionId == sectionId
             }) {
                 cdSections?.remove(cdSection)
             }
+             */
+            
+            if let section = self.sections?.first(where: { section in
+                section.id == sectionId
+            }) {
+                sections?.remove(section)
+            }
             
             return nil
         }
         
-        if let cdSection = self.cdSections?.first(where: { cdSection in
+        /*
+        if let cdSections = self.cdSections, let cdSection = cdSections.first(where: { cdSection in
             cdSection.sectionId == sectionId
         }) {
-            cdSections?.remove(cdSection)
+            self.cdSections?.remove(cdSection)
+        }
+         */
+        
+        if let section = self.sections?.first(where: { section in
+            section.id == sectionId
+        }) {
+            self.sections?.remove(section)
         }
         
-        cdSections?.update(with: cdSection)
+//        cdSections?.update(with: cdSection)
         
         guard let section = Section(cdSection) else {
             print("Couldn't return section (SECID=\(sectionId)), not valid")
             return nil
         }
         
+        self.sections?.update(with: section)
+        
         return section
     }
     
     /// Find and return this exact ``CDSection`` in the data store without doing a full load.
-    private func pinCDSection(id: ID) -> CDSection? {
+    func pinCDSection(id: ID) -> CDSection? {
         do {
             let request = CDSection.fetchRequest()
             request.predicate = NSPredicate(format: "sectionId == %@", id)
@@ -405,9 +428,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdSC = pinCDScheduledChazara(id: cdSCId) {
-//                Task {
-//                    await loadScheduledChazaras()
-//                }
+                //                Task {
+                //                    await loadScheduledChazaras()
+                //                }
                 
                 return cdSC
             } else {
@@ -421,7 +444,7 @@ class Storage {
         guard let cdScheduledChazara = pinCDScheduledChazara(id: scId) else {
             print("Couldn't update CDScheduledChazara, not found in database (SCID=\(scId))")
             
-//            removing from local storage if it exists
+            //            removing from local storage if it exists
             self.cdScheduledChazaras?.removeAll(where: { cdSC in
                 cdSC.scId == scId
             })
@@ -445,7 +468,7 @@ class Storage {
     }
     
     /// Find and return this exact ``CDScheduledChazara`` in the data store without doing a full load.
-    private func pinCDScheduledChazara(id: ID) -> CDScheduledChazara? {
+    func pinCDScheduledChazara(id: ID) -> CDScheduledChazara? {
         do {
             let request = CDScheduledChazara.fetchRequest()
             request.predicate = NSPredicate(format: "scId == %@", id)
@@ -472,9 +495,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdCP = pinCDChazaraPoint(id: id) {
-//                Task {
-//                    await loadChazaraPoints()
-//                }
+                //                Task {
+                //                    await loadChazaraPoints()
+                //                }
                 
                 return cdCP
             } else {
@@ -491,9 +514,9 @@ class Storage {
         } else {
             //TODO: Make all the functions here work like this
             if let cdCP = pinCDChazaraPoint(sectionId: sectionId, scId: scId) {
-//                Task {
-//                    await loadChazaraPoints()
-//                }
+                //                Task {
+                //                    await loadChazaraPoints()
+                //                }
                 
                 return cdCP
             } else if createNewIfNeeded {
@@ -527,108 +550,108 @@ class Storage {
         }
     }
     
-        
-        func getChazaraPoint(pointId: ID) -> ChazaraPoint? {
-            if let chazaraPoint = chazaraPointsDictionary?[pointId] {
-                    return chazaraPoint
+    
+    func getChazaraPoint(pointId: ID) -> ChazaraPoint? {
+        if let chazaraPoint = chazaraPointsDictionary?[pointId] {
+            return chazaraPoint
+        } else {
+            //TODO: Make all the functions here work like this
+            if let cdCP = pinCDChazaraPoint(id: pointId), let chazaraPoint = ChazaraPoint(cdCP)  {
+                //                    Task {
+                //                        await loadChazaraPoints()
+                //                    }
+                cdChazaraPointsDictionary?[pointId] = cdCP
+                chazaraPointsDictionary?[pointId] = chazaraPoint
+                
+                return chazaraPoint
             } else {
-                //TODO: Make all the functions here work like this
-                if let cdCP = pinCDChazaraPoint(id: pointId), let chazaraPoint = ChazaraPoint(cdCP)  {
-//                    Task {
-//                        await loadChazaraPoints()
-//                    }
-                    cdChazaraPointsDictionary?[pointId] = cdCP
-                    chazaraPointsDictionary?[pointId] = chazaraPoint
-                    
-                    return chazaraPoint
-                } else {
-                    return nil
-                }
+                return nil
             }
         }
-        
+    }
+    
     /// Returns the requested ``ChazaraPoint`` from local storage.
     /// - Note: This function does not neccesarily update with CoreData.
-        func getChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
-            if let chazaraPoint = chazaraPointsDictionary?.values.first(where: { chazaraPoint in
-                chazaraPoint.sectionId == sectionId && chazaraPoint.scheduledChazaraId == scId
-            }) {
-                return chazaraPoint
-            } else if let cdChazaraPoint = getCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded), let chazaraPoint = ChazaraPoint(cdChazaraPoint) {
-                return chazaraPoint
+    func getChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
+        if let chazaraPoint = chazaraPointsDictionary?.values.first(where: { chazaraPoint in
+            chazaraPoint.sectionId == sectionId && chazaraPoint.scheduledChazaraId == scId
+        }) {
+            return chazaraPoint
+        } else if let cdChazaraPoint = getCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded), let chazaraPoint = ChazaraPoint(cdChazaraPoint) {
+            return chazaraPoint
+        } else {
+            return nil
+        }
+    }
+    
+    /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
+    func pinCDChazaraPoint(id: ID) -> CDChazaraPoint? {
+        do {
+            let request = CDChazaraPoint.fetchRequest()
+            request.predicate = NSPredicate(format: "pointId == %@", id)
+            
+            let results = try self.container.newBackgroundContext().fetch(request)
+            
+            if results.count == 1 {
+                return results.first
+            } else if results.count > 1 {
+                print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
+                return nil
             } else {
                 return nil
             }
+        } catch {
+            print("Error: Failed to query to pin down a CDChazaraPoint: (pointId=\(id))")
+            return nil
         }
-        
-        /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
-        func pinCDChazaraPoint(id: ID) -> CDChazaraPoint? {
-            do {
-                let request = CDChazaraPoint.fetchRequest()
-                request.predicate = NSPredicate(format: "pointId == %@", id)
-                
-                let results = try self.container.newBackgroundContext().fetch(request)
-                
-                if results.count == 1 {
-                    return results.first
-                } else if results.count > 1 {
-                    print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
-                    return nil
-                } else {
-                    return nil
-                }
-            } catch {
-                print("Error: Failed to query to pin down a CDChazaraPoint: (pointId=\(id))")
-                return nil
-            }
-        }
-        
-        /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
-        func pinCDChazaraPoint(sectionId: ID, scId: ID) -> CDChazaraPoint? {
-            do {
-                let request = CDChazaraPoint.fetchRequest()
-                let sectionPredicate = NSPredicate(format: "sectionId == %@", sectionId)
-                let scPredicate = NSPredicate(format: "scId == %@", scId)
-                let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scPredicate])
-                request.predicate = andPredicate
-                
-                let results = try self.container.newBackgroundContext().fetch(request)
-                
-                if results.count == 1 {
-                    return results.first
-                } else if results.count > 1 {
-                    print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
-                    return nil
-                } else {
-                    return nil
-                }
-            } catch {
-                print("Error: Failed to query to pin down a CDChazaraPoint: (SECID=\(sectionId),SCID=\(scId)")
-                return nil
-            }
-        }
-        
-        /// Wipes CoreData for entities ``CDLimud``, ``CDSection``, ``CDScheduledChazara``, ``CDChazaraPoint``, and ``CDChazaraState``.
-        func wipe() throws {
-            print("Wiping data...")
-            let entities = ["CDLimud", "CDSection", "CDScheduledChazara", "CDChazaraPoint", "CDChazaraState", "CDPointNote"]
+    }
+    
+    /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
+    func pinCDChazaraPoint(sectionId: ID, scId: ID) -> CDChazaraPoint? {
+        do {
+            let request = CDChazaraPoint.fetchRequest()
+            let sectionPredicate = NSPredicate(format: "sectionId == %@", sectionId)
+            let scPredicate = NSPredicate(format: "scId == %@", scId)
+            let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scPredicate])
+            request.predicate = andPredicate
             
-            for entityName in entities {
-                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-                let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            let results = try self.container.newBackgroundContext().fetch(request)
+            
+            if results.count == 1 {
+                return results.first
+            } else if results.count > 1 {
+                print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
+                return nil
+            } else {
+                return nil
+            }
+        } catch {
+            print("Error: Failed to query to pin down a CDChazaraPoint: (SECID=\(sectionId),SCID=\(scId)")
+            return nil
+        }
+    }
+    
+    /// Wipes CoreData for entities ``CDLimud``, ``CDSection``, ``CDScheduledChazara``, ``CDChazaraPoint``, and ``CDChazaraState``.
+    func wipe() throws {
+        print("Wiping data...")
+        let entities = ["CDLimud", "CDSection", "CDScheduledChazara", "CDChazaraPoint", "CDChazaraState", "CDPointNote"]
+        
+        for entityName in entities {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            
+            do {
+                let context = container.newBackgroundContext()
+                try context.execute(batchDeleteRequest)
+                try context.save()
                 
-                do {
-                    let context = container.newBackgroundContext()
-                    try context.execute(batchDeleteRequest)
-                    try context.save()
-                    
-                    update()
-                } catch let error as NSError {
-                    print("Could not wipe Core Data, failed on run for \(entityName). \(error), \(error.userInfo)")
-                    throw StorageError.wipeFailure
-                }
+                update()
+            } catch let error as NSError {
+                print("Could not wipe Core Data, failed on run for \(entityName). \(error), \(error.userInfo)")
+                throw StorageError.wipeFailure
             }
         }
+    }
     
     // MARK: Dashboard Functions
     
@@ -653,32 +676,33 @@ class Storage {
         }
     }
     
+    
+    func getActiveAndLateChazaraPoints() -> (active: Set<ChazaraPoint>, late: Set<ChazaraPoint>)? {
+        guard let data = self.getActiveAndLateCDChazaraPoints() else {
+            return nil
+        }
+        
+        var activePoints = Set<ChazaraPoint>()
+        for cdPointActive in data.active {
+            guard let chazaraPoint = ChazaraPoint(cdPointActive) else {
+                continue
+            }
+            activePoints.update(with: chazaraPoint)
+        }
+        
+        var latePoints = Set<ChazaraPoint>()
+        for cdPointLate in data.late {
+            //        The following inztansiation seems to occasionally cause a crash. Not sure why, and why it is limited only to late points.
+            guard let chazaraPoint = ChazaraPoint(cdPointLate) else {
+                continue
+            }
+            latePoints.update(with: chazaraPoint)
+        }
+        
+        return (activePoints, latePoints)
+    }
+}
 
- func getActiveAndLateChazaraPoints() -> (active: Set<ChazaraPoint>, late: Set<ChazaraPoint>)? {
-    guard let data = self.getActiveAndLateCDChazaraPoints() else {
-        return nil
-    }
-    
-    var activePoints = Set<ChazaraPoint>()
-    for cdPointActive in data.active {
-        guard let chazaraPoint = ChazaraPoint(cdPointActive) else {
-            continue
-        }
-        activePoints.update(with: chazaraPoint)
-    }
-    
-    var latePoints = Set<ChazaraPoint>()
-    for cdPointLate in data.late {
-        guard let chazaraPoint = ChazaraPoint(cdPointLate) else {
-            continue
-        }
-        latePoints.update(with: chazaraPoint)
-    }
-    
-    return (activePoints, latePoints)
+enum StorageError: Error {
+    case wipeFailure
 }
-}
-    
-    enum StorageError: Error {
-        case wipeFailure
-    }

@@ -13,6 +13,9 @@ struct ContentView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
+    @Environment(\.scenePhase) var scenePhase
+    @Environment(\.openWindow) var openWindow
+    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)],
         animation: .default)
@@ -32,19 +35,19 @@ struct ContentView: View {
     @State private var showingDeleteAlert = false
     @State private var indicesToDelete: IndexSet?
     
+    let updateTimer = Timer.publish(every: 3, on: .current, in: .common).autoconnect()
+    @State var lastScenePhase: ScenePhase? = nil
+    
+    @State var dashboard = Dashboard()
+    
     init() {
 //        viewContext.automaticallyMergesChangesFromParent = true
-        Timer.scheduledTimer(withTimeInterval: 90, repeats: true) { _ in
-            Task {
-                await Storage.shared.loadChazaraPoints()
-            }
-        }
     }
     
     var body: some View {
         NavigationView {
             List {
-                NavigationLink(destination: Dashboard(), label: {
+                NavigationLink(destination: dashboard, label: {
                         Text("Dashboard")
                     })
                 ForEach(cdLimudim.filter({ cdl in
@@ -94,6 +97,47 @@ struct ContentView: View {
         .sheet(isPresented: $showingNewLimudView) {
             NewLimudView().environment(\.managedObjectContext, self.viewContext)
         }
+        .onReceive(updateTimer) { _ in
+            
+            if scenePhase == .active {
+                if let lastUpdate = lastUpdate, lastUpdate.timeIntervalSince(.now) > -(60*10) {
+                    if lastScenePhase == .active {
+                        print("Skipping chazara points load.")
+                        return
+                    }
+                }
+                
+                print("Loading chazara points...")
+                
+                lastScenePhase = .active
+                
+                Task {
+                    await update()
+                }
+            } else {
+//                will never update when the screen is out of view
+                print("Skipping chazara points load.")
+                lastScenePhase = scenePhase
+            }
+        }
+        /*
+        .onChange(of: scenePhase, perform: { phase in
+            if self.scenePhase == .active {
+                if !(updateTimer?.isValid ?? false) {
+                    setTimer()
+                }
+            } else {
+                updateTimer?.invalidate()
+            }
+            
+            switch phase {
+            case .active: print("SP: Active")
+            case .background: print("SP: Background")
+            case .inactive: print("SP: Inactive")
+            default: print("SP: Unknown")
+            }
+        })
+         */
         //        .alert("New Limud", isPresented: $showingNewLimudAlert, actions: {
         //                    TextField("Name", text: $limudName)
         //
@@ -102,6 +146,16 @@ struct ContentView: View {
         //                }, message: {
         //                    Text("Enter the name of the Limud.")
         //                })
+    }
+    
+    @State var lastUpdate: Date? = nil
+    
+    /// Runs a full update on the app data and on the views that enable updates.
+    func update() async {
+        lastUpdate = Date.now
+        
+        await Storage.shared.loadChazaraPoints()
+        await dashboard.model.updateDashboard()
     }
     
     private func executeLimudDeletion() throws {

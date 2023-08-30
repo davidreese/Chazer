@@ -40,7 +40,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             print("Error: Invalid CDChazaraPoint. Deleting...")
             return nil
             
-//            deletion code temporarily disabled
+            //            deletion code temporarily disabled
             do {
                 let context = container.newBackgroundContext()
                 context.delete(cdChazaraPoint)
@@ -52,26 +52,27 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             return nil
         }
+        let chazaraStateStatus = chazaraState.status
         
         self.id = id
         self.sectionId = sectionId
         self.scheduledChazaraId = scheduledChazaraId
         
-            if chazaraState.status == -2 {
-//                The chazara status has not yet been set.
-                print("Mesg: Chazara status has not yet been set. SECID=\(sectionId) SCID=\(scheduledChazaraId)")
-                fatalError()
-            } else {
-                guard let status = ChazaraStatus(rawValue: chazaraState.status) else {
-                    print("Error: Invalid status for chazara point. STAT=\(chazaraState.status)")
-                    return nil
-                }
-                
-                self.status = status
-                self.date = chazaraState.date
+        if chazaraStateStatus == -2 {
+            //                The chazara status has not yet been set.
+            print("Mesg: Chazara status has not yet been set. SECID=\(sectionId) SCID=\(scheduledChazaraId)")
+            return nil
+        } else {
+            guard let status = ChazaraStatus(rawValue: chazaraStateStatus) else {
+                print("Error: Invalid status for chazara point. STAT=\(chazaraStateStatus)")
+                return nil
             }
+            
+            self.status = status
+            self.date = chazaraState.date
+        }
         
-//        moving saved notes array into this object
+        //        moving saved notes array into this object
         if let objects = cdChazaraPoint.notes?.array {
             for obj in objects {
                 if let cdNote = obj as? CDPointNote, let note = PointNote(cdNote) {
@@ -83,7 +84,6 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 }
             }
         }
-//        print("G\(notes?.count ?? 0)")
         
         Task {
             await updateAllData()
@@ -103,7 +103,6 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// - Note: To update all data, use ``updateData()``
     @MainActor
     func updatePointData() {
-//        return
         guard let cdChazaraPoint = Storage.shared.updateChazaraPoint(pointId: self.id) else {
             return
         }
@@ -133,6 +132,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Fetches the ``Section`` associated with this point's `sectionId` and saves it.
     /// - Returns: The assosiated  ``Section``, unless it wasn't found.
+    @MainActor
     func fetchSection() -> Section? {
         self.section = Storage.shared.updateSection(sectionId: self.sectionId)
         return self.section
@@ -140,6 +140,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the ``Section`` associated with this point if it is saved, or if not, fetches it from storage and saves it.
     /// - Returns: The assosiated  ``Section``, unless it wasn't found.
+    @MainActor
     func getSection() -> Section? {
         if let section = self.section {
             return section
@@ -150,6 +151,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Fetches the ``ScheduledChazara`` assosiated with this point's `scId` and saves it.
     /// - Returns: The associated  ``ScheduledChazara``, unless it wasn't found.
+    @MainActor
     func fetchSC() -> ScheduledChazara? {
         self.scheduledChazara = Storage.shared.updateScheduledChazara(scId: self.scheduledChazaraId)
         return self.scheduledChazara
@@ -157,6 +159,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the ``ScheduledChazara`` associated with this point if it is saved, or if not, fetches it from storage and saves it.
     /// - Returns: The associated  ``ScheduledChazara``, unless it wasn't found.
+    @MainActor
     func getSC() -> ScheduledChazara? {
         if let sc = self.scheduledChazara {
             return sc
@@ -167,6 +170,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Fetches the ``Limud`` assosiated with this point's `limudId` and saves it.
     /// - Returns: The associated  ``Limud``, unless it wasn't found.
+    @MainActor
     func fetchLimud() -> Limud? {
         if let limudId = self.limudId {
             self.limud = Storage.shared.fetchLimud(id: limudId)
@@ -183,6 +187,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the ``Limud`` associated with this point if it is saved, or if not, fetches it from storage and saves it.
     /// - Returns: The associated  ``Limud``, unless it wasn't found.
+    @MainActor
     func getLimud() -> Limud? {
         if let limud = self.limud {
             return limud
@@ -230,24 +235,24 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     private var isUpdating = false
     private var lastUpdate: Date?
     
-//    TODO: Check that this isn't being called too much
+    //    TODO: Check that this isn't being called too much
     /// Updates all data on this ``ChazaraPoint`` to be consistent with data in the database.
     @MainActor
     func updateAllData() async {
         if !isUpdating {
             if (lastUpdate?.timeIntervalSinceNow ?? 100) > 15 {
                 isUpdating = true
-                lastUpdate = Date()
                 print("Updating all data on point... (PID=\(self.id))")
                 
-                //            Update the relevant section and scheduled chazara objects
-                self.section = self.fetchSection()
-                self.scheduledChazara = self.fetchSC()
-                
-                self.updatePointData()
-                await self.updateCorrectChazaraStatus()
-                
+                //            Update the relevant section and scheduled chazara objects\
+//            TODO: try and figure these next four lines, what is making this function stop the UI for so long. maybe kill the @MainActor requirements of these functions and figure out a way for them to all run on one thread, like if you create the coredata thread here maybe.
+                    await self.fetchSection()
+                    await self.fetchSC()
+                    await self.updatePointData()
+                    await self.updateCorrectChazaraStatus()
+
                 isUpdating = false
+                lastUpdate = Date.now
             } else {
                 print("Not updating data on point because it was updated too recently: (PID=\(self.id))")
             }
@@ -275,9 +280,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             entity.chazaraState?.date = date
             try entity.managedObjectContext?.save()
             
-//            DispatchQueue.main.async {
-                self.date = date
-//            }
+            //            DispatchQueue.main.async {
+            self.date = date
+            //            }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
@@ -290,17 +295,17 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 print("Error: Couldn't set state, CDEntity is nil.")
                 return
             }
-
+            
             entity.chazaraState?.status = status.rawValue
             try entity.managedObjectContext?.save()
-
-//            DispatchQueue.main.async {
-                self.status = status
             
-            print("Set status of \(status.rawValue) for ChazaraPoint (\(self.id))")
-//            }
+            //            DispatchQueue.main.async {
+            self.status = status
+            
+            //            print("Set status of \(status.rawValue) for ChazaraPoint (\(self.id))")
+            //            }
         } catch {
-            print("Error: Could not set the chazara status: \(error)")
+            print("Error: Could not set chazara status: \(error)")
         }
     }
     
@@ -317,8 +322,8 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             try entity.managedObjectContext!.save()
             
-                self.status = status
-                self.date = date
+            self.status = status
+            self.date = date
         } catch {
             print("Error: Could not set the chazara date: \(error)")
         }
@@ -347,13 +352,14 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     }
     
     /// Gets the ``Date`` that this ``ChazaraPoint`` becomes active, if there is one available.
+    @MainActor
     func getActiveDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
-//            no date available
+            //            no date available
             return nil
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
-//                will now try to calculate the right date
+                //                will now try to calculate the right date
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
                         guard let delayedFromPoint = ChazaraPoint.getCDChazaraPoint(section: section, scheduledChazara: delayedFrom), let statusRaw = delayedFromPoint.chazaraState?.status, let status = ChazaraStatus(rawValue: statusRaw) else {
@@ -394,45 +400,51 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     }
     
     /// Gets the date that this ``ChazaraPoint``is due, if there is one.
+    @MainActor
     func getDueDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
             return nil
         } else {
             if let section = section, let scheduledChazara = scheduledChazara {
-                
                 if let delay = scheduledChazara.delay {
-                if let delayedFrom = scheduledChazara.delayedFrom {
-                    let delayedFromPoint = ChazaraPoint.getChazaraPoint(section: section, scheduledChazara: delayedFrom)
-                    if delayedFromPoint?.status == .completed {
-                        if let date = delayedFromPoint?.date {
-                            let dueDate: Date? = ChazaraPoint.getDueDate(date, delay: delay)
-                            await setDueDate(dueDate)
-                            return dueDate
+                    if let delayedFrom = scheduledChazara.delayedFrom {
+                        let delayedFromPoint = ChazaraPoint.getChazaraPoint(section: section, scheduledChazara: delayedFrom)
+                        if delayedFromPoint?.status == .completed {
+                            if let date = delayedFromPoint?.date {
+                                let dueDate: Date? = ChazaraPoint.getDueDate(date, delay: delay)
+                                    setDueDate(dueDate)
+            
+                                return dueDate
+                            } else {
+                                print("Error: Couldn't get due date.")
+                                let dueDate: Date? = nil
+                                setDueDate(dueDate)
+                                
+                                return dueDate
+                            }
                         } else {
-                            print("Error: Couldn't get due date.")
                             let dueDate: Date? = nil
-                            await setDueDate(dueDate)
+                            setDueDate(dueDate)
+                            
                             return dueDate
                         }
                     } else {
-                        let dueDate: Date? = nil
-                        await setDueDate(dueDate)
+                        let dueDate: Date? = ChazaraPoint.getDueDate(section.initialDate, delay: delay)
+                            setDueDate(dueDate)
+                        
                         return dueDate
                     }
+                } else if let fixedDueDate = scheduledChazara.fixedDueDate {
+                    setDueDate(fixedDueDate)
+                    
+                    return fixedDueDate
                 } else {
-                    let dueDate: Date? = ChazaraPoint.getDueDate(section.initialDate, delay: delay)
-                    await setDueDate(dueDate)
+                    print("Error: Scheduled chazara has no valid due rule.")
+                    let dueDate: Date? = nil
+                    setDueDate(dueDate)
+                    
                     return dueDate
                 }
-            } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                await setDueDate(fixedDueDate)
-                return fixedDueDate
-            } else {
-                print("Error: Scheduled chazara has no valid due rule.")
-                let dueDate: Date? = nil
-                await setDueDate(dueDate)
-                return dueDate
-            }
             } else if retryOnFail {
                 await updateAllData()
                 return await getDueDate(retryOnFail: false)
@@ -451,7 +463,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Gets the chazara status that should be assigned to this ``ChazaraPoint`` based on its section and scheduled chazara.
     /// - Returns: The correct ``ChazaraStatus`` that should be applied, based on the local variables.
     private func getCorrectChazaraStatus() async -> ChazaraStatus {
-//        await updateAllData()
+        //        await updateAllData()
         //            check first to see if chazara has been completed
         if self.status == .completed {
             return .completed
@@ -486,10 +498,10 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Assigns the corect computed ``ChazaraStatus`` based on the variables available.
     @MainActor
     func updateCorrectChazaraStatus() async {
-//        Task {
+        //        Task {
         let status = await getCorrectChazaraStatus()
         self.setStatus(status)
-//        }
+        //        }
     }
     
     static func getCompletionDate(sectionId: ID, scheduledChazaraId: ID) -> Date? {

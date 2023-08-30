@@ -43,7 +43,7 @@
         <attribute name="isDynamic" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="scId" attributeType="String"/>
         <attribute name="scName" optional="YES" attributeType="String"/>
-        <relationship name="delayedFrom" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDScheduledChazara"/>
+        <relationship name="delayedFrom" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="CDScheduledChazara"/>
         <relationship name="limud" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDLimud" inverseName="scheduledChazaras" inverseEntity="CDLimud"/>
     </entity>
     <entity name="CDSection" representedClassName="CDSection" syncable="YES" codeGenerationType="class">

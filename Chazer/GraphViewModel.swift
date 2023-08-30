@@ -16,4 +16,12 @@ class GraphViewModel: ObservableObject {
     init(limud: Limud) {
         self.limud = limud
     }
+    
+    func update() {
+        guard let newLimud = Storage.shared.fetchLimud(id: self.limud.id) else {
+            fatalError()
+        }
+        
+        self.limud = newLimud
+    }
 }

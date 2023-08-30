@@ -39,7 +39,7 @@ struct GraphView: View {
     
     var body: some View {
         //        VStack {
-        if !model.limud.sections.isEmpty {
+        if !(model.limud.sections.isEmpty && model.limud.scheduledChazaras.isEmpty) {
             List {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -93,9 +93,7 @@ struct GraphView: View {
                                                 self.showingManageSectionView = true
                                             })
                                             Button("Delete", action: {
-                                                withAnimation {
                                                     try? deleteSection(section)
-                                                }
                                             })
                                         }) {
                                             Text(section.name)
@@ -215,25 +213,53 @@ struct GraphView: View {
             //                .ignoresSafeArea([.container], edges: [.trailing])
             
         } else {
-            Text("You don't have any saved sections to chazer yet.")
-                .font(Font.title3)
-                .multilineTextAlignment(.center)
-            Button {
-                //                            self.limudShowing = limud
-                self.showingNewSectionView = true
-            } label: {
-                Text("New Section")
-            }
-            .buttonStyle(BorderedProminentButtonStyle())
-            .sheet(isPresented: $showingNewSectionView) {
-                NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
-                    withAnimation {
-                        self.model.limud = limud
-                        self.model.objectWillChange.send()
+            VStack {
+                Spacer()
+                Text("This limud is new and doesn't have any data yet.")
+                    .font(Font.title3)
+                    .multilineTextAlignment(.center)
+                Group {
+                    
+                    
+                    Button {
+                        //                            self.limudShowing = limud
+                        self.showingNewSectionView = true
+                    } label: {
+                        Text("New Section")
                     }
-                })
-                .environment(\.managedObjectContext, self.viewContext)
+                    .buttonStyle(BorderedProminentButtonStyle())
+                    .sheet(isPresented: $showingNewSectionView) {
+                        NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                            withAnimation {
+                                self.model.limud = limud
+                                self.model.objectWillChange.send()
+                            }
+                        })
+                        .environment(\.managedObjectContext, self.viewContext)
+                    }
+                    
+                    Button {
+                        //                            self.limudShowing = limud
+                        self.showingAddChazaraScheduleView = true
+                    } label: {
+                        Text("New Scheduled Chazara")
+                    }
+                    .buttonStyle(BorderedProminentButtonStyle())
+                    .sheet(isPresented: $showingAddChazaraScheduleView) {
+                        NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
+                            withAnimation {
+                                self.model.limud = limud
+                                self.model.objectWillChange.send()
+                            }
+                        })
+                        .environment(\.managedObjectContext, self.viewContext)
+                    }
+                    
+                    Spacer()
+                }
+                Spacer()
             }
+            .navigationTitle(model.limud.name)
         }
     }
     
@@ -249,6 +275,8 @@ struct GraphView: View {
             }
             
             try viewContext.save()
+            
+            model.update()
         }
         
     }
@@ -265,8 +293,9 @@ struct GraphView: View {
             }
             
             try viewContext.save()
+            
+            model.update()
         }
-        
     }
     
     /// A view that displays the state of a single ``ChazaraPoint``.

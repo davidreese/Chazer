@@ -28,7 +28,7 @@ struct EditChazaraScheduleView: View {
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
         self.delay = scheduledChazara.delay ?? 1
-        self.delayedFromId = scheduledChazara.delayedFrom?.id
+        self.delayedFromId = scheduledChazara.delayedFrom?.id ?? "init"
         self.onUpdate = onUpdate
     }
     
@@ -51,8 +51,6 @@ struct EditChazaraScheduleView: View {
                 }
                 
                 SwiftUI.Section {
-//                        TextField("", value: $delay, formatter: NumberFormatter())
-                        
                         Picker("Delayed From", selection: $delayedFromId) {
                             Text("Initial Learning")
                                 .tag("init")
@@ -64,11 +62,8 @@ struct EditChazaraScheduleView: View {
                                         .tag(sc.id)
                                 }
                             }
-                            .onAppear {
-                                print(self.cdScheduledChazaras)
-                            }
-                        
                     }
+                    
                     Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
                 }
             }
@@ -124,15 +119,27 @@ struct EditChazaraScheduleView: View {
     
     /// Applies custom changes to the ``CDScheduledChazara`` object.
     private func updateScheduledChazara() throws -> Limud {
-//        fatalError()
-        
-        
-        guard let cdSC = Storage.shared.getCDScheduledChazara(cdSCId: self.scheduledChazara.id) else {
+        guard let cdSC = Storage.shared.pinCDScheduledChazara(id: self.scheduledChazara.id) else {
             throw UpdateError.unknownError
         }
         
         cdSC.scName = self.scName
         cdSC.delay = Int16(self.delay)
+        if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
+            if delayedFromId == "init" {
+                cdSC.delayedFrom = nil
+            } else {
+                let fetchRequest = CDScheduledChazara.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "scId == %@", delayedFromId)
+                let results = try cdSC.managedObjectContext?.fetch(fetchRequest)
+                
+                guard let results = results, results.count == 1, let result = results.first else {
+                    throw UpdateError.unknownError
+                }
+                
+                cdSC.delayedFrom = result
+            }
+        }
         
         try withAnimation {
             try cdSC.managedObjectContext!.save()

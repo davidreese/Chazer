@@ -6,16 +6,17 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct Dashboard: View {
+    @Environment(\.scenePhase) var scenePhase
+    
     @ObservedObject var model: DashboardModel = DashboardModel()
     
     var body: some View {
         ScrollView(.vertical) {
             HStack {
                 VStack {
-                    
-                    
                     Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 1.0, saturation: 0.6854498070406627, brightness: 0.8, opacity: 1.0), location: 0.19659705528846155), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.7326472355769231)]), center: UnitPoint.topLeading, angle: .radians(5.007772431542131))) {
                         VStack {
                             HStack {
@@ -109,9 +110,16 @@ struct Dashboard: View {
             }
         }
         .navigationTitle("Dashboard")
+        .toolbar {
+            if let pdf = model.pdf {
+                ToolbarItem {
+                    ShareLink(item: pdf, preview: SharePreview("PDF"))
+                }
+            }
+        }
         .onAppear {
             Task {
-                await model.update()
+                await model.updateDashboard()
             }
         }
     }
