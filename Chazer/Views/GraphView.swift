@@ -117,6 +117,8 @@ struct GraphView: View {
                                 }.frame(height: cellHeight)
                             }
                             .padding(.leading, 3)
+                            
+                            Spacer()
                         }
                         //                            Spacer()
                     }
