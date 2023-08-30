@@ -70,6 +70,7 @@ struct GraphView: View {
                                         Text(sc.name)
                                             .frame(width: chazaraWidth)
                                             .foregroundColor(.primary)
+                                            .lineLimit(2)
                                     }
                                 }
                             }
@@ -77,7 +78,7 @@ struct GraphView: View {
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(6)
                             .shadow(radius: 2)
-                            .frame(height: headerCellHeight)
+//                            .frame(height: headerCellHeight)
                             
                             let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
                                 lhs.initialDate > rhs.initialDate
