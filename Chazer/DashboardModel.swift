@@ -87,55 +87,76 @@ class DashboardModel: ObservableObject {
             let smallerTitleFont = UIFont.boldSystemFont(ofSize: 18)
             let cellFont = UIFont.systemFont(ofSize: 12)
             
-            let largeTitle = "Upcoming Chazara at \(Date.now.formatted())"
+            let largeTitle = "Upcoming Chazara"
             let largeTitleRect = CGRect(x: 50, y: 50, width: pageRect.width - 100, height: 40)
             largeTitle.draw(in: largeTitleRect, withAttributes: [NSAttributedString.Key.font: largeTitleFont])
             
-            //            currentY += 20
+            let subTitle = Date.now.formatted()
+            let subTitleRect = CGRect(x: 50, y: 85, width: pageRect.width - 100, height: 40)
+            subTitle.draw(in: subTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont, NSAttributedString.Key.foregroundColor: UIColor.gray])
             
-            if !(self.lateChazaraPoints?.isEmpty ?? true) {
+            var currentY = 130.0
+            
+            if let lateChazaraPoints = self.lateChazaraPoints, !lateChazaraPoints.isEmpty {
                 let lateTitle = "Late"
                 
-                let lateTitleRect = CGRect(x: 50, y: 120, width: pageRect.width - 100, height: 30)
+                let lateTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
                 lateTitle.draw(in: lateTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
                 
-                drawTable(context: context, startY: 160, numRows: 6, numCols: 4, cellFont: cellFont)
-            }
-            
-            if !(self.activeChazaraPoints?.isEmpty ?? true) {
-                let activeTitle = "Active"
-                let activeTitleAttributes = [
-                    NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2, compatibleWith: .current)
-                ]
-                activeTitle.draw(at: CGPoint(x: 0, y: !(self.lateChazaraPoints?.isEmpty ?? true) ? 80 : 40), withAttributes: activeTitleAttributes)
+                drawTable(context: context, startY: currentY + 40, points: lateChazaraPoints)
                 
-                //                currentY +=
+                currentY = currentY + 40 + 50
             }
             
-            // Draw Second Smaller Title
-            let smallerTitle2 = "Smaller Title 2"
-            let smallerTitleRect2 = CGRect(x: 50, y: pageRect.height - 220, width: pageRect.width - 100, height: 30)
-            smallerTitle2.draw(in: smallerTitleRect2, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
-            
-            // Draw Second Table
-            drawTable(context: context, startY: pageRect.height - 180, numRows: 6, numCols: 4, cellFont: cellFont)
+            if let activeChazaraPoints = self.activeChazaraPoints, !activeChazaraPoints.isEmpty {
+                let activeTitle = "Active"
+                
+                let activeTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
+                activeTitle.draw(in: activeTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
+                
+                drawTable(context: context, startY: currentY + 40, points: activeChazaraPoints)
+                
+                currentY = currentY + 40 + 50
+            }
         }
         
         //        self.pdf = PDFDocument(data: data)
         self.pdf = PDFDocument(data: data)
     }
             
-    func drawTable(context: UIGraphicsPDFRendererContext, startY: CGFloat, numRows: Int, numCols: Int, cellFont: UIFont) {
-        let cellWidth = (context.format.bounds.width - 100) / CGFloat(numCols)
+    func drawTable(context: UIGraphicsPDFRendererContext, startY: CGFloat, points: [ChazaraPoint]) {
+        let COLUMN_COUNT = 4
+        
+        let cellWidth = (context.format.bounds.width - 100) / CGFloat(COLUMN_COUNT)
         let cellHeight: CGFloat = 20
         
-        for row in 0..<numRows {
-            for col in 0..<numCols {
-                let cellText = randomWord()
-                let cellRect = CGRect(x: 50 + CGFloat(col) * cellWidth, y: startY + CGFloat(row) * cellHeight, width: cellWidth, height: cellHeight)
+        for i in 0..<points.count {
+            for col in 0..<COLUMN_COUNT {
+                let point = points[i]
+                let text = {
+                    let section = Storage.shared.getSection(sectionId: point.sectionId)
+                    
+                    switch col {
+                    case 0:
+                        guard let limudId = section?.limudId else {
+                            return "?"
+                        }
+                        return Storage.shared.fetchLimud(id: limudId)?.name ?? "?"
+                    case 1:
+                        return section?.name ?? "?"
+                    case 2:
+                        return Storage.shared.getScheduledChazara(scId: point.scheduledChazaraId)?.name ?? "?"
+                    case 3:
+                        return point.dueDate?.formatted(date: .abbreviated, time: .omitted) ?? "?"
+                    default:
+                        return "?"
+                    }
+                }()
+                
+                let cellRect = CGRect(x: 50 + CGFloat(col) * cellWidth, y: startY + CGFloat(i) * cellHeight, width: cellWidth, height: cellHeight)
                 
                 context.cgContext.setFillColor(UIColor.black.cgColor)
-                cellText.draw(in: cellRect, withAttributes: [NSAttributedString.Key.font: cellFont])
+                text.draw(in: cellRect, withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)])
             }
         }
     }

@@ -21,6 +21,7 @@ struct GraphView: View {
     @State var showingEditChazaraScheduleView = false
     @State var showingManageSectionView = false
     
+//    @State var showHeader = false
     
     //    var columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -78,6 +79,7 @@ struct GraphView: View {
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(6)
                             .shadow(radius: 2)
+                            
 //                            .frame(height: headerCellHeight)
                             
                             let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
@@ -139,10 +141,6 @@ struct GraphView: View {
             //                .ignoresSafeArea([.container], edges: [.horizontal])
             .listSectionSeparator(.hidden)
             .listRowSeparator(.hidden)
-            //                .ignoresSafeArea([.container], edges: [.horizontal])
-            .onAppear {
-                self.model.objectWillChange.send()
-            }
             .navigationTitle(model.limud.name)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

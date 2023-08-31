@@ -35,6 +35,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     private final let container = PersistenceController.shared.container
     
+    /// Attempts to intansiate a ``ChazaraPoint`` from its CoreData counterpart.
     init?(_ cdChazaraPoint: CDChazaraPoint) {
         guard let id = cdChazaraPoint.pointId, let sectionId = cdChazaraPoint.sectionId, let scheduledChazaraId = cdChazaraPoint.scId, let chazaraState = cdChazaraPoint.chazaraState else {
             print("Error: Invalid CDChazaraPoint. Deleting...")
@@ -103,7 +104,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// - Note: To update all data, use ``updateData()``
     @MainActor
     func updatePointData() {
-        guard let cdChazaraPoint = Storage.shared.updateChazaraPoint(pointId: self.id) else {
+        guard let cdChazaraPoint = Storage.shared.pinCDChazaraPoint(id: self.id) else {
             return
         }
         
@@ -399,7 +400,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         return date.advanced(by: TimeInterval(delay * 60 * 60 * 24))
     }
     
-    /// Gets the date that this ``ChazaraPoint``is due, if there is one.
+    /// Gets the date that this ``ChazaraPoint`` is due, if there is one.
     @MainActor
     func getDueDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {

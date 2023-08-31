@@ -98,7 +98,6 @@ struct ContentView: View {
             NewLimudView().environment(\.managedObjectContext, self.viewContext)
         }
         .onReceive(updateTimer) { _ in
-            
             if scenePhase == .active {
                 if let lastUpdate = lastUpdate, lastUpdate.timeIntervalSince(.now) > -(60*10) {
                     if lastScenePhase == .active {
