@@ -103,9 +103,9 @@ class DashboardModel: ObservableObject {
                 let lateTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
                 lateTitle.draw(in: lateTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
                 
-                drawTable(context: context, startY: currentY + 40, points: lateChazaraPoints)
+                drawTable(context: context, startY: currentY + 30, points: lateChazaraPoints)
                 
-                currentY = currentY + 40 + 50
+                currentY = currentY + 30 + 50
             }
             
             if let activeChazaraPoints = self.activeChazaraPoints, !activeChazaraPoints.isEmpty {
@@ -114,9 +114,9 @@ class DashboardModel: ObservableObject {
                 let activeTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
                 activeTitle.draw(in: activeTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
                 
-                drawTable(context: context, startY: currentY + 40, points: activeChazaraPoints)
+                drawTable(context: context, startY: currentY + 30, points: activeChazaraPoints)
                 
-                currentY = currentY + 40 + 50
+                currentY = currentY + 30 + 50
             }
         }
         
