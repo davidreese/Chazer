@@ -543,10 +543,6 @@ class Storage {
     
     /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
     func pinCDChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> CDChazaraPoint? {
-        if createNewIfNeeded {
-            print("Warning: Paramater 'createNewIfNeeded' was set to true; this feature has not been implemented.")
-        }
-        
         do {
             let request = CDChazaraPoint.fetchRequest()
             let sectionPredicate = NSPredicate(format: "sectionId == %@", sectionId)
@@ -561,6 +557,31 @@ class Storage {
             } else if results.count > 1 {
                 print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
                 return nil
+            } else if results.count == 0 && createNewIfNeeded {
+                do {
+                    print("Creating a CDChazaraPoint for spot: (SECID=\(sectionId),SCID=\(scId)) (CALLB)")
+                    let context = PersistenceController.shared.container.viewContext
+                    let point = CDChazaraPoint(context: context)
+                    
+                    point.pointId = IDGenerator.generate(withPrefix: "CP")
+                    point.sectionId = sectionId
+                    point.scId = scId
+                    
+                    let state = CDChazaraState(context: context)
+                    state.stateId = IDGenerator.generate(withPrefix: "CS")
+                    state.status = -1
+                    
+                    point.chazaraState = state
+                    
+                    try context.save()
+                    
+                    print("Generated and saved a CDChazaraPoint.")
+                    
+                    return point
+                } catch {
+                    print("Error: Couldn't save new CDChazaraPoint.")
+                    return nil
+                }
             } else {
                 return nil
             }
