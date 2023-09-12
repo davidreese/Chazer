@@ -103,9 +103,11 @@ class DashboardModel: ObservableObject {
                 let lateTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
                 lateTitle.draw(in: lateTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
                 
-                drawTable(context: context, startY: currentY + 30, points: lateChazaraPoints)
+                currentY += 30
                 
-                currentY = currentY + 30 + 50
+                let tableHeight = drawTable(context: context, startY: currentY, points: lateChazaraPoints)
+                
+                currentY = currentY + tableHeight + 10
             }
             
             if let activeChazaraPoints = self.activeChazaraPoints, !activeChazaraPoints.isEmpty {
@@ -114,21 +116,27 @@ class DashboardModel: ObservableObject {
                 let activeTitleRect = CGRect(x: 50, y: currentY, width: pageRect.width - 100, height: 30)
                 activeTitle.draw(in: activeTitleRect, withAttributes: [NSAttributedString.Key.font: smallerTitleFont])
                 
-                drawTable(context: context, startY: currentY + 30, points: activeChazaraPoints)
+                currentY += 30
                 
-                currentY = currentY + 30 + 50
+                let tableHeight = drawTable(context: context, startY: currentY, points: activeChazaraPoints)
+                
+                currentY = currentY + tableHeight + 10
             }
         }
         
         //        self.pdf = PDFDocument(data: data)
         self.pdf = PDFDocument(data: data)
     }
-            
-    func drawTable(context: UIGraphicsPDFRendererContext, startY: CGFloat, points: [ChazaraPoint]) {
+    
+    /// Draws a table on the given ``UIGraphicsPDFRendererContext`` based on an array of ``ChazaraPoint`` objects.
+    /// - Returns: The height of the table
+    func drawTable(context: UIGraphicsPDFRendererContext, startY: CGFloat, points: [ChazaraPoint]) -> CGFloat {
         let COLUMN_COUNT = 4
         
         let cellWidth = (context.format.bounds.width - 100) / CGFloat(COLUMN_COUNT)
         let cellHeight: CGFloat = 20
+        
+//        var cellsAdded = 0
         
         for i in 0..<points.count {
             for col in 0..<COLUMN_COUNT {
@@ -157,8 +165,12 @@ class DashboardModel: ObservableObject {
                 
                 context.cgContext.setFillColor(UIColor.black.cgColor)
                 text.draw(in: cellRect, withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)])
+                
+//                cellsAdded += 1
             }
         }
+        
+        return cellHeight * CGFloat(points.count)
     }
 
     func randomWord() -> String {
