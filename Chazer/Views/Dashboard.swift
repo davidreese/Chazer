@@ -13,6 +13,9 @@ struct Dashboard: View {
     
     @ObservedObject var model: DashboardModel = DashboardModel()
     
+//    @State var exportViewShowing = false
+    @State var fileExporterShowing = false
+    
     var body: some View {
         ScrollView(.vertical) {
             HStack {
@@ -113,7 +116,17 @@ struct Dashboard: View {
         .toolbar {
             if let pdf = model.pdf {
                 ToolbarItem {
-                    ShareLink(item: pdf, preview: SharePreview("PDF"))
+                    Menu {
+                        ShareLink(item: pdf, preview: SharePreview("PDF"))
+                        Button {
+                            
+                        } label: {
+                                Text("Download")
+                                Image(systemName: "arrow.down")
+                        }
+                    } label: {
+                        Text("Export")
+                    }
                 }
             }
         }
@@ -122,6 +135,13 @@ struct Dashboard: View {
                 await model.updateDashboard()
             }
         }
+//        .fileExporter(isPresented: $fileExporterShowing, documents: Set([model.pdf!]), contentType: .pdf, onCompletion: { result in
+//            if case .success(let url) = result {
+//                            print("PDF exported successfully to: \(url)")
+//                        } else if case .failure(let error) = result {
+//                            print("Error exporting PDF: \(error)")
+//                        }
+//        })
     }
     
     struct Panel<Content: View>: View {

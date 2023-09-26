@@ -66,8 +66,8 @@ class DashboardModel: ObservableObject {
     /// Generates a PDF file representing the information on the dashboard and saves it in the model.
     private func generatePDF(/*date: Date = Date.now*/) {
         let pdfMetaData = [
-            kCGPDFContextCreator: "Upcoming Chazara",
-            kCGPDFContextAuthor: "Chazer App"
+            kCGPDFContextAuthor: "Chazer App",
+            kCGPDFContextTitle: "UC \(Date.now.formatted())"
         ]
         
         let format = UIGraphicsPDFRendererFormat()

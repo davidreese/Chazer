@@ -35,6 +35,8 @@ struct ContentView: View {
     @State private var showingDeleteAlert = false
     @State private var indicesToDelete: IndexSet?
     
+    @State private var isUpdating = false
+    
     let updateTimer = Timer.publish(every: 3, on: .current, in: .common).autoconnect()
     @State var lastScenePhase: ScenePhase? = nil
     
@@ -86,6 +88,11 @@ struct ContentView: View {
             .navigationTitle("Chazer")
             .toolbar {
                 ToolbarItem {
+                    if self.isUpdating {
+                        ProgressView()
+                    }
+                }
+                ToolbarItem {
                     Button(action: {
                         self.showingNewLimudView = true
                     }) {
@@ -107,11 +114,13 @@ struct ContentView: View {
                 }
                 
                 print("Loading chazara points...")
+                self.isUpdating = true
                 
                 lastScenePhase = .active
                 
                 Task {
                     await update()
+                    self.isUpdating = false
                 }
             } else {
 //                will never update when the screen is out of view
