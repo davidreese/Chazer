@@ -34,3 +34,27 @@ extension PDFDocument: Transferable {
         }
      }
 }
+import UniformTypeIdentifiers
+struct PDFDocumentForExport: FileDocument {
+    static var readableContentTypes: [UTType] {
+        [.pdf]
+    }
+    
+    var pdf: PDFDocument?
+    
+    init(pdf: PDFDocument) {
+        self.pdf = pdf
+    }
+    
+    init(configuration: ReadConfiguration) throws {
+        if let data = configuration.file.regularFileContents, let pdf = PDFDocument(data: data) {
+            self.pdf = pdf
+        } else {
+            self.pdf = nil
+        }
+    }
+    
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: (pdf!.dataRepresentation())!)
+    }
+}

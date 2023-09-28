@@ -15,6 +15,7 @@ class DashboardModel: ObservableObject {
     @Published var lateChazaraPoints: [ChazaraPoint]?
     
     @Published private(set) var pdf: PDFDocument?
+    @Published private(set) var pdfFilename: String?
     
     init() {
         Task {
@@ -126,6 +127,9 @@ class DashboardModel: ObservableObject {
         
         //        self.pdf = PDFDocument(data: data)
         self.pdf = PDFDocument(data: data)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        self.pdfFilename = "Upcoming Chazara \(dateFormatter.string(from: .now))"
     }
     
     /// Draws a table on the given ``UIGraphicsPDFRendererContext`` based on an array of ``ChazaraPoint`` objects.

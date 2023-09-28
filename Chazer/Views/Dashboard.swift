@@ -119,7 +119,7 @@ struct Dashboard: View {
                     Menu {
                         ShareLink(item: pdf, preview: SharePreview("PDF"))
                         Button {
-                            
+                            fileExporterShowing = true
                         } label: {
                                 Text("Download")
                                 Image(systemName: "arrow.down")
@@ -135,13 +135,13 @@ struct Dashboard: View {
                 await model.updateDashboard()
             }
         }
-//        .fileExporter(isPresented: $fileExporterShowing, documents: Set([model.pdf!]), contentType: .pdf, onCompletion: { result in
-//            if case .success(let url) = result {
-//                            print("PDF exported successfully to: \(url)")
-//                        } else if case .failure(let error) = result {
-//                            print("Error exporting PDF: \(error)")
-//                        }
-//        })
+        .fileExporter(isPresented: $fileExporterShowing, document: PDFDocumentForExport(pdf: self.model.pdf!), contentType: .pdf, defaultFilename: model.pdfFilename!, onCompletion: { result in
+            if case .success(let url) = result {
+                print("PDF exported successfully to: \(url)")
+            } else if case .failure(let error) = result {
+                print("Error exporting PDF: \(error)")
+            }
+        })
     }
     
     struct Panel<Content: View>: View {
