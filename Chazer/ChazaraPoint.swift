@@ -247,10 +247,14 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 
                 //            Update the relevant section and scheduled chazara objects\
 //            TODO: try and figure these next four lines, what is making this function stop the UI for so long. maybe kill the @MainActor requirements of these functions and figure out a way for them to all run on one thread, like if you create the coredata thread here maybe.
-                    await self.fetchSection()
-                    await self.fetchSC()
-                    await self.updatePointData()
-                    await self.updateCorrectChazaraStatus()
+                    self.fetchSection()
+                    self.fetchSC()
+                    self.updatePointData()
+                do {
+                    try await self.updateCorrectChazaraStatus()
+                } catch {
+                    print("Failed to update correct chazara status for (PID=\(self.id)): \(error)")
+                }
 
                 isUpdating = false
                 lastUpdate = Date.now
@@ -290,7 +294,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     }
     
     @MainActor
-    func setStatus(_ status: ChazaraStatus) {
+    func setStatus(_ status: ChazaraStatus) throws {
         do {
             guard let entity = self.fetchCDEntity() else {
                 print("Error: Couldn't set state, CDEntity is nil.")
@@ -307,11 +311,12 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             //            }
         } catch {
             print("Error: Could not set chazara status: \(error)")
+            throw error
         }
     }
     
     @MainActor
-    func setState(status: ChazaraStatus, date: Date?) {
+    func setState(status: ChazaraStatus, date: Date?) throws {
         do {
             guard let entity = self.fetchCDEntity() else {
                 print("Error: Couldn't set state, CDEntity is nil.")
@@ -326,30 +331,31 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             self.status = status
             self.date = date
         } catch {
-            print("Error: Could not set the chazara date: \(error)")
+            print("Error: Could not set the chazara status/date: \(error)")
+            throw error
         }
     }
     
     @MainActor
-    func markAsChazered(date: Date) async {
-        setState(status: .completed, date: date)
+    func markAsChazered(date: Date) async throws {
+        try setState(status: .completed, date: date)
     }
     
     @MainActor
-    func markAsExempt() async {
-        setState(status: .exempt, date: nil)
+    func markAsExempt() async throws {
+        try setState(status: .exempt, date: nil)
     }
     
     @MainActor
-    func removeChazara() async {
-        self.setState(status: .unknown, date: nil)
-        await self.updateCorrectChazaraStatus()
+    func removeChazara() async throws {
+        try self.setState(status: .unknown, date: nil)
+        try await self.updateCorrectChazaraStatus()
     }
     
     @MainActor
-    func removeExemption() async {
-        self.setState(status: .unknown, date: nil)
-        await self.updateCorrectChazaraStatus()
+    func removeExemption() async throws {
+        try self.setState(status: .unknown, date: nil)
+        try await self.updateCorrectChazaraStatus()
     }
     
     /// Gets the ``Date`` that this ``ChazaraPoint`` becomes active, if there is one available.
@@ -498,10 +504,10 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Assigns the corect computed ``ChazaraStatus`` based on the variables available.
     @MainActor
-    func updateCorrectChazaraStatus() async {
+    func updateCorrectChazaraStatus() async throws {
         //        Task {
         let status = await getCorrectChazaraStatus()
-        self.setStatus(status)
+        try self.setStatus(status)
         //        }
     }
     

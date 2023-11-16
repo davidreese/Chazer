@@ -340,6 +340,7 @@ struct GraphView: View {
                             do {
                                 try await removeChazara()
                             } catch {
+                                isShowingError = true
                                 print("Couldn't remove chazaras: \(error)")
                             }
                         }
@@ -351,6 +352,7 @@ struct GraphView: View {
                             do {
                                 try await removeExemption()
                             } catch {
+                                isShowingError = true
                                 print("Couldn't remove exemptions: \(error)")
                             }
                         }
@@ -361,6 +363,7 @@ struct GraphView: View {
                             do {
                                 try await markAsChazered()
                             } catch {
+                                isShowingError = true
                                 print("Couldn't mark as chazered: \(error)")
                             }
                         }
@@ -370,6 +373,7 @@ struct GraphView: View {
                             do {
                                 try await markExempt()
                             } catch {
+                                isShowingError = true
                                 print("Couldn't mark as exempt: \(error)")
                             }
                         }
@@ -399,7 +403,7 @@ struct GraphView: View {
                             .foregroundColor(.primary)
                             .onChange(of: model.text) { _ in
                                 Task {
-                                    await update()
+                                    try await update()
                                 }
                             }
                     })
@@ -420,7 +424,7 @@ struct GraphView: View {
                     }
                     .onAppear {
                         Task {
-                            await update()
+                            try await update()
                         }
                     }
                     .sheet(isPresented: $showingDateChanger) {
@@ -532,14 +536,14 @@ struct GraphView: View {
         
         /// Removes chazara for this point.
         private func removeChazara() async throws {
-            await model.point?.removeChazara()
-            await update()
+            try await model.point?.removeChazara()
+            try await update()
         }
         
         /// Removes an exemption for this chazara point.
         private func removeExemption() async throws {
-            await model.point?.removeExemption()
-            await update()
+            try await model.point?.removeExemption()
+            try await update()
         }
         
         func showCompletionDateEditor() {
@@ -547,18 +551,18 @@ struct GraphView: View {
         }
         
         func markAsChazered(date: Date = Date()) async throws {
-            await model.point?.markAsChazered(date: date)
-            await update()
+            try await model.point?.markAsChazered(date: date)
+            try await update()
         }
         
         func markExempt() async throws {
-            await model.point?.markAsExempt()
-            await update()
+            try await model.point?.markAsExempt()
+            try await update()
         }
         
-        func update() async {
+        func update() async throws {
             //            self.model.point?.updateData()
-            await self.model.point?.updateCorrectChazaraStatus()
+            try await self.model.point?.updateCorrectChazaraStatus()
             self.model.updateText()
 //            self.model.objectWillChange.send()
             updateParent?()
