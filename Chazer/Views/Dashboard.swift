@@ -132,7 +132,8 @@ struct Dashboard: View {
         }
         .onAppear {
             Task {
-                await model.updateDashboard()
+//                MARK: DEBUG
+//                await model.updateDashboard()
             }
         }
         .fileExporter(isPresented: $fileExporterShowing, document: PDFDocumentForExport(pdf: self.model.pdf!), contentType: .pdf, defaultFilename: model.pdfFilename!, onCompletion: { result in

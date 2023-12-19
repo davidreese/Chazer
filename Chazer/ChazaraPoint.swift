@@ -338,12 +338,14 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     @MainActor
     func markAsChazered(date: Date) async throws {
-        try setState(status: .completed, date: date)
+        try self.setState(status: .completed, date: date)
+        try await self.updateCorrectChazaraStatus()
     }
     
     @MainActor
     func markAsExempt() async throws {
         try setState(status: .exempt, date: nil)
+        try await self.updateCorrectChazaraStatus()
     }
     
     @MainActor
