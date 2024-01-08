@@ -421,7 +421,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                         let delayedFromPoint = ChazaraPoint.getChazaraPoint(section: section, scheduledChazara: delayedFrom)
                         if delayedFromPoint?.status == .completed {
                             if let date = delayedFromPoint?.date {
-                                let dueDate: Date? = ChazaraPoint.getDueDate(date, delay: delay)
+                                let dueDate: Date? = self.getDueDate(date, delay: delay)
                                     setDueDate(dueDate)
             
                                 return dueDate
@@ -439,25 +439,25 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                             return dueDate
                         }
                     } else {
-                        let dueDate: Date? = ChazaraPoint.getDueDate(section.initialDate, delay: delay)
+                        let dueDate: Date? = self.getDueDate(section.initialDate, delay: delay)
                             setDueDate(dueDate)
                         
                         return dueDate
                     }
                 } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                    setDueDate(fixedDueDate)
+                    self.setDueDate(fixedDueDate)
                     
                     return fixedDueDate
                 } else {
                     print("Error: Scheduled chazara has no valid due rule.")
                     let dueDate: Date? = nil
-                    setDueDate(dueDate)
+                    self.setDueDate(dueDate)
                     
                     return dueDate
                 }
             } else if retryOnFail {
                 await updateAllData()
-                return await getDueDate(retryOnFail: false)
+                return await self.getDueDate(retryOnFail: false)
             } else {
                 print("Error: Cannot find information for this ChazaraPoint to getDueDate.")
                 return nil
@@ -465,8 +465,26 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         }
     }
     
-    private static func getDueDate(_ date: Date, delay: Int) -> Date {
-        return getActiveDate(date, delay: delay).advanced(by: 2 * 60 * 60 * 24)
+    @MainActor
+    private func getDueDate(_ date: Date, delay: Int) -> Date {
+        var scheduledChazara = self.scheduledChazara
+        if scheduledChazara == nil {
+            scheduledChazara = self.getSC()
+        }
+        
+        guard scheduledChazara != nil else {
+            print("Missing ScheduledChazara object [SCID=\(self.scheduledChazaraId)]")
+            return ChazaraPoint.getActiveDate(date, delay: delay).advanced(by: 2 * 60 * 60 * 24)
+
+        }
+        
+        if let daysActive = scheduledChazara!.daysActive {
+                return ChazaraPoint.getActiveDate(date, delay: delay).advanced(by: TimeInterval(daysActive * 60 * 60 * 24))
+            } else {
+                print("Missing daysActive value from ScheduledChazara [SCID=\(self.scheduledChazaraId)]")
+                return ChazaraPoint.getActiveDate(date, delay: delay).advanced(by: 2 * 60 * 60 * 24)
+                
+            }
     }
     
     

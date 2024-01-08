@@ -29,6 +29,7 @@ struct NewChazaraScheduleView: View {
     @State var scName: String = ""
     @State var fixedDueDate: Date = Date().addingTimeInterval(60 * 60 * 24 * 10)
     @State var delay = 1
+    @State var daysActive = 2
     @State var delayedFromId: ID = "init"
     
     var limudim: [Limud] {
@@ -99,6 +100,8 @@ struct NewChazaraScheduleView: View {
                             
                         }
                         Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
+                        
+                        Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                     }
                 }
             }
@@ -186,6 +189,8 @@ struct NewChazaraScheduleView: View {
             newItem.isDynamic = false
         } else {
             newItem.delay = Int16(delay)
+            newItem.daysToComplete = Int16(daysActive)
+            
             let delayedFrom: CDScheduledChazara?
             if delayedFromId == "init" {
                 delayedFrom = nil

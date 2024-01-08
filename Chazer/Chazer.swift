@@ -152,6 +152,7 @@ class ScheduledChazara: Identifiable, Hashable {
             if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
                 self.delayedFrom = ScheduledChazara(cdDelayedFrom)
             }
+            self.daysActive = Int(cdScheduledChazara.daysToComplete)
         }
     }
     

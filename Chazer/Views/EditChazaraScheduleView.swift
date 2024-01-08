@@ -21,6 +21,7 @@ struct EditChazaraScheduleView: View {
 
     @State var scName: String = ""
     @State var delay = 1
+    @State var daysActive = 2
     @State var delayedFromId: ID?
     
     init(limudId: ID, scheduledChazara: ScheduledChazara, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
@@ -28,6 +29,7 @@ struct EditChazaraScheduleView: View {
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
         self.delay = scheduledChazara.delay ?? 1
+        self.daysActive = scheduledChazara.daysActive ?? 2
         self.delayedFromId = scheduledChazara.delayedFrom?.id ?? "init"
         self.onUpdate = onUpdate
     }
@@ -65,6 +67,8 @@ struct EditChazaraScheduleView: View {
                     }
                     
                     Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
+                    
+                    Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                 }
             }
             .navigationTitle("Edit Scheduled Chazara")
@@ -95,6 +99,7 @@ struct EditChazaraScheduleView: View {
         .onAppear {
             self.scName = scheduledChazara.name
             self.delay = scheduledChazara.delay ?? 1
+            self.daysActive = scheduledChazara.daysActive ?? 2
             self.delayedFromId = scheduledChazara.delayedFrom?.id
             updateOtherScheduledChazaras()
         }
@@ -125,6 +130,7 @@ struct EditChazaraScheduleView: View {
         
         cdSC.scName = self.scName
         cdSC.delay = Int16(self.delay)
+        cdSC.daysToComplete = Int16(self.daysActive)
         if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
             if delayedFromId == "init" {
                 cdSC.delayedFrom = nil
