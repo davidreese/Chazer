@@ -53,6 +53,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             return nil
         }
+        
         let chazaraStateStatus = chazaraState.status
         
         self.id = id
@@ -471,7 +472,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the chazara status that should be assigned to this ``ChazaraPoint`` based on its section and scheduled chazara.
     /// - Returns: The correct ``ChazaraStatus`` that should be applied, based on the local variables.
-    private func getCorrectChazaraStatus() async -> ChazaraStatus {
+    func getCorrectChazaraStatus() async -> ChazaraStatus {
         //        await updateAllData()
         //            check first to see if chazara has been completed
         if self.status == .completed {
@@ -507,10 +508,8 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Assigns the corect computed ``ChazaraStatus`` based on the variables available.
     @MainActor
     func updateCorrectChazaraStatus() async throws {
-        //        Task {
         let status = await getCorrectChazaraStatus()
         try self.setStatus(status)
-        //        }
     }
     
     static func getCompletionDate(sectionId: ID, scheduledChazaraId: ID) -> Date? {

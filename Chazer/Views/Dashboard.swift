@@ -132,7 +132,6 @@ struct Dashboard: View {
         }
         .onAppear {
             Task {
-//                MARK: DEBUG
                 await model.updateDashboard()
             }
         }

@@ -23,16 +23,21 @@ class DashboardModel: ObservableObject {
         }
     }
     
+    /*
     /// Updates local storage to match current chazara statuses and other data
     func updateData() async {
         await Storage.shared.loadChazaraPoints()
     }
+     */
     
     /// Updates the dashboard to reflect the latest updated data saved in the database.
     func updateDashboard() async {
-        guard let data = Storage.shared.getActiveAndLateChazaraPoints() else {
+        guard let data = await Storage.shared.getActiveAndLateChazaraPoints() else {
             return
         }
+        
+        //MARK: DEBUGGING
+        
         for point in data.active {
             await point.getDueDate()
         }
@@ -40,6 +45,7 @@ class DashboardModel: ObservableObject {
         for point in data.late {
             await point.getDueDate()
         }
+        
         
         await MainActor.run {
             self.activeChazaraPoints = data.active.sorted(by: { lhs, rhs in
@@ -62,6 +68,7 @@ class DashboardModel: ObservableObject {
             
             generatePDF()
         }
+         
     }
     
     /// Generates a PDF file representing the information on the dashboard and saves it in the model.

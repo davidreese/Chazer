@@ -160,9 +160,11 @@ struct ContentView: View {
     
     /// Runs a full update on the app data and on the views that enable updates.
     func update() async {
-        lastUpdate = Date.now
+        self.lastUpdate = Date.now
         
-        await Storage.shared.loadChazaraPoints()
+        //MARK: DEBUGGING
+//        await Storage.shared.loadChazaraPoints()
+//        await Storage.shared.updateCDChazaraPointStatuses()
         await dashboard.model.updateDashboard()
     }
     
