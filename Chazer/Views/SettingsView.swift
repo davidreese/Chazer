@@ -23,11 +23,11 @@ struct SettingsView: View {
     var body: some View {
         List {
             /*
-            SwiftUI.Section {
-                Button("About this application") {
-                    
-                }
-            }*/
+             SwiftUI.Section {
+             Button("About this application") {
+             
+             }
+             }*/
             SwiftUI.Section("Data") {
                 Button {
                     showRestoreView = true
@@ -65,60 +65,60 @@ struct SettingsView: View {
                 }
             }
         }
-//        .listStyle(ListSt())
+        //        .listStyle(ListSt())
         .navigationTitle("Settings")
-            .sheet(isPresented: $showRestoreView) {
-                restoreView
+        .sheet(isPresented: $showRestoreView) {
+            restoreView
+        }
+        .alert("Confirmation", isPresented: $showWipeConfirmation) {
+            Button(role: .cancel) {
+                showWipeConfirmation = false
+            } label: {
+                Text("Cancel")
             }
-            .alert("Confirmation", isPresented: $showWipeConfirmation) {
-                Button(role: .cancel) {
-                    showWipeConfirmation = false
-                } label: {
-                    Text("Cancel")
+            Button(role: .destructive) {
+                showWipeConfirmation = false
+                do {
+                    try Storage.shared.wipe()
+                    print("Closing app...")
+                    exit(0)
+                } catch {
+                    showWipeFailureAlert = true
                 }
-                Button(role: .destructive) {
-                    showWipeConfirmation = false
-                    do {
-                        try Storage.shared.wipe()
-                        print("Closing app...")
-                        exit(0)
-                    } catch {
-                        showWipeFailureAlert = true
-                    }
-                } label: {
-                    Text("Erase")
-                }
-            } message: {
-                Text("""
+            } label: {
+                Text("Erase")
+            }
+        } message: {
+            Text("""
 Proceeding will erase all app data and close the app.
                     This action cannot be undone.
 """)
-            }
-            .alert(isPresented: $showWipeFailureAlert) {
-                Alert(
-                    title: Text("Error"),
-                    message: Text("The erase operation could not be completed.")
-                    )
-            }
+        }
+        .alert(isPresented: $showWipeFailureAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text("The erase operation could not be completed.")
+            )
+        }
     }
     
     /// Based on https://www.hackingwithswift.com/quick-start/swiftui/how-to-export-files-using-fileexporter
     struct BackupFile: FileDocument {
         // tell the system we support only plain text
         static var readableContentTypes = [UTType.plainText]
-
+        
         // by default our document is empty
         var text = ChazerApp.getBackup()
         
         init() {}
-
+        
         // this initializer loads data that has been saved previously
         init(configuration: ReadConfiguration) throws {
             if let data = configuration.file.regularFileContents {
                 text = String(decoding: data, as: UTF8.self)
             }
         }
-
+        
         // this will be called when the system wants to write our data to disk
         func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
             let data = Data(text.utf8)
@@ -171,26 +171,26 @@ Proceeding will erase all app data and close the app.
                     }
                 }
                 /*
-                VStack {
-                    Spacer()
-//                    Text("Restore Data:")
-                    TextEditor(text: $rawRestoreString)
-//                        .background(Color.yellow)
-                        .scrollContentBackground(.hidden)
-                        .background(.regularMaterial)
-                        .cornerRadius(10)
-                        .padding([.horizontal, .bottom])
-                        .shadow(radius: 2)
-                    Spacer()
-                }
+                 VStack {
+                 Spacer()
+                 //                    Text("Restore Data:")
+                 TextEditor(text: $rawRestoreString)
+                 //                        .background(Color.yellow)
+                 .scrollContentBackground(.hidden)
+                 .background(.regularMaterial)
+                 .cornerRadius(10)
+                 .padding([.horizontal, .bottom])
+                 .shadow(radius: 2)
+                 Spacer()
+                 }
                  */
                 .toolbar {
                     /*
-                    ToolbarItem(placement: .automatic) {
-                        Button("Scan") {
-                            scan()
-                        }
-                    }*/
+                     ToolbarItem(placement: .automatic) {
+                     Button("Scan") {
+                     scan()
+                     }
+                     }*/
                     
                     ToolbarItem(placement: .cancellationAction) {
                         Button {
@@ -206,8 +206,8 @@ Proceeding will erase all app data and close the app.
                     Alert(
                         title: Text("Error"),
                         message: Text(errorToShow?.localizedDescription ?? "nil"),
-                                    dismissButton: .default(Text("OK"))
-                        )
+                        dismissButton: .default(Text("OK"))
+                    )
                 }
                 .alert("Confirmation", isPresented: $showConfirmation) {
                     Button(role: .cancel) {
@@ -229,7 +229,7 @@ Valid Results: \(babyLimuds?.count.description ?? "nil") limudim, \(babySections
 This action will wipe all existing data and close the app.
 """)
                 }
-
+                
             }
         }
         
@@ -248,29 +248,29 @@ This action will wipe all existing data and close the app.
                 var cdLimuds: [CDLimud] = []
                 
             limuds: for baby in babyLimuds {
-                    let newLimud = CDLimud(context: viewContext)
-                    newLimud.id = baby.id
-                    newLimud.name = baby.name
-                    newLimud.sections = NSSet()
-                    cdLimuds.append(newLimud)
-                }
+                let newLimud = CDLimud(context: viewContext)
+                newLimud.id = baby.id
+                newLimud.name = baby.name
+                newLimud.sections = NSSet()
+                cdLimuds.append(newLimud)
+            }
                 
             sections: for baby in babySections {
-                    let newSection = CDSection(context: viewContext)
-                    newSection.sectionId = baby.id
-                    newSection.sectionName = baby.name
-                    
-                    newSection.initialDate = baby.initialDate
-                    guard let cdLimud = cdLimuds.first(where: { cdLimud in
-                        cdLimud.id == baby.limudId
-                    }) else {
-                        print("Warning: Unexpectedly found nil for limud id")
-                        continue sections
-                    }
-                    newSection.limud = cdLimud
+                let newSection = CDSection(context: viewContext)
+                newSection.sectionId = baby.id
+                newSection.sectionName = baby.name
+                
+                newSection.initialDate = baby.initialDate
+                guard let cdLimud = cdLimuds.first(where: { cdLimud in
+                    cdLimud.id == baby.limudId
+                }) else {
+                    print("Warning: Unexpectedly found nil for limud id")
+                    continue sections
+                }
+                newSection.limud = cdLimud
                 
                 cdLimud.sections = cdLimud.sections?.adding(newSection) as? NSSet
-                }
+            }
                 
                 var cdSCs: [CDScheduledChazara] = []
                 
@@ -282,7 +282,8 @@ This action will wipe all existing data and close the app.
                 newSC.isDynamic = baby.isDynamic
                 newSC.fixedDueDate = baby.fixedDueDate
                 newSC.delay = baby.delay
-//                haven't set delayed from, need to run that afterwards
+                newSC.daysToComplete = baby.daysToComplete
+                //                haven't set delayed from, need to run that afterwards
                 
                 guard let cdLimud = cdLimuds.first(where: { cdLimud in
                     cdLimud.id == baby.limudId
@@ -477,51 +478,51 @@ This action will wipe all existing data and close the app.
             var babySections: Set<BabySection> = Set()
             let sectionData = sections.components(separatedBy: "CDSection: ")
             
-            object: for data in sectionData {
-                var id: ID?
-                var limudId: ID?
-                var name: String?
-                var initialDate: Date?
-                
-                for pair in data.components(separatedBy: "|") {
-                    let parts = pair.components(separatedBy: "=")
-                    if parts.count == 2 {
-                        let key = parts[0]
-                        let value = parts[1]
-                        
-                        switch key {
-                        case "ID":
-                            if value == "nil" {
-                                print("Section id is invalid, skipping data point")
-                                continue object
-                            } else {
-                                id = value.trimmingCharacters(in: .newlines)
-                            }
-                        case "LIMUDID":
-                            limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                        case "NAME":
-                            name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                        case "INITIALDATE":
-                                let dateFormatter = DateFormatter()
-                                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                                initialDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                        default:
-                            print("Failed to parse data for section: \(pair)")
-                            continue object;
+        object: for data in sectionData {
+            var id: ID?
+            var limudId: ID?
+            var name: String?
+            var initialDate: Date?
+            
+            for pair in data.components(separatedBy: "|") {
+                let parts = pair.components(separatedBy: "=")
+                if parts.count == 2 {
+                    let key = parts[0]
+                    let value = parts[1]
+                    
+                    switch key {
+                    case "ID":
+                        if value == "nil" {
+                            print("Section id is invalid, skipping data point")
+                            continue object
+                        } else {
+                            id = value.trimmingCharacters(in: .newlines)
                         }
-                    } else if pair == "" {
-                    } else {
+                    case "LIMUDID":
+                        limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                    case "NAME":
+                        name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                    case "INITIALDATE":
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                        initialDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                    default:
                         print("Failed to parse data for section: \(pair)")
                         continue object;
                     }
-                }
-                
-                if let id = id {
-                    babySections.insert(BabySection(id: id, limudId: limudId, name: name, initialDate: initialDate))
+                } else if pair == "" {
                 } else {
-                    print("Skipping section with nil id")
+                    print("Failed to parse data for section: \(pair)")
+                    continue object;
                 }
             }
+            
+            if let id = id {
+                babySections.insert(BabySection(id: id, limudId: limudId, name: name, initialDate: initialDate))
+            } else {
+                print("Skipping section with nil id")
+            }
+        }
             
             print("Found \(babySections.count) valid sections.")
             return babySections
@@ -626,9 +627,9 @@ This action will wipe all existing data and close the app.
             }
             
             /*
-            guard let chazaraPointsData = chazaraPointsArray[1].components(separatedBy: "ENDCHAZARAPOINTS").first else {
-                throw ParseError.invalidFormat
-            }
+             guard let chazaraPointsData = chazaraPointsArray[1].components(separatedBy: "ENDCHAZARAPOINTS").first else {
+             throw ParseError.invalidFormat
+             }
              */
             
             let chazaraPointsData = chazaraPointsArray[1]
@@ -636,65 +637,65 @@ This action will wipe all existing data and close the app.
             var babyChazaraPoints: Set<BabyChazaraPoint> = Set()
             let chazaraPointData = chazaraPointsData.components(separatedBy: "CDChazaraPoint: ")
             
-            object: for data in chazaraPointData {
-                var id: ID!
-                var scId: ID!
-                var sectionId: ID!
-                var status: Int16!
-                var date: Date?
-                
-                for pair in data.components(separatedBy: "|") {
-                    let parts = pair.components(separatedBy: "=")
-                    if parts.count == 2 {
-                        let key = parts[0]
-                        let value = parts[1]
-                        
-                        switch key {
-                        case "ID":
-                            if value == "nil" {
-                                print("Chazara point id is invalid, skipping data point")
-                                continue object
-                            } else {
-                                id = value.trimmingCharacters(in: .newlines)
-                            }
-                        case "SCID":
-                            if value == "nil" {
-                                print("Chazara point scId is invalid, skipping data point")
-                                continue object
-                            } else {
-                                scId = value.trimmingCharacters(in: .newlines)
-                            }
-                        case "SECID":
-                            if value == "nil" {
-                                print("Chazara point sectionId is invalid, skipping data point")
-                                continue object
-                            } else {
-                                sectionId = value.trimmingCharacters(in: .newlines)
-                            }
-                        case "STATUS":
-                            if let value = Int16(value.trimmingCharacters(in: .newlines)) {
-                                status = value
-                            } else {
-                                print("Chazara point status is invalid, skipping data point")
-                                continue object
-                            }
-                        case "DATE":
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                            date = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                        default:
-                            print("Failed to parse data for chazara point: \(pair)")
-                            continue object;
+        object: for data in chazaraPointData {
+            var id: ID!
+            var scId: ID!
+            var sectionId: ID!
+            var status: Int16!
+            var date: Date?
+            
+            for pair in data.components(separatedBy: "|") {
+                let parts = pair.components(separatedBy: "=")
+                if parts.count == 2 {
+                    let key = parts[0]
+                    let value = parts[1]
+                    
+                    switch key {
+                    case "ID":
+                        if value == "nil" {
+                            print("Chazara point id is invalid, skipping data point")
+                            continue object
+                        } else {
+                            id = value.trimmingCharacters(in: .newlines)
                         }
-                    } else if pair == "" {
-                    } else {
+                    case "SCID":
+                        if value == "nil" {
+                            print("Chazara point scId is invalid, skipping data point")
+                            continue object
+                        } else {
+                            scId = value.trimmingCharacters(in: .newlines)
+                        }
+                    case "SECID":
+                        if value == "nil" {
+                            print("Chazara point sectionId is invalid, skipping data point")
+                            continue object
+                        } else {
+                            sectionId = value.trimmingCharacters(in: .newlines)
+                        }
+                    case "STATUS":
+                        if let value = Int16(value.trimmingCharacters(in: .newlines)) {
+                            status = value
+                        } else {
+                            print("Chazara point status is invalid, skipping data point")
+                            continue object
+                        }
+                    case "DATE":
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                        date = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                    default:
                         print("Failed to parse data for chazara point: \(pair)")
                         continue object;
                     }
+                } else if pair == "" {
+                } else {
+                    print("Failed to parse data for chazara point: \(pair)")
+                    continue object;
                 }
-                
-                babyChazaraPoints.insert(BabyChazaraPoint(id: id, scId: scId, sectionId: sectionId, status: status, date: date))
             }
+            
+            babyChazaraPoints.insert(BabyChazaraPoint(id: id, scId: scId, sectionId: sectionId, status: status, date: date))
+        }
             
             print("Found \(babyChazaraPoints.count) valid chazara points.")
             return babyChazaraPoints
@@ -712,76 +713,76 @@ This action will wipe all existing data and close the app.
             var babyPointNotes: Set<BabyPointNote> = Set()
             let pointNoteData = pointNotesData.components(separatedBy: "CDPointNote: ")
             
-            object: for data in pointNoteData {
-                var id: ID?
-                var creationDate: Date?
-                var note: String?
-                var cpId: ID?
-                
-                for pair in data.components(separatedBy: "|") {
-                    let parts = pair.components(separatedBy: "=")
-                    if parts.count == 2 {
-                        let key = parts[0]
-                        let value = parts[1]
-                        
-                        switch key {
-                        case "ID":
-                            if value == "nil" {
-                                print("CDPointNote ID is invalid, skipping data point")
-                                continue object
-                            } else {
-                                id = value.trimmingCharacters(in: .newlines)
-                            }
-                        case "CREATIONDATE":
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                            creationDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                        case "NOTE":
-                            if value == "nil" {
-                                print("CDPointNote note is invalid, skipping data point")
-                                continue object
-                            } else {
-                                note = value
-                            }
-                        case "CPID":
-                            if value == "nil" {
-                                print("CDPointNote cpId is invalid, skipping data point")
-                                continue object
-                            } else {
-                                cpId = value.trimmingCharacters(in: .newlines)
-                            }
-                        default:
-                            print("Failed to parse data for CDPointNote: \(pair)")
-                            continue object;
+        object: for data in pointNoteData {
+            var id: ID?
+            var creationDate: Date?
+            var note: String?
+            var cpId: ID?
+            
+            for pair in data.components(separatedBy: "|") {
+                let parts = pair.components(separatedBy: "=")
+                if parts.count == 2 {
+                    let key = parts[0]
+                    let value = parts[1]
+                    
+                    switch key {
+                    case "ID":
+                        if value == "nil" {
+                            print("CDPointNote ID is invalid, skipping data point")
+                            continue object
+                        } else {
+                            id = value.trimmingCharacters(in: .newlines)
                         }
-                    } else if pair == "" {
-                    } else {
+                    case "CREATIONDATE":
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                        creationDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                    case "NOTE":
+                        if value == "nil" {
+                            print("CDPointNote note is invalid, skipping data point")
+                            continue object
+                        } else {
+                            note = value
+                        }
+                    case "CPID":
+                        if value == "nil" {
+                            print("CDPointNote cpId is invalid, skipping data point")
+                            continue object
+                        } else {
+                            cpId = value.trimmingCharacters(in: .newlines)
+                        }
+                    default:
                         print("Failed to parse data for CDPointNote: \(pair)")
                         continue object;
                     }
-                }
-                
-                guard let id = id, let note = note, let cpId = cpId else {
-                    print("Didn't find full data for CDPointNote: \(data)")
+                } else if pair == "" {
+                } else {
+                    print("Failed to parse data for CDPointNote: \(pair)")
                     continue object;
                 }
-                babyPointNotes.insert(BabyPointNote(id: id, creationDate: creationDate, note: note, cpId: cpId))
             }
+            
+            guard let id = id, let note = note, let cpId = cpId else {
+                print("Didn't find full data for CDPointNote: \(data)")
+                continue object;
+            }
+            babyPointNotes.insert(BabyPointNote(id: id, creationDate: creationDate, note: note, cpId: cpId))
+        }
             
             print("Found \(babyPointNotes.count) valid point notes.")
             return babyPointNotes
         }
-
+        
         
         enum ParseError: LocalizedError {
             case invalidFormat
             
             public var errorDescription: String? {
-                    switch self {
-                    case .invalidFormat:
-                        return NSLocalizedString("The restore data is not formatted correctly.", comment: "Parse Error")
-                    }
+                switch self {
+                case .invalidFormat:
+                    return NSLocalizedString("The restore data is not formatted correctly.", comment: "Parse Error")
                 }
+            }
         }
         
         enum RestoreError: LocalizedError {
@@ -789,13 +790,13 @@ This action will wipe all existing data and close the app.
             case unknownError
             
             public var errorDescription: String? {
-                    switch self {
-                    case .wipeFailure:
-                        return NSLocalizedString("The restore failed because the data wipe did not complete.", comment: "Restore Error")
-                    case .unknownError:
-                        return NSLocalizedString("An unknown error has occured. The restore could not execute.", comment: "Unknown Error")
-                    }
+                switch self {
+                case .wipeFailure:
+                    return NSLocalizedString("The restore failed because the data wipe did not complete.", comment: "Restore Error")
+                case .unknownError:
+                    return NSLocalizedString("An unknown error has occured. The restore could not execute.", comment: "Unknown Error")
                 }
+            }
         }
     }
     
