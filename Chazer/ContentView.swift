@@ -204,13 +204,9 @@ struct ContentView: View {
                         viewContext.delete(result)
                     }
                     viewContext.delete(cdl)
-                    
-                    try viewContext.save()
-                    
-                    //                self.cdLimudim = self.cdLimudim.drop(while: { o in
-                    //                    cdl.id == o.id
-                    //                })
                 })
+                
+                try viewContext.save()
             }
         } catch {
             print("Error deleting: \(error)")

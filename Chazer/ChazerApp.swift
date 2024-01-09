@@ -300,25 +300,6 @@ struct ChazerApp: App {
         try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
-    /*
-    private func changeDelayedFrom(of id: ID, to newDelayedFromId: ID?) {
-        //        MARK: SAVIOR CODE!
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "scId == %@", id)
-        let result = try! persistenceController.container.viewContext.fetch(fetchRequest).first as! CDScheduledChazara
-        
-        let dfFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
-        if let dfId = newDelayedFromId {
-            dfFetchRequest.predicate = NSPredicate(format: "scId == %@", dfId)
-            let dfResult = try! persistenceController.container.viewContext.fetch(dfFetchRequest).first as! CDScheduledChazara
-            result.delayedFrom = dfResult
-        } else {
-            result.delayedFrom = nil
-        }
-        try! persistenceController.container.viewContext.save()
-    }
-     */
-    
     private static func getCDScheduledChazara(for scId: ID) -> CDScheduledChazara {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "scId == %@", scId)

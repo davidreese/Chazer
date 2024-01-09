@@ -160,61 +160,6 @@ struct EditChazaraScheduleView: View {
 //        }
         
         return limud
-        /*
-        
-        cdLimud.scheduledChazaras?.first(where: { cdSC in
-            cdSC.
-        })
-        
-        if scName.isEmpty || scName.count > 80 {
-            throw CreationError.invalidName
-        }
-    
-        let fr = CDLimud.fetchRequest()
-        fr.predicate = NSPredicate(format: "id == %@", limud.id)
-        
-        guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
-            throw CreationError.invalidData
-        }
-        
-        let newItem = CDScheduledChazara(context: viewContext)
-        newItem.scId = "SC\(Date().timeIntervalSince1970)\(Int.random(in: 100...999))"
-        newItem.scName = scName
-        newItem.delay = Int16(delay)
-        
-        let delayedFrom: CDScheduledChazara?
-        if delayedFromId == "init" {
-            delayedFrom = nil
-        } else {
-            delayedFrom = cdScheduledChazaras.first(where: { cdsc in
-                cdsc.scId == delayedFromId
-            })
-            
-            if delayedFrom == nil {
-                throw CreationError.invalidData
-            }
-        }
-        
-        newItem.delayedFrom = delayedFrom
-        //        newItem.
-        
-        //        fix: what if this is nil
-        guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
-            throw CreationError.unknownError
-        }
-        ms.add(newItem)
-        cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
-        
-        guard let limud = Limud(cdLimud) else {
-            throw CreationError.unknownError
-        }
-        
-        try withAnimation {
-            try viewContext.save()
-        }
-        
-        return limud
-         */
     }
 }
 

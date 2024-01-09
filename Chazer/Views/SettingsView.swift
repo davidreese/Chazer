@@ -373,7 +373,7 @@ This action will wipe all existing data and close the app.
                 return
             }
             
-            try! viewContext.save()
+//            try! viewContext.save()
         }
         
         
