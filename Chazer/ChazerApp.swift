@@ -14,7 +14,7 @@ struct ChazerApp: App {
     let persistenceController = PersistenceController.shared
     
     init() {
-        Storage.shared.update()
+//        Storage.shared.update()
     }
     
     static func printBackup() {

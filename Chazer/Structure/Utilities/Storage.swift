@@ -13,9 +13,9 @@ class Storage {
     
     private var container: NSPersistentContainer
     
-    private(set) var sections: Set<Section>?
+//    private(set) var sections: Set<Section>?
 //    private(set) var cdSections: Set<CDSection>?
-    private(set) var scheduledChazaras: [ScheduledChazara]?
+//    private(set) var scheduledChazaras: [ScheduledChazara]?
 //    private(set) var cdScheduledChazaras: [CDScheduledChazara]?
 //    private(set) var cdChazaraPointsDictionary: [ID: CDChazaraPoint]?
 //    private(set) var chazaraPointsDictionary: [ID: ChazaraPoint?]?
@@ -24,16 +24,20 @@ class Storage {
         self.container = container
     }
     
+    /*
     /// Used to request an update of the entire local storage system to match what is in CoreData.
     /// - Warning: This function does not update ``ChazaraPoint`` objects right now.
+    @available(*, unavailable)
     func update() {
         print("Loading storage...")
         
-        loadScheduledChazarasSynchronously()
-        loadSectionsSynchronously()
+//        loadScheduledChazarasSynchronously()
+//        loadSectionsSynchronously()
         //        loadChazaraPointsSy/nchronously()
     }
+     */
     
+    /*
     func loadScheduledChazarasSynchronously() {
         print("Loading scheduled chazaras synchronously...")
         do {
@@ -140,6 +144,7 @@ class Storage {
             print(error)
         }
     }
+     */
     
     /// Find and return the ``CDLimud`` corresponding to the given `id` from the database.
     private func pinCDLimud(id: ID) -> CDLimud? {
@@ -341,18 +346,13 @@ class Storage {
     /// Returns the requested ``Section`` from local storage.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
     func getSection(sectionId: ID) -> Section? {
-        if let section = self.sections?.first(where: { section in
-            section.id == sectionId
-        }) {
-            return section
-        } else {
             //TODO: Make all the functions here work like this
             if let cdSection = pinCDSection(id: sectionId) {
-                defer {
-                    Task {
-                        await loadSections()
-                    }
-                }
+//                defer {
+//                    Task {
+//                        await loadSections()
+//                    }
+//                }
                 
                 if let section = Section(cdSection) {
                     return section
@@ -362,24 +362,18 @@ class Storage {
             } else {
                 return nil
             }
-        }
     }
     
     /// Returns the requested ``ScheduledChazara`` from local storage.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
     func getScheduledChazara(scId: ID) -> ScheduledChazara? {
-        if let sc = self.scheduledChazaras?.first(where: { sc in
-            sc.id == scId
-        }) {
-            return sc
-        } else {
             //TODO: Make all the functions here work like this
             if let cdSC = pinCDScheduledChazara(id: scId) {
-                defer {
-                    Task {
-                        await loadScheduledChazaras()
-                    }
-                }
+//                defer {
+//                    Task {
+//                        await loadScheduledChazaras()
+//                    }
+//                }
                 
                 if let sc = ScheduledChazara(cdSC) {
                     return sc
@@ -389,9 +383,9 @@ class Storage {
             } else {
                 return nil
             }
-        }
     }
     
+    /*
     /// Fetches this ``Section`` data from the database and updates it here, or adds it if it has not been found in storage yet.
     @MainActor
     func updateSection(sectionId: ID) -> Section? {
@@ -441,6 +435,7 @@ class Storage {
         
         return section
     }
+     */
     
     /// Find and return this exact ``CDSection`` in the data store without doing a full load.
     func pinCDSection(id: ID) -> CDSection? {
@@ -464,6 +459,7 @@ class Storage {
         }
     }
     
+    /*
     /// Fetches this ``ScheduledChazara`` data from the database and updates it here, or adds it if it has not been found in storage yet.
     func updateScheduledChazara(scId: ID) -> ScheduledChazara? {
         guard let cdScheduledChazara = pinCDScheduledChazara(id: scId) else {
@@ -491,6 +487,7 @@ class Storage {
         
         return scheduledChazara
     }
+     */
     
     /// Find and return this exact ``CDScheduledChazara`` in the data store without doing a full load.
     func pinCDScheduledChazara(id: ID) -> CDScheduledChazara? {
@@ -634,7 +631,7 @@ class Storage {
                 try context.execute(batchDeleteRequest)
                 try context.save()
                 
-                update()
+//                update()
             } catch let error as NSError {
                 print("Could not wipe Core Data, failed on run for \(entityName). \(error), \(error.userInfo)")
                 throw StorageError.wipeFailure

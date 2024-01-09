@@ -136,7 +136,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// - Returns: The assosiated  ``Section``, unless it wasn't found.
     @MainActor
     func fetchSection() -> Section? {
-        self.section = Storage.shared.updateSection(sectionId: self.sectionId)
+        self.section = Storage.shared.getSection(sectionId: self.sectionId)
         return self.section
     }
     
@@ -155,7 +155,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// - Returns: The associated  ``ScheduledChazara``, unless it wasn't found.
     @MainActor
     func fetchSC() -> ScheduledChazara? {
-        self.scheduledChazara = Storage.shared.updateScheduledChazara(scId: self.scheduledChazaraId)
+        self.scheduledChazara = Storage.shared.getScheduledChazara(scId: self.scheduledChazaraId)
         return self.scheduledChazara
     }
     

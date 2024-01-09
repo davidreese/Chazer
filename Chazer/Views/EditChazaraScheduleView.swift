@@ -155,9 +155,9 @@ struct EditChazaraScheduleView: View {
             throw UpdateError.unknownError
         }
         
-        if let scId = cdSC.scId {
-            Storage.shared.updateScheduledChazara(scId: scId)
-        }
+//        if let scId = cdSC.scId {
+//            Storage.shared.updateScheduledChazara(scId: scId)
+//        }
         
         return limud
         /*

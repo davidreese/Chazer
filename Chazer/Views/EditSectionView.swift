@@ -123,9 +123,9 @@ struct EditSectionView: View {
             throw UpdateError.unknownError
         }
         
-        if let sectionId = cdSection.sectionId {
-            Storage.shared.updateSection(sectionId: sectionId)
-        }
+//        if let sectionId = cdSection.sectionId {
+//            Storage.shared.updateSection(sectionId: sectionId)
+//        }
 
         
 //        Task {
