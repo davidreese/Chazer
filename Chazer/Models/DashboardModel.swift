@@ -49,7 +49,7 @@ class DashboardModel: ObservableObject {
         
         await MainActor.run {
             self.activeChazaraPoints = data.active.sorted(by: { lhs, rhs in
-                if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                if let lhsDate = lhs.activeDate, let rhsDate = rhs.activeDate {
                     return lhsDate < rhsDate
                 } else {
                     //                                    this isn't really supposed to occur
@@ -58,7 +58,7 @@ class DashboardModel: ObservableObject {
             })
             
             self.lateChazaraPoints = data.late.sorted(by: { lhs, rhs in
-                if let lhsDate = lhs.dueDate, let rhsDate = rhs.dueDate {
+                if let lhsDate = lhs.activeDate, let rhsDate = rhs.activeDate {
                     return lhsDate < rhsDate
                 } else {
                     // this isn't really supposed to occur

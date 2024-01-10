@@ -21,6 +21,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     private var limud: Limud?
     
     @Published private(set) var status: ChazaraStatus!
+    
     /// The date this point was marked to have been chazered
     /// - Note: This value should be `nil` if it has not been marked as chazered
     @Published private(set) var date: Date?
@@ -29,6 +30,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// - Note: This value is only supposed to exist if the status is active.
     @Published private(set) var dueDate: Date?
     
+    /// The date that this point's chazara becomes/became active
+    ///  - Note: If the chazara was completed, this value is nil
+    @Published private(set) var activeDate: Date?
     
     /// The list of saved notes associated with this ``ChazaraPoint``
     @Published private(set) var notes: [PointNote]?
@@ -274,6 +278,13 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         self.dueDate = dueDate
     }
     
+    /// Sets the `activeDate` attribute for this object.
+    /// - Note: The `activeDate` attribute has no corresponding value in storage.
+    @MainActor
+    func setActiveDate(_ activeDate: Date?) {
+        self.activeDate = activeDate
+    }
+    
     /// Sets the `date` attribute for this object, and also saves it as such in storage.
     @MainActor
     func setDate(_ date: Date?) {
@@ -366,7 +377,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     func getActiveDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
             //            no date available
-            return nil
+            let activeDate: Date? = nil
+            setActiveDate(activeDate)
+            return activeDate
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
                 //                will now try to calculate the right date
@@ -374,33 +387,56 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                     if let delayedFrom = scheduledChazara.delayedFrom {
                         guard let delayedFromPoint = ChazaraPoint.getCDChazaraPoint(section: section, scheduledChazara: delayedFrom), let statusRaw = delayedFromPoint.chazaraState?.status, let status = ChazaraStatus(rawValue: statusRaw) else {
                             print("Error: delayedFrom could not be found.")
+                            
+                            let activeDate: Date? = nil
+                            setActiveDate(activeDate)
+                            
                             return nil
                         }
+                        
                         if status == .completed {
                             if let date = delayedFromPoint.chazaraState?.date {
-                                return ChazaraPoint.getActiveDate(date, delay: delay)
+                                
+                                let activeDate: Date? = ChazaraPoint.getActiveDate(date, delay: delay)
+
+                                setActiveDate(activeDate)
+                                return activeDate
                             } else {
                                 print("Error: Couldn't get active date.")
-                                return nil
+                                
+                                let activeDate: Date? = nil
+                                setActiveDate(activeDate)
+                                return activeDate
                             }
                         } else {
-                            return nil
+                            let activeDate: Date? = nil
+                            setActiveDate(activeDate)
+                            return activeDate
                         }
                     } else {
-                        return ChazaraPoint.getActiveDate(section.initialDate, delay: delay)
+                        let activeDate: Date? = ChazaraPoint.getActiveDate(section.initialDate, delay: delay)
+                        setActiveDate(activeDate)
+                        return activeDate
                     }
                 } else if let fixedDueDate = scheduledChazara.fixedDueDate {
+                    setActiveDate(fixedDueDate)
                     return fixedDueDate
                 } else {
                     print("Error: Scheduled chazara has no valid due rule.")
-                    return nil
+                    
+                    let activeDate: Date? = nil
+                    setActiveDate(activeDate)
+                    return activeDate
                 }
             } else if retryOnFail {
                 await updateAllData()
                 return await getActiveDate(retryOnFail: false)
             } else {
                 print("Error: Cannot find information for this ChazaraPoint to getActiveDate. (PID=\(self.id))")
-                return nil
+                
+                let activeDate: Date? = nil
+                setActiveDate(activeDate)
+                return activeDate
             }
         }
     }
