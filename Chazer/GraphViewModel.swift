@@ -17,7 +17,8 @@ class GraphViewModel: ObservableObject {
         self.limud = limud
     }
     
-    func update() {
+    /// Fetches an updated ``Limud`` object from storage and updates  the view using it.
+    func updateLimud() {
         guard let newLimud = Storage.shared.fetchLimud(id: self.limud.id) else {
             fatalError()
         }

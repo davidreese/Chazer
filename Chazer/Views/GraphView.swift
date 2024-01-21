@@ -16,6 +16,7 @@ struct GraphView: View {
     
     var onUpdate: (() -> Void)?
     
+    @State var showingManageLimudView = false
     @State var showingNewSectionView = false
     @State var showingAddChazaraScheduleView = false
     @State var showingEditChazaraScheduleView = false
@@ -143,6 +144,15 @@ struct GraphView: View {
             .listRowSeparator(.hidden)
             .navigationTitle(model.limud.name)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        self.showingManageLimudView = true
+                    } label: {
+                        Text("Manage")
+                    }
+
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu(content: {
                         Button {
@@ -167,6 +177,11 @@ struct GraphView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingManageLimudView, content: {
+                ManageLimudView(self.model.limud, onUpdate: {
+                    self.model.updateLimud()
+                })
+            })
             .sheet(isPresented: $showingAddChazaraScheduleView) {
                 NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
                     withAnimation {
@@ -277,7 +292,7 @@ struct GraphView: View {
             
             try viewContext.save()
             
-            model.update()
+            model.updateLimud()
         }
         
     }
@@ -295,7 +310,7 @@ struct GraphView: View {
             
             try viewContext.save()
             
-            model.update()
+            model.updateLimud()
         }
     }
     
