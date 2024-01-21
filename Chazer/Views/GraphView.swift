@@ -144,7 +144,7 @@ struct GraphView: View {
             .listRowSeparator(.hidden)
             .navigationTitle(model.limud.name)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.showingManageLimudView = true
                     } label: {
