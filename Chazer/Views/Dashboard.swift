@@ -17,7 +17,7 @@ struct Dashboard: View {
     @State var fileExporterShowing = false
     
     var body: some View {
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: false) {
             HStack {
                 VStack {
                     Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 1.0, saturation: 0.6854498070406627, brightness: 0.8, opacity: 1.0), location: 0.19659705528846155), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.7326472355769231)]), center: UnitPoint.topLeading, angle: .radians(5.007772431542131))) {
@@ -135,7 +135,7 @@ struct Dashboard: View {
                 await model.updateDashboard()
             }
         }
-        .fileExporter(isPresented: $fileExporterShowing, document: PDFDocumentForExport(pdf: self.model.pdf!), contentType: .pdf, defaultFilename: model.pdfFilename!, onCompletion: { result in
+        .fileExporter(isPresented: $fileExporterShowing, document: PDFDocumentForExport(pdf: self.model.pdf), contentType: .pdf, defaultFilename: model.pdfFilename, onCompletion: { result in
             if case .success(let url) = result {
                 print("PDF exported successfully to: \(url)")
             } else if case .failure(let error) = result {

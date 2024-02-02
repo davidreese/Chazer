@@ -42,7 +42,7 @@ struct PDFDocumentForExport: FileDocument {
     
     var pdf: PDFDocument?
     
-    init(pdf: PDFDocument) {
+    init(pdf: PDFDocument?) {
         self.pdf = pdf
     }
     
