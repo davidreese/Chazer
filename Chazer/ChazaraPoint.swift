@@ -373,12 +373,12 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     }
     
     /// Gets the ``Date`` that this ``ChazaraPoint`` becomes active, if there is one available.
-    @MainActor
+//    @MainActor
     func getActiveDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
             //            no date available
             let activeDate: Date? = nil
-            setActiveDate(activeDate)
+            await setActiveDate(activeDate)
             return activeDate
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
@@ -389,7 +389,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                             print("Error: delayedFrom could not be found.")
                             
                             let activeDate: Date? = nil
-                            setActiveDate(activeDate)
+                            await setActiveDate(activeDate)
                             
                             return nil
                         }
@@ -399,33 +399,33 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                                 
                                 let activeDate: Date? = ChazaraPoint.getActiveDate(date, delay: delay)
 
-                                setActiveDate(activeDate)
+                                await setActiveDate(activeDate)
                                 return activeDate
                             } else {
                                 print("Error: Couldn't get active date.")
                                 
                                 let activeDate: Date? = nil
-                                setActiveDate(activeDate)
+                                await setActiveDate(activeDate)
                                 return activeDate
                             }
                         } else {
                             let activeDate: Date? = nil
-                            setActiveDate(activeDate)
+                            await setActiveDate(activeDate)
                             return activeDate
                         }
                     } else {
                         let activeDate: Date? = ChazaraPoint.getActiveDate(section.initialDate, delay: delay)
-                        setActiveDate(activeDate)
+                        await setActiveDate(activeDate)
                         return activeDate
                     }
                 } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                    setActiveDate(fixedDueDate)
+                    await setActiveDate(fixedDueDate)
                     return fixedDueDate
                 } else {
                     print("Error: Scheduled chazara has no valid due rule.")
                     
                     let activeDate: Date? = nil
-                    setActiveDate(activeDate)
+                    await setActiveDate(activeDate)
                     return activeDate
                 }
             } else if retryOnFail {
@@ -435,7 +435,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 print("Error: Cannot find information for this ChazaraPoint to getActiveDate. (PID=\(self.id))")
                 
                 let activeDate: Date? = nil
-                setActiveDate(activeDate)
+                await setActiveDate(activeDate)
                 return activeDate
             }
         }
@@ -446,7 +446,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     }
     
     /// Gets the date that this ``ChazaraPoint`` is due, if there is one.
-    @MainActor
+//    @MainActor
     func getDueDate(retryOnFail: Bool = true) async -> Date? {
         if status == .completed || status == .exempt {
             return nil
@@ -457,37 +457,37 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                         let delayedFromPoint = ChazaraPoint.getChazaraPoint(section: section, scheduledChazara: delayedFrom)
                         if delayedFromPoint?.status == .completed {
                             if let date = delayedFromPoint?.date {
-                                let dueDate: Date? = self.getDueDate(date, delay: delay)
-                                    setDueDate(dueDate)
+                                let dueDate: Date? = await self.getDueDate(date, delay: delay)
+                                await setDueDate(dueDate)
             
                                 return dueDate
                             } else {
                                 print("Error: Couldn't get due date.")
                                 let dueDate: Date? = nil
-                                setDueDate(dueDate)
+                                await setDueDate(dueDate)
                                 
                                 return dueDate
                             }
                         } else {
                             let dueDate: Date? = nil
-                            setDueDate(dueDate)
+                            await setDueDate(dueDate)
                             
                             return dueDate
                         }
                     } else {
-                        let dueDate: Date? = self.getDueDate(section.initialDate, delay: delay)
-                            setDueDate(dueDate)
+                        let dueDate: Date? = await self.getDueDate(section.initialDate, delay: delay)
+                        await setDueDate(dueDate)
                         
                         return dueDate
                     }
                 } else if let fixedDueDate = scheduledChazara.fixedDueDate {
-                    self.setDueDate(fixedDueDate)
+                    await self.setDueDate(fixedDueDate)
                     
                     return fixedDueDate
                 } else {
                     print("Error: Scheduled chazara has no valid due rule.")
                     let dueDate: Date? = nil
-                    self.setDueDate(dueDate)
+                    await self.setDueDate(dueDate)
                     
                     return dueDate
                 }

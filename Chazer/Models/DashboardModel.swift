@@ -46,7 +46,6 @@ class DashboardModel: ObservableObject {
             await point.getDueDate()
         }
         
-        
         await MainActor.run {
             self.activeChazaraPoints = data.active.sorted(by: { lhs, rhs in
                 if let lhsDate = lhs.activeDate, let rhsDate = rhs.activeDate {
