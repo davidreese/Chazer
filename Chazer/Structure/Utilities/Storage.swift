@@ -641,7 +641,7 @@ class Storage {
     
     // MARK: Dashboard Functions
     /// Fetches CDChazaraPoints with active and late status
-    private func getActiveAndLateCDChazaraPoints() -> (active: Set<CDChazaraPoint>, late: Set<CDChazaraPoint>)? {
+    private func getActiveAndLateCDChazaraPoints() -> (activePoints: Set<CDChazaraPoint>, latePoints: Set<CDChazaraPoint>)? {
         do {
             let activeRequest = CDChazaraPoint.fetchRequest()
             let activePredicate = NSPredicate(format: "chazaraState.status == %i", 2)
@@ -670,20 +670,21 @@ class Storage {
         }
         
         var activePoints = Set<ChazaraPoint>()
-        for cdPointActive in data.active {
+        for cdPointActive in data.activePoints {
             guard let chazaraPoint = ChazaraPoint(cdPointActive) else {
                 continue
             }
             activePoints.update(with: chazaraPoint)
         }
         
+        
         var latePoints = Set<ChazaraPoint>()
-        for cdPointLate in data.late {
-            //        The following inztansiation seems to occasionally cause a crash. Not sure why, and why it is limited only to late points.
+        for cdPointLate in data.latePoints {
             guard let chazaraPoint = ChazaraPoint(cdPointLate) else {
                 continue
             }
             latePoints.update(with: chazaraPoint)
+             
         }
         
         return (activePoints, latePoints)
