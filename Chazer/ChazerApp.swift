@@ -13,6 +13,8 @@ import CoreData
 struct ChazerApp: App {
     let persistenceController = PersistenceController.shared
     
+    static let DEBUGGING_DATA = true
+    
     init() {
 //        Storage.shared.update()
     }
@@ -159,7 +161,7 @@ struct ChazerApp: App {
         return results
     }
     
-    static func getCDLimudimData() -> String {
+    private static func getCDLimudimData() -> String {
        var text = ""
        
        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDLimud.fetchRequest()
@@ -172,7 +174,7 @@ struct ChazerApp: App {
        return text
    }
     
-     static func getCDChazaraPointData() -> String {
+     private static func getCDChazaraPointData() -> String {
         var text = ""
         
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
@@ -185,7 +187,7 @@ struct ChazerApp: App {
         return text
     }
     
-    static func getCDPointNoteData() -> String {
+    private static func getCDPointNoteData() -> String {
        var text = ""
        
        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDPointNote.fetchRequest()
@@ -202,7 +204,7 @@ struct ChazerApp: App {
        return text
    }
     
-    static func getCDScheduledChazaraData() -> String {
+    private static func getCDScheduledChazaraData() -> String {
         var text = ""
         
 //        this will only collect CDScheduledChazara objects that are tied to a limud. the point is mainly to preserve ordering
@@ -246,7 +248,7 @@ struct ChazerApp: App {
         return results
     }
     
-     static func printCDScheduledChazaras() -> [CDScheduledChazara] {
+     private static func printCDScheduledChazaras() -> [CDScheduledChazara] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDScheduledChazara]
         
