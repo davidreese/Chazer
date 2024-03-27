@@ -147,32 +147,39 @@ class Storage {
      */
     
     /// Find and return the ``CDLimud`` corresponding to the given `id` from the database.
-    private func pinCDLimud(id: ID) -> CDLimud? {
+    private func pinCDLimud(id: CID) -> (limud: CDLimud?, context: NSManagedObjectContext?) {
         do {
             let request = CDLimud.fetchRequest()
             request.predicate = NSPredicate(format: "id == %@", id)
             
-            let results = try self.container.newBackgroundContext().fetch(request)
+            let context = self.container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            if results.count == 1 {
-                return results.first
-            } else if results.count > 1 {
-                print("Error: Something went wrong in pinning down the CDLimud, there is more than one match. Returning nil")
-                return nil
-            } else {
-                return nil
+            return try context.performAndWait {
+                let results = try context.fetch(request)
+                
+                if results.count == 1 {
+                    return (results.first, context)
+                } else if results.count > 1 {
+                    print("Error: Something went wrong in pinning down the CDLimud, there is more than one match. Returning nil")
+                    return (nil, context)
+                } else {
+                    return (nil, context)
+                }
             }
         } catch {
             print("Error: Failed to query to pin down a CDLimud: (id=\(id))")
-            return nil
+            return (nil, nil)
         }
     }
     
-    func fetchLimud(id: ID) -> Limud? {
-        guard let cdLimud = pinCDLimud(id: id) else {
+    func fetchLimud(id: CID) throws -> Limud? {
+        let result = pinCDLimud(id: id)
+        guard let cdLimud = result.limud, let context = result.context else {
             return nil
         }
-        return Limud(cdLimud)
+        
+        return try Limud(cdLimud, context: context)
     }
     
     //    var isLoadingChazaraPoints = false
@@ -181,19 +188,30 @@ class Storage {
     private func updateCDChazaraPointStatuses() async {
         do {
             let cpFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazaraPoint.fetchRequest()
+            
             let context = self.container.newBackgroundContext()
-            let cpResults = try context.fetch(cpFetchRequest) as! [CDChazaraPoint]
+            context.automaticallyMergesChangesFromParent = true
             
-            for cpResult in cpResults {
-                if let cp = ChazaraPoint(cpResult) {
-                    let status = await cp.getCorrectChazaraStatus()
-                    cpResult.chazaraState?.status = status.rawValue
-                } else {
-                    print("\(cpResult.pointId ?? "nil") \(cpResult.sectionId ?? "nil")")
+            try context.performAndWait {
+                let cpResults = try context.fetch(cpFetchRequest) as! [CDChazaraPoint]
+                
+                for cpResult in cpResults {
+                    if let cp = try? ChazaraPoint(cpResult, context: context) {
+                        Task {
+                            let status = await cp.getCorrectChazaraStatus()
+                            
+                            context.performAndWait {
+                                cpResult.chazaraState?.status = status.rawValue
+                            }
+                        }
+                    } else {
+                        print("\(cpResult.pointId ?? "nil") \(cpResult.sectionId ?? "nil")")
+                    }
                 }
+                
+                try context.save()
+                
             }
-            
-            try context.save()
             
         } catch {
             print(error)
@@ -345,20 +363,17 @@ class Storage {
     
     /// Returns the requested ``Section`` from local storage.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
-    func getSection(sectionId: ID) -> Section? {
+    func getSection(sectionId: CID) -> Section? {
             //TODO: Make all the functions here work like this
-            if let cdSection = pinCDSection(id: sectionId) {
+        let result = pinCDSection(id: sectionId)
+        if let cdSection = result.section, let context = result.context {
 //                defer {
 //                    Task {
 //                        await loadSections()
 //                    }
 //                }
                 
-                if let section = Section(cdSection) {
-                    return section
-                } else {
-                    return nil
-                }
+                return try? Section(cdSection, context: context)
             } else {
                 return nil
             }
@@ -366,20 +381,10 @@ class Storage {
     
     /// Returns the requested ``ScheduledChazara`` from local storage.
     /// - Note: This function will search the database for this section if it cannot be found here. In such a case, it will also asynchronously update the entire sections storage to match the database.
-    func getScheduledChazara(scId: ID) -> ScheduledChazara? {
-            //TODO: Make all the functions here work like this
-            if let cdSC = pinCDScheduledChazara(id: scId) {
-//                defer {
-//                    Task {
-//                        await loadScheduledChazaras()
-//                    }
-//                }
-                
-                if let sc = ScheduledChazara(cdSC) {
-                    return sc
-                } else {
-                    return nil
-                }
+    func getScheduledChazara(scId: CID) -> ScheduledChazara? {
+        let cdSCResult = pinCDScheduledChazara(id: scId)
+        if let cdSC = cdSCResult.scheduledChazara, let context = cdSCResult.context {
+                return try? ScheduledChazara(cdSC, context: context)
             } else {
                 return nil
             }
@@ -438,24 +443,29 @@ class Storage {
      */
     
     /// Find and return this exact ``CDSection`` in the data store without doing a full load.
-    func pinCDSection(id: ID) -> CDSection? {
+    func pinCDSection(id: CID) -> (section: CDSection?, context: NSManagedObjectContext?) {
         do {
             let request = CDSection.fetchRequest()
             request.predicate = NSPredicate(format: "sectionId == %@", id)
             
-            let results = try self.container.newBackgroundContext().fetch(request)
+            let context = self.container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            if results.count == 1 {
-                return results.first
-            } else if results.count > 1 {
-                print("Error: Something went wrong in pinning down the CDSection, there is more than one match. Returning nil")
-                return nil
-            } else {
-                return nil
+            return try context.performAndWait {
+                let results = try context.fetch(request)
+                
+                if results.count == 1 {
+                    return (results.first, context)
+                } else if results.count > 1 {
+                    print("Error: Something went wrong in pinning down the CDSection, there is more than one match. Returning nil")
+                    return (nil, context)
+                } else {
+                    return (nil, context)
+                }
             }
         } catch {
             print("Error: Failed to query to pin down a CDSection: (sectionId=\(id))")
-            return nil
+            return (nil, nil)
         }
     }
     
@@ -490,38 +500,40 @@ class Storage {
      */
     
     /// Find and return this exact ``CDScheduledChazara`` in the data store without doing a full load.
-    func pinCDScheduledChazara(id: ID) -> CDScheduledChazara? {
+    func pinCDScheduledChazara(id: CID) -> (scheduledChazara: CDScheduledChazara?, context: NSManagedObjectContext?) {
         do {
             let request = CDScheduledChazara.fetchRequest()
             request.predicate = NSPredicate(format: "scId == %@", id)
             
-            let results = try self.container.newBackgroundContext().fetch(request)
+            let context = self.container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            if results.count == 1 {
-                return results.first
-            } else if results.count > 1 {
-                print("Error: Something went wrong in pinning down the CDScheduledChazara, there is more than one match. Returning nil")
-                return nil
-            } else {
-                return nil
+            return try context.performAndWait {
+                let results = try context.fetch(request)
+                
+                if results.count == 1 {
+                    return (results.first, context)
+                } else if results.count > 1 {
+                    print("Error: Something went wrong in pinning down the CDScheduledChazara, there is more than one match. Returning nil")
+                    return (nil, context)
+                } else {
+                    return (nil, context)
+                }
             }
         } catch {
             print("Error: Failed to query to pin down a CDScheduledChazara: (scId=\(id))")
-            return nil
+            return (nil, nil)
         }
     }
     
     
-    /// Gets the requested ``ChazaraPoint`` from the local cache if it exists, and if not, searches the database.
+    /// Gets the requested ``ChazaraPoint`` from the database.
     /// - Parameter pointId: The `id` of the ``ChazaraPoint`` being requested.
     /// - Returns: The ``ChazaraPoint``, if it was found.
     /// - Note: This function will not neccesarily update the ``ChazaraPoint``.
-    func getChazaraPoint(pointId: ID) -> ChazaraPoint? {
-            //TODO: Make all the functions here work like this
-            if let cdCP = pinCDChazaraPoint(id: pointId), let chazaraPoint = ChazaraPoint(cdCP)  {
-                
-//            MARK: DEBUGGING
-//                chazaraPointsDictionary?[pointId] = chazaraPoint
+    func getChazaraPoint(pointId: CID) -> ChazaraPoint? {
+        let cdCPResult = pinCDChazaraPoint(id: pointId)
+        if let cdCP = cdCPResult.point, let context = cdCPResult.context, let chazaraPoint = try? ChazaraPoint(cdCP, context: context)  {
                 
                 return chazaraPoint
             } else {
@@ -537,8 +549,9 @@ class Storage {
     ///   - createNewIfNeeded: If set to `true`, if the ``ChazaraPoint`` is not found, it will be created for the given coordinate `sectionId` and `scheduledChazaraId`
     /// - Returns: The requested ``ChazaraPoint``.
     /// - Note: This function will not neccesarily update the ``ChazaraPoint``.
-    func getChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
-        if let cdChazaraPoint = pinCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded), let chazaraPoint = ChazaraPoint(cdChazaraPoint) {
+    func getChazaraPoint(sectionId: CID, scId: CID, createNewIfNeeded: Bool = false) -> ChazaraPoint? {
+        let result = pinCDChazaraPoint(sectionId: sectionId, scId: scId, createNewIfNeeded: createNewIfNeeded)
+        if let cdChazaraPoint = result.point, let context = result.context, let chazaraPoint = try? ChazaraPoint(cdChazaraPoint, context: context) {
             return chazaraPoint
         } else {
             return nil
@@ -546,29 +559,35 @@ class Storage {
     }
     
     /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
-    func pinCDChazaraPoint(id: ID) -> CDChazaraPoint? {
+    func pinCDChazaraPoint(id: CID) -> (point: CDChazaraPoint?, context: NSManagedObjectContext?) {
         do {
             let request = CDChazaraPoint.fetchRequest()
             request.predicate = NSPredicate(format: "pointId == %@", id)
             
-            let results = try self.container.newBackgroundContext().fetch(request)
+            let context = self.container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            if results.count == 1 {
-                return results.first
-            } else if results.count > 1 {
-                print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
-                return nil
-            } else {
-                return nil
+            return try context.performAndWait {
+                
+                let results = try context.fetch(request)
+                
+                if results.count == 1 {
+                    return (results.first, context)
+                } else if results.count > 1 {
+                    print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
+                    return (nil, context)
+                } else {
+                    return (nil, context)
+                }
             }
         } catch {
             print("Error: Failed to query to pin down a CDChazaraPoint: (pointId=\(id))")
-            return nil
+            return (nil, nil)
         }
     }
     
     /// Find and return this exact ``CDChazaraPoint`` in the data store without doing a full load.
-    func pinCDChazaraPoint(sectionId: ID, scId: ID, createNewIfNeeded: Bool = false) -> CDChazaraPoint? {
+    func pinCDChazaraPoint(sectionId: CID, scId: CID, createNewIfNeeded: Bool = false) -> (point: CDChazaraPoint?, context: NSManagedObjectContext?) {
         do {
             let request = CDChazaraPoint.fetchRequest()
             let sectionPredicate = NSPredicate(format: "sectionId == %@", sectionId)
@@ -576,44 +595,49 @@ class Storage {
             let andPredicate = NSCompoundPredicate(type: .and, subpredicates: [sectionPredicate, scPredicate])
             request.predicate = andPredicate
             
-            let results = try self.container.newBackgroundContext().fetch(request)
+            let context = self.container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            if results.count == 1 {
-                return results.first
-            } else if results.count > 1 {
-                print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
-                return nil
-            } else if results.count == 0 && createNewIfNeeded {
-                do {
-                    print("Creating a CDChazaraPoint for spot: (SECID=\(sectionId),SCID=\(scId)) (CALLB)")
-                    let context = PersistenceController.shared.container.viewContext
-                    let point = CDChazaraPoint(context: context)
-                    
-                    point.pointId = IDGenerator.generate(withPrefix: "CP")
-                    point.sectionId = sectionId
-                    point.scId = scId
-                    
-                    let state = CDChazaraState(context: context)
-                    state.stateId = IDGenerator.generate(withPrefix: "CS")
-                    state.status = -1
-                    
-                    point.chazaraState = state
-                    
-                    try context.save()
-                    
-                    print("Generated and saved a CDChazaraPoint.")
-                    
-                    return point
-                } catch {
-                    print("Error: Couldn't save new CDChazaraPoint.")
-                    return nil
+            return try context.performAndWait {
+                let results = try context.fetch(request)
+                
+                if results.count == 1 {
+                    return (results.first, context)
+                } else if results.count > 1 {
+                    print("Error: Something went wrong in pinning down the CDChazaraPoint, there is more than one match. Returning nil")
+                    return (nil, context)
+                } else if results.count == 0 && createNewIfNeeded {
+                    do {
+                        print("Creating a CDChazaraPoint for spot: (SECID=\(sectionId),SCID=\(scId)) (CALLB)")
+//                        let context = PersistenceController.shared.container.viewContext
+                        let point = CDChazaraPoint(context: context)
+                        
+                        point.pointId = IDGenerator.generate(withPrefix: "CP")
+                        point.sectionId = sectionId
+                        point.scId = scId
+                        
+                        let state = CDChazaraState(context: context)
+                        state.stateId = IDGenerator.generate(withPrefix: "CS")
+                        state.status = -1
+                        
+                        point.chazaraState = state
+                        
+                        try context.save()
+                        
+                        print("Generated and saved a CDChazaraPoint.")
+                        
+                        return (point, context)
+                    } catch {
+                        print("Error: Couldn't save new CDChazaraPoint.")
+                        return (nil, context)
+                    }
+                } else {
+                    return (nil, context)
                 }
-            } else {
-                return nil
             }
         } catch {
             print("Error: Failed to query to pin down a CDChazaraPoint: (SECID=\(sectionId),SCID=\(scId)")
-            return nil
+            return (nil, nil)
         }
     }
     
@@ -627,7 +651,10 @@ class Storage {
             let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
             
             do {
+                
                 let context = container.newBackgroundContext()
+                context.automaticallyMergesChangesFromParent = true
+                
                 try context.execute(batchDeleteRequest)
                 try context.save()
                 
@@ -641,21 +668,26 @@ class Storage {
     
     // MARK: Dashboard Functions
     /// Fetches CDChazaraPoints with active and late status
-    private func getActiveAndLateCDChazaraPoints() -> (activePoints: Set<CDChazaraPoint>, latePoints: Set<CDChazaraPoint>)? {
+    private func getActiveAndLateCDChazaraPoints() -> (activePoints: Set<CDChazaraPoint>, latePoints: Set<CDChazaraPoint>, context: NSManagedObjectContext?)? {
         do {
-            let activeRequest = CDChazaraPoint.fetchRequest()
-            let activePredicate = NSPredicate(format: "chazaraState.status == %i", 2)
-            activeRequest.predicate = activePredicate
+            let context = container.newBackgroundContext()
+            context.automaticallyMergesChangesFromParent = true
             
-            let activeCDPoints = try self.container.newBackgroundContext().fetch(activeRequest)
-            
-            let lateRequest = CDChazaraPoint.fetchRequest()
-            let latePredicate = NSPredicate(format: "chazaraState.status == %i", 3)
-            lateRequest.predicate = latePredicate
-            
-            let lateCDPoints = try self.container.newBackgroundContext().fetch(lateRequest)
-            
-            return (Set(activeCDPoints), Set(lateCDPoints))
+            return try context.performAndWait {
+                let activeRequest = CDChazaraPoint.fetchRequest()
+                let activePredicate = NSPredicate(format: "chazaraState.status == %i", 2)
+                activeRequest.predicate = activePredicate
+                
+                let activeCDPoints = try context.fetch(activeRequest)
+                
+                let lateRequest = CDChazaraPoint.fetchRequest()
+                let latePredicate = NSPredicate(format: "chazaraState.status == %i", 3)
+                lateRequest.predicate = latePredicate
+                
+                let lateCDPoints = try context.fetch(lateRequest)
+                
+                return (Set(activeCDPoints), Set(lateCDPoints), context)
+            }
         } catch {
             print("Error fetching data: \(error)")
             return nil
@@ -665,13 +697,13 @@ class Storage {
     func getActiveAndLateChazaraPoints() async -> (active: Set<ChazaraPoint>, late: Set<ChazaraPoint>)? {
         await self.updateCDChazaraPointStatuses()
         
-        guard let data = self.getActiveAndLateCDChazaraPoints() else {
+        guard let data = self.getActiveAndLateCDChazaraPoints(), let context = data.context else {
             return nil
         }
         
         var activePoints = Set<ChazaraPoint>()
         for cdPointActive in data.activePoints {
-            guard let chazaraPoint = ChazaraPoint(cdPointActive) else {
+            guard let chazaraPoint = try? ChazaraPoint(cdPointActive, context: context) else {
                 continue
             }
             activePoints.update(with: chazaraPoint)
@@ -680,11 +712,10 @@ class Storage {
         
         var latePoints = Set<ChazaraPoint>()
         for cdPointLate in data.latePoints {
-            guard let chazaraPoint = ChazaraPoint(cdPointLate) else {
+            guard let chazaraPoint = try? ChazaraPoint(cdPointLate, context: context) else {
                 continue
             }
             latePoints.update(with: chazaraPoint)
-             
         }
         
         return (activePoints, latePoints)

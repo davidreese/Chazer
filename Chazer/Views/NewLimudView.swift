@@ -50,12 +50,15 @@ struct NewLimudView: View {
             throw CreationError.invalidName
         }
         
-        let newItem = CDLimud(context: viewContext)
-        newItem.id = IDGenerator.generate(withPrefix: "L")
-        newItem.name = limudName
         
-        try withAnimation {
-            try viewContext.save()
+        try viewContext.performAndWait {
+            let newItem = CDLimud(context: viewContext)
+            newItem.id = IDGenerator.generate(withPrefix: "L")
+            newItem.name = limudName
+            
+            try withAnimation {
+                try viewContext.save()
+            }
         }
     }
 }

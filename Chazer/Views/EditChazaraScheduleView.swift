@@ -14,7 +14,7 @@ struct EditChazaraScheduleView: View {
     
     var onUpdate: ((_ limud: Limud) -> Void)?
     
-    var limudId: ID
+    var limudId: CID
     var scheduledChazara: ScheduledChazara
     
     @State private var cdScheduledChazaras: [CDScheduledChazara] = []
@@ -22,9 +22,9 @@ struct EditChazaraScheduleView: View {
     @State var scName: String = ""
     @State var delay = 1
     @State var daysActive = 2
-    @State var delayedFromId: ID?
+    @State var delayedFromId: CID?
     
-    init(limudId: ID, scheduledChazara: ScheduledChazara, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
+    init(limudId: CID, scheduledChazara: ScheduledChazara, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
         self.limudId = limudId
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
@@ -59,7 +59,7 @@ struct EditChazaraScheduleView: View {
                             ForEach(cdScheduledChazaras.filter({ cdsc in
                                 cdsc.scId != nil
                             }), id: \.scId) { cdsc in
-                                if let sc = ScheduledChazara(cdsc) {
+                                if let sc = try? ScheduledChazara(cdsc, context: viewContext) {
                                     Text(sc.name)
                                         .tag(sc.id)
                                 }
@@ -124,34 +124,37 @@ struct EditChazaraScheduleView: View {
     
     /// Applies custom changes to the ``CDScheduledChazara`` object.
     private func updateScheduledChazara() throws -> Limud {
-        guard let cdSC = Storage.shared.pinCDScheduledChazara(id: self.scheduledChazara.id) else {
+        let cdSCResult = Storage.shared.pinCDScheduledChazara(id: self.scheduledChazara.id)
+        guard let cdSC = cdSCResult.scheduledChazara, let context = cdSCResult.context else {
             throw UpdateError.unknownError
         }
         
-        cdSC.scName = self.scName
-        cdSC.delay = Int16(self.delay)
-        cdSC.daysToComplete = Int16(self.daysActive)
-        if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
-            if delayedFromId == "init" {
-                cdSC.delayedFrom = nil
-            } else {
-                let fetchRequest = CDScheduledChazara.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "scId == %@", delayedFromId)
-                let results = try cdSC.managedObjectContext?.fetch(fetchRequest)
-                
-                guard let results = results, results.count == 1, let result = results.first else {
-                    throw UpdateError.unknownError
+        try context.performAndWait {
+            cdSC.scName = self.scName
+            cdSC.delay = Int16(self.delay)
+            cdSC.daysToComplete = Int16(self.daysActive)
+            if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
+                if delayedFromId == "init" {
+                    cdSC.delayedFrom = nil
+                } else {
+                    let fetchRequest = CDScheduledChazara.fetchRequest()
+                    fetchRequest.predicate = NSPredicate(format: "scId == %@", delayedFromId)
+                    let results = try context.fetch(fetchRequest)
+                    
+                    guard results.count == 1, let result = results.first else {
+                        throw UpdateError.unknownError
+                    }
+                    
+                    cdSC.delayedFrom = result
                 }
-                
-                cdSC.delayedFrom = result
+            }
+            
+            try withAnimation {
+                try context.save()
             }
         }
         
-        try withAnimation {
-            try cdSC.managedObjectContext!.save()
-        }
-        
-        guard let cdLimud = cdSC.limud, let limud = Limud(cdLimud) else {
+        guard let cdLimud = cdSC.limud, let limud = try? Limud(cdLimud, context: viewContext) else {
             throw UpdateError.unknownError
         }
         

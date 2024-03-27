@@ -22,7 +22,7 @@ struct GraphView: View {
     @State var showingEditChazaraScheduleView = false
     @State var showingManageSectionView = false
     
-//    @State var showHeader = false
+    //    @State var showHeader = false
     
     //    var columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -81,7 +81,7 @@ struct GraphView: View {
                             .cornerRadius(6)
                             .shadow(radius: 2)
                             
-//                            .frame(height: headerCellHeight)
+                            //                            .frame(height: headerCellHeight)
                             
                             let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
                                 lhs.initialDate > rhs.initialDate
@@ -97,7 +97,7 @@ struct GraphView: View {
                                                 self.showingManageSectionView = true
                                             })
                                             Button("Delete", action: {
-                                                    try? deleteSection(section)
+                                                try? deleteSection(section)
                                             })
                                         }) {
                                             Text(section.name)
@@ -113,7 +113,7 @@ struct GraphView: View {
                                     
                                     ForEach(model.limud.scheduledChazaras) { sc in
                                         StatusBox(section: section, scheduledChazara: sc/*, viewContext: self.viewContext*/, onUpdate: {
-//                                            model.objectWillChange.send()
+                                            //                                            model.objectWillChange.send()
                                         })
                                         .frame(width: chazaraWidth)
                                     }
@@ -150,7 +150,7 @@ struct GraphView: View {
                     } label: {
                         Text("Manage")
                     }
-
+                    
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -283,16 +283,18 @@ struct GraphView: View {
         let fr: NSFetchRequest<CDSection> = CDSection.fetchRequest()
         fr.predicate = NSPredicate(format: "sectionId == %@", section.id)
         
-        let results = try viewContext.fetch(fr)
-        
-        try withAnimation {
-            for result in results {
-                viewContext.delete(result)
+        try viewContext.performAndWait {
+            let results = try viewContext.fetch(fr)
+            
+            try withAnimation {
+                for result in results {
+                    viewContext.delete(result)
+                }
+                
+                try viewContext.save()
+                
+                model.updateLimud()
             }
-            
-            try viewContext.save()
-            
-            model.updateLimud()
         }
         
     }
@@ -301,16 +303,18 @@ struct GraphView: View {
         let fr: NSFetchRequest<CDScheduledChazara> = CDScheduledChazara.fetchRequest()
         fr.predicate = NSPredicate(format: "scId == %@", scheduledChazara.id)
         
-        let results = try viewContext.fetch(fr)
-        
-        try withAnimation {
-            for result in results {
-                viewContext.delete(result)
+        try viewContext.performAndWait {
+            let results = try viewContext.fetch(fr)
+            
+            try withAnimation {
+                for result in results {
+                    viewContext.delete(result)
+                }
+                
+                try viewContext.save()
+                
+                model.updateLimud()
             }
-            
-            try viewContext.save()
-            
-            model.updateLimud()
         }
     }
     
@@ -338,7 +342,7 @@ struct GraphView: View {
             self.scheduledChazara = scheduledChazara
             self.updateParent = updateParent
             //            self.status = getChazaraStatus()
-//            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
+            //            self.model = StatusBoxModel(section: section, scheduledChazara: scheduledChazara)
             
             
             self._model = StateObject(wrappedValue: StatusBoxModel(section: section, scheduledChazara: scheduledChazara))
@@ -401,8 +405,8 @@ struct GraphView: View {
                 
                 if hasNotes {
                     Button("Notes", action: {
-//                        model.printNotes("E")
-//                        print(model.point?.notes)
+                        //                        model.printNotes("E")
+                        //                        print(model.point?.notes)
                         isShowingNotesPopover = true
                     })
                 }
@@ -446,7 +450,7 @@ struct GraphView: View {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
                             ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
                                 //                                self.updateParent?()
-                                self.model.point?.updatePointData()
+                                try? self.model.point?.updatePointData()
                                 //                                print(model.point?.date)
                                 self.model.updateText()
                                 self.updateParent?()
@@ -475,14 +479,14 @@ struct GraphView: View {
                             }
                         }
                 }
-                    .frame(width: 300, height: 175)
+                .frame(width: 300, height: 175)
             }
             .popover(isPresented: $isShowingNotesPopover) {
                 
-//                Text("Notes")
-//                    .font(.title)
+                //                Text("Notes")
+                //                    .font(.title)
                 if let notes = model.point?.notes {
-//                    NavigationStack {\
+                    //                    NavigationStack {\
                     VStack {
                         HStack {
                             Text("Notes")
@@ -494,7 +498,7 @@ struct GraphView: View {
                                 Image(systemName: "checkmark")
                             }
                         }
-                            .padding([.top, .horizontal])
+                        .padding([.top, .horizontal])
                         List {
                             ForEach(notes) { note in
                                 if let noteText = note.note {
@@ -516,29 +520,31 @@ struct GraphView: View {
                                         let fetchRequest = CDPointNote.fetchRequest()
                                         fetchRequest.predicate = NSPredicate(format: "noteId == %@", note.id)
                                         
-                                        let results = try viewContext.fetch(fetchRequest)
-                                        
-                                        for result in results {
-                                            viewContext.delete(result)
+                                        try viewContext.performAndWait {
+                                            let results = try viewContext.fetch(fetchRequest)
+                                            
+                                            for result in results {
+                                                viewContext.delete(result)
+                                            }
                                         }
+                                        
+                                        try viewContext.save()
                                     }
-                                    
-                                    try viewContext.save()
                                 } catch {
                                     print("Error: Failed to delete point notes from data store.")
                                 }
                                 
-//                                view updates
+                                //                                view updates
                                 withAnimation {
                                     isShowingNotesPopover = false
-                                    model.point?.updatePointData()
+                                    try? model.point?.updatePointData()
                                     model.objectWillChange.send()
                                 }
                             }
                         }
                         //                    }
                     }
-                        .frame(width: 300, height: 200)
+                    .frame(width: 300, height: 200)
                 }
             }
             .alert(isPresented: $isShowingError) {
@@ -579,12 +585,13 @@ struct GraphView: View {
             //            self.model.point?.updateData()
             try await self.model.point?.updateCorrectChazaraStatus()
             self.model.updateText()
-//            self.model.objectWillChange.send()
+            //            self.model.objectWillChange.send()
             updateParent?()
         }
         
         private func saveNote() throws {
-            guard let cdPoint = model.point?.fetchCDEntity(), let context = cdPoint.managedObjectContext, let notesSet = cdPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
+            let result = model.point?.fetchCDEntity()
+            guard let cdPoint = result?.point, let context = result?.context, let notesSet = cdPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
                 throw CreationError.unknownError
             }
             
@@ -601,7 +608,7 @@ struct GraphView: View {
             withAnimation {
                 self.newNoteText = ""
                 isShowingNewNotePopover = false
-                model.point?.updatePointData()
+                try? model.point?.updatePointData()
                 model.objectWillChange.send()
             }
         }
@@ -664,9 +671,9 @@ struct GraphView: View {
 }
 
 /*
-struct GraphView_Previews: PreviewProvider {
-    static var previews: some View {
-        GraphView(limud: Limud(id: "L", name: "Gittin", sections: [Section(id: "S", name: "Shiur 1", initialDate: Date())], scheduledChazaras: [ScheduledChazara(id: "SC", delaySinceInitial: 1)]))
-    }
-}
-*/
+ struct GraphView_Previews: PreviewProvider {
+ static var previews: some View {
+ GraphView(limud: Limud(id: "L", name: "Gittin", sections: [Section(id: "S", name: "Shiur 1", initialDate: Date())], scheduledChazaras: [ScheduledChazara(id: "SC", delaySinceInitial: 1)]))
+ }
+ }
+ */

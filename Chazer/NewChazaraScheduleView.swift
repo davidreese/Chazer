@@ -19,23 +19,23 @@ struct NewChazaraScheduleView: View {
         animation: .default)
     private var cdLimudim: FetchedResults<CDLimud>
     
-    @State var limudId: ID?
+    @State var limudId: CID?
     var initialLimud: Limud?
     
     @State private var cdScheduledChazaras: [CDScheduledChazara] = []
     @State private var fixedDueMode = false
     
-    @State var scId: ID = ""
+    @State var scId: CID = ""
     @State var scName: String = ""
     @State var fixedDueDate: Date = Date().addingTimeInterval(60 * 60 * 24 * 10)
     @State var delay = 1
     @State var daysActive = 2
-    @State var delayedFromId: ID = "init"
+    @State var delayedFromId: CID = "init"
     
     var limudim: [Limud] {
         var temp: [Limud] = []
         for cdLimud in cdLimudim {
-            if let limud = Limud(cdLimud) {
+            if let limud = try? Limud(cdLimud, context: viewContext) {
                 temp.append(limud)
             }
         }
@@ -65,7 +65,7 @@ struct NewChazaraScheduleView: View {
                 SwiftUI.Section {
                     Picker("Limud", selection: $limudId) {
                         ForEach(cdLimudim) { cdl in
-                            if let limud = Limud(cdl) {
+                            if let limud = try? Limud(cdl, context: viewContext) {
                                 Text(limud.name)
                                     .tag(limud.id)
                             }
@@ -89,7 +89,7 @@ struct NewChazaraScheduleView: View {
                             ForEach(cdScheduledChazaras.filter({ cdsc in
                                 cdsc.scId != nil
                             }), id: \.scId) { cdsc in
-                                if let sc = ScheduledChazara(cdsc) {
+                                if let sc = try? ScheduledChazara(cdsc, context: viewContext) {
                                     Text(sc.name)
                                         .tag(sc.id)
                                 }
@@ -172,59 +172,61 @@ struct NewChazaraScheduleView: View {
         let fr = CDLimud.fetchRequest()
         fr.predicate = NSPredicate(format: "id == %@", limud.id)
         
-        guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
-            throw CreationError.invalidData
-        }
-        
-        let newItem = CDScheduledChazara(context: viewContext)
-        if self.scId.isEmpty {
-            newItem.scId = IDGenerator.generate(withPrefix: "SC")
-        } else {
-            newItem.scId = self.scId
-        }
-        newItem.scName = scName
-        
-        if self.fixedDueMode {
-            newItem.fixedDueDate = self.fixedDueDate
-            newItem.isDynamic = false
-        } else {
-            newItem.delay = Int16(delay)
-            newItem.daysToComplete = Int16(daysActive)
-            
-            let delayedFrom: CDScheduledChazara?
-            if delayedFromId == "init" {
-                delayedFrom = nil
-            } else {
-                delayedFrom = cdScheduledChazaras.first(where: { cdsc in
-                    cdsc.scId == delayedFromId
-                })
-                
-                if delayedFrom == nil {
-                    throw CreationError.invalidData
-                }
+        return try viewContext.performAndWait {
+            guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
+                throw CreationError.invalidData
             }
             
-            newItem.delayedFrom = delayedFrom
-            newItem.isDynamic = true
+            let newItem = CDScheduledChazara(context: viewContext)
+            if self.scId.isEmpty {
+                newItem.scId = IDGenerator.generate(withPrefix: "SC")
+            } else {
+                newItem.scId = self.scId
+            }
+            newItem.scName = scName
+            
+            if self.fixedDueMode {
+                newItem.fixedDueDate = self.fixedDueDate
+                newItem.isDynamic = false
+            } else {
+                newItem.delay = Int16(delay)
+                newItem.daysToComplete = Int16(daysActive)
+                
+                let delayedFrom: CDScheduledChazara?
+                if delayedFromId == "init" {
+                    delayedFrom = nil
+                } else {
+                    delayedFrom = cdScheduledChazaras.first(where: { cdsc in
+                        cdsc.scId == delayedFromId
+                    })
+                    
+                    if delayedFrom == nil {
+                        throw CreationError.invalidData
+                    }
+                }
+                
+                newItem.delayedFrom = delayedFrom
+                newItem.isDynamic = true
+            }
+            //        newItem.
+            
+            //        TODO: what if this is nil
+            guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
+                throw CreationError.unknownError
+            }
+            ms.add(newItem)
+            cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
+            
+            guard let limud = try? Limud(cdLimud, context: viewContext) else {
+                throw CreationError.unknownError
+            }
+            
+            try withAnimation {
+                try viewContext.save()
+            }
+            
+            return limud
         }
-        //        newItem.
-        
-        //        TODO: what if this is nil
-        guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
-            throw CreationError.unknownError
-        }
-        ms.add(newItem)
-        cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
-        
-        guard let limud = Limud(cdLimud) else {
-            throw CreationError.unknownError
-        }
-        
-        try withAnimation {
-            try viewContext.save()
-        }
-        
-        return limud
     }
 }
 

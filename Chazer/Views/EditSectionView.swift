@@ -14,7 +14,7 @@ struct EditSectionView: View {
     
     var onUpdate: ((_ limud: Limud) -> Void)?
     
-    var limudId: ID
+    var limudId: CID
     var section: Section
     
     @State private var cdSections: [CDSection] = []
@@ -22,7 +22,7 @@ struct EditSectionView: View {
     @State var secName: String = ""
     @State var initialDate: Date = Date.now
     
-    init(limudId: ID, section: Section, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
+    init(limudId: CID, section: Section, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
         self.limudId = limudId
         self.section = section
         self.secName = section.name
@@ -108,18 +108,22 @@ struct EditSectionView: View {
     @MainActor
     private func updateSection() throws -> Limud {
 //        fatalError()
-        guard let cdSection = Storage.shared.pinCDSection(id: self.section.id) else {
+        let cdSectionResult = Storage.shared.pinCDSection(id: self.section.id)
+        guard let cdSection = cdSectionResult.section, let context = cdSectionResult.context else {
             throw UpdateError.unknownError
         }
         
-        cdSection.sectionName = self.secName
-        cdSection.initialDate = self.initialDate
-        
-        try withAnimation {
-            try cdSection.managedObjectContext!.save()
+        try context.performAndWait {
+            
+            cdSection.sectionName = self.secName
+            cdSection.initialDate = self.initialDate
+            
+            try withAnimation {
+                try context.save()
+            }
         }
         
-        guard let cdLimud = cdSection.limud, let limud = Limud(cdLimud) else {
+        guard let cdLimud = cdSection.limud, let limud = try? Limud(cdLimud, context: viewContext) else {
             throw UpdateError.unknownError
         }
         

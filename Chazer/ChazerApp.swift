@@ -13,7 +13,7 @@ import CoreData
 struct ChazerApp: App {
     let persistenceController = PersistenceController.shared
     
-    static let DEBUGGING_DATA = true
+    static let DEBUGGING_DATA = false
     
     init() {
 //        Storage.shared.update()
@@ -130,7 +130,7 @@ struct ChazerApp: App {
         }
     }
     
-    private static func changeDelayedFrom(for scId: ID, to delayedFromId: ID) {
+    private static func changeDelayedFrom(for scId: CID, to delayedFromId: CID) {
         let cdScheduledChazara = getCDScheduledChazara(for: scId)
         let newDelayedFrom = getCDScheduledChazara(for: delayedFromId)
         cdScheduledChazara.delayedFrom = newDelayedFrom
@@ -272,7 +272,7 @@ struct ChazerApp: App {
         return results
     }
     
-    private static func killCDScheduledChazara(id: ID? = nil) {
+    private static func killCDScheduledChazara(id: CID? = nil) {
         //        MARK: SAVIOR CODE!
         if id == nil {
             print("Deleting all CDScheduledChazaras. Printing a list of all that existed...")
@@ -287,7 +287,7 @@ struct ChazerApp: App {
         try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
-    private static func killCDChazaraPoint(id: ID? = nil) {
+    private static func killCDChazaraPoint(id: CID? = nil) {
         //        MARK: SAVIOR CODE!
         if id == nil {
             print("Deleting all CDChazaraPoints. Printing a list of all that existed...")
@@ -302,7 +302,7 @@ struct ChazerApp: App {
         try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
-    private static func getCDScheduledChazara(for scId: ID) -> CDScheduledChazara {
+    private static func getCDScheduledChazara(for scId: CID) -> CDScheduledChazara {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "scId == %@", scId)
         let cdScheduledChazara = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest).first as! CDScheduledChazara

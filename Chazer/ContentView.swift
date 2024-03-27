@@ -24,7 +24,7 @@ struct ContentView: View {
     var limudim: [Limud] {
         var temp: [Limud] = []
         for cdLimud in cdLimudim {
-            if let limud = Limud(cdLimud) {
+            if let limud = try? Limud(cdLimud, context: viewContext) {
                 temp.append(limud)
             }
         }
@@ -55,7 +55,7 @@ struct ContentView: View {
                 ForEach(cdLimudim.filter({ cdl in
                     cdl.id != nil
                 })) { cdl in
-                    if let limud = Limud(cdl) {
+                    if let limud = try? Limud(cdl, context: viewContext) {
                         NavigationLink(destination: GraphView(limud: limud, onUpdate: model.objectWillChange.send)
                             .environment(\.managedObjectContext, self.viewContext), label: {
                                 Text(limud.name)
@@ -106,7 +106,7 @@ struct ContentView: View {
         }
         .onReceive(updateTimer) { _ in
             if scenePhase == .active {
-                if let lastUpdate = lastUpdate, lastUpdate.timeIntervalSince(.now) > -(60*10) {
+                if let lastUpdate = lastUpdate, lastUpdate.timeIntervalSince(.now) > -(60*10) && !ChazerApp.DEBUGGING_DATA {
                     if lastScenePhase == .active {
                         print("Skipping chazara points load.")
                         return
@@ -162,51 +162,33 @@ struct ContentView: View {
     func update() async {
         self.lastUpdate = Date.now
         
-        //MARK: DEBUGGING
-//        await Storage.shared.loadChazaraPoints()
-//        await Storage.shared.updateCDChazaraPointStatuses()
         await dashboard.model.updateDashboard()
     }
     
     private func executeLimudDeletion() throws {
         do {
             try withAnimation {
-                try self.indicesToDelete?.map { cdLimudim.filter({ cdl in
-                    cdl.id != nil
-                })[$0] }.forEach({ cdl in
-                    //                guard let cdl = cdl else {
-                    //                    throw DeletionError.unknownError
-                    //                }
+                try viewContext.performAndWait {
+                    try self.indicesToDelete?.map { cdLimudim.filter({ cdl in
+                        cdl.id != nil
+                    })[$0] }.forEach({ cdl in
+                        guard let id = cdl.id else {
+                            print("Deletion failed, id is nil")
+                            throw DeletionError.unknownError
+                        }
+                        
+                        let fr = CDLimud.fetchRequest()
+                        fr.predicate = NSPredicate(format: "id == %@", id)
+                        let results = try viewContext.fetch(fr)
+                        
+                        for result in results {
+                            viewContext.delete(result)
+                        }
+                        viewContext.delete(cdl)
+                    })
                     
-                    //                for o in cdl.sections as? [NSManagedObject] ?? [] {
-                    //                    viewContext.delete(o)
-                    //                }
-                    //
-                    //                for o in cdl.scheduledChazaras as? NSOrderedSet ?? [] {
-                    //                    viewContext.rem
-                    //                }
-                    
-                    //                let fr = CDLimud.fetchRequest()
-                    //                fr.predicate = NSPredicate(format: "id == %@", cdl.id ?? "")
-                    
-                    //                let dr = NSBatchDeleteRequest(fetchRequest: fr)
-                    
-                    guard let id = cdl.id else {
-                        print("Deletion failed, id is nil")
-                        throw DeletionError.unknownError
-                    }
-                    
-                    let fr = CDLimud.fetchRequest()
-                    fr.predicate = NSPredicate(format: "id == %@", id)
-                    let results = try viewContext.fetch(fr)
-                    
-                    for result in results {
-                        viewContext.delete(result)
-                    }
-                    viewContext.delete(cdl)
-                })
-                
-                try viewContext.save()
+                    try viewContext.save()
+                }
             }
         } catch {
             print("Error deleting: \(error)")

@@ -7,9 +7,9 @@
 
 import Foundation
 
-typealias ID = String
+typealias CID = String
 struct IDGenerator {
-    static func generate(withPrefix prefix: String) -> ID {
+    static func generate(withPrefix prefix: String) -> CID {
         return "\(prefix)\(Date().timeIntervalSince1970)\(Int.random(in: 1000...9999))"
     }
 }

@@ -159,7 +159,7 @@ class DashboardModel: ObservableObject {
                         guard let limudId = section?.limudId else {
                             return "?"
                         }
-                        return Storage.shared.fetchLimud(id: limudId)?.name ?? "?"
+                        return (try? Storage.shared.fetchLimud(id: limudId))?.name ?? "?"
                     case 1:
                         return section?.name ?? "?"
                     case 2:

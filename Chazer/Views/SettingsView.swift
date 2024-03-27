@@ -247,120 +247,122 @@ This action will wipe all existing data and close the app.
                 
                 var cdLimuds: [CDLimud] = []
                 
-            limuds: for baby in babyLimuds {
-                let newLimud = CDLimud(context: viewContext)
-                newLimud.id = baby.id
-                newLimud.name = baby.name
-                newLimud.sections = NSSet()
-                cdLimuds.append(newLimud)
-            }
                 
-            sections: for baby in babySections {
-                let newSection = CDSection(context: viewContext)
-                newSection.sectionId = baby.id
-                newSection.sectionName = baby.name
-                
-                newSection.initialDate = baby.initialDate
-                guard let cdLimud = cdLimuds.first(where: { cdLimud in
-                    cdLimud.id == baby.limudId
-                }) else {
-                    print("Warning: Unexpectedly found nil for limud id")
-                    continue sections
+                try viewContext.performAndWait {
+                    
+                limuds: for baby in babyLimuds {
+                    let newLimud = CDLimud(context: viewContext)
+                    newLimud.id = baby.id
+                    newLimud.name = baby.name
+                    newLimud.sections = NSSet()
+                    cdLimuds.append(newLimud)
                 }
-                newSection.limud = cdLimud
-                
-                cdLimud.sections = cdLimud.sections?.adding(newSection) as? NSSet
-            }
-                
-                var cdSCs: [CDScheduledChazara] = []
-                
-            scs: for baby in babySCs {
-                let newSC = CDScheduledChazara(context: viewContext)
-                newSC.scId = baby.id
-                newSC.scName = baby.name
-                
-                newSC.isDynamic = baby.isDynamic
-                newSC.fixedDueDate = baby.fixedDueDate
-                newSC.delay = baby.delay
-                newSC.daysToComplete = baby.daysToComplete
-                //                haven't set delayed from, need to run that afterwards
-                
-                guard let cdLimud = cdLimuds.first(where: { cdLimud in
-                    cdLimud.id == baby.limudId
-                }) else {
-                    print("Warning: Unexpectedly found nil for limud id")
-                    continue scs
-                }
-                newSC.limud = cdLimud
-                
-                //        TODO: what if this is nil
-                guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
-                    throw CreationError.unknownError
-                }
-                ms.add(newSC)
-                cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
-                
-                guard let limud = Limud(cdLimud) else {
-                    throw CreationError.unknownError
-                }
-                
-                cdSCs.append(newSC)
-            }
-                
-                for cdSC in cdSCs {
-                    guard let baby = babySCs.first(where: { baby in
-                        baby.id == cdSC.scId
+                    
+                sections: for baby in babySections {
+                    let newSection = CDSection(context: viewContext)
+                    newSection.sectionId = baby.id
+                    newSection.sectionName = baby.name
+                    
+                    newSection.initialDate = baby.initialDate
+                    guard let cdLimud = cdLimuds.first(where: { cdLimud in
+                        cdLimud.id == baby.limudId
                     }) else {
-                        print("That wasn't supposed to happen...")
-                        continue
+                        print("Warning: Unexpectedly found nil for limud id")
+                        continue sections
+                    }
+                    newSection.limud = cdLimud
+                    
+                    cdLimud.sections = cdLimud.sections?.adding(newSection) as? NSSet
+                }
+                    
+                    var cdSCs: [CDScheduledChazara] = []
+                    
+                scs: for baby in babySCs {
+                    let newSC = CDScheduledChazara(context: viewContext)
+                    newSC.scId = baby.id
+                    newSC.scName = baby.name
+                    
+                    newSC.isDynamic = baby.isDynamic
+                    newSC.fixedDueDate = baby.fixedDueDate
+                    newSC.delay = baby.delay
+                    newSC.daysToComplete = baby.daysToComplete
+                    //                haven't set delayed from, need to run that afterwards
+                    
+                    guard let cdLimud = cdLimuds.first(where: { cdLimud in
+                        cdLimud.id == baby.limudId
+                    }) else {
+                        print("Warning: Unexpectedly found nil for limud id")
+                        continue scs
+                    }
+                    newSC.limud = cdLimud
+                    
+                    //        TODO: what if this is nil
+                    guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
+                        throw CreationError.unknownError
+                    }
+                    ms.add(newSC)
+                    cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
+                    
+                    let limud = try Limud(cdLimud, context: viewContext)
+                    
+                    cdSCs.append(newSC)
+                }
+                    
+                    for cdSC in cdSCs {
+                        guard let baby = babySCs.first(where: { baby in
+                            baby.id == cdSC.scId
+                        }) else {
+                            print("That wasn't supposed to happen...")
+                            continue
+                        }
+                        
+                        let delayedFromId = baby.delayedFromId
+                        cdSC.delayedFrom = cdSCs.first(where: { match in
+                            match.scId == delayedFromId
+                        })
                     }
                     
-                    let delayedFromId = baby.delayedFromId
-                    cdSC.delayedFrom = cdSCs.first(where: { match in
-                        match.scId == delayedFromId
-                    })
+                    var cdChazaraPoints: [CDChazaraPoint] = []
+                    
+                cps: for baby in babyChazaraPoints {
+                    let newPoint = CDChazaraPoint(context: viewContext)
+                    newPoint.pointId = baby.id
+                    newPoint.sectionId = baby.sectionId
+                    newPoint.scId = baby.scId
+                    
+                    let state = CDChazaraState(context: viewContext)
+                    state.stateId = IDGenerator.generate(withPrefix: "CS")
+                    state.status = baby.status
+                    state.date = baby.date
+                    
+                    newPoint.chazaraState = state
+                    
+                    cdChazaraPoints.append(newPoint)
                 }
-                
-                var cdChazaraPoints: [CDChazaraPoint] = []
-                
-            cps: for baby in babyChazaraPoints {
-                let newPoint = CDChazaraPoint(context: viewContext)
-                newPoint.pointId = baby.id
-                newPoint.sectionId = baby.sectionId
-                newPoint.scId = baby.scId
-                
-                let state = CDChazaraState(context: viewContext)
-                state.stateId = IDGenerator.generate(withPrefix: "CS")
-                state.status = baby.status
-                state.date = baby.date
-                
-                newPoint.chazaraState = state
-                
-                cdChazaraPoints.append(newPoint)
-            }
-                
-            pns: for babyPointNote in babyPointNotes {
-                let newPointNote = CDPointNote(context: viewContext)
-                newPointNote.noteId = babyPointNote.id
-                newPointNote.creationDate = babyPointNote.creationDate
-                newPointNote.note = babyPointNote.note
-                
-                guard let chazaraPoint = cdChazaraPoints.first(where: { point in
-                    point.pointId == babyPointNote.cpId
-                }) else {
-                    print("Point note must belong to a chazara point to be added.")
-                    continue pns
+                    
+                pns: for babyPointNote in babyPointNotes {
+                    let newPointNote = CDPointNote(context: viewContext)
+                    newPointNote.noteId = babyPointNote.id
+                    newPointNote.creationDate = babyPointNote.creationDate
+                    newPointNote.note = babyPointNote.note
+                    
+                    guard let chazaraPoint = cdChazaraPoints.first(where: { point in
+                        point.pointId == babyPointNote.cpId
+                    }) else {
+                        print("Point note must belong to a chazara point to be added.")
+                        continue pns
+                    }
+                    
+                    guard let ms = chazaraPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
+                        throw CreationError.unknownError
+                    }
+                    ms.add(newPointNote)
+                    chazaraPoint.notes = ms.copy() as? NSOrderedSet
+                    newPointNote.point = chazaraPoint
                 }
-                
-                guard let ms = chazaraPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
-                    throw CreationError.unknownError
+                    
+                    try viewContext.save()
                 }
-                ms.add(newPointNote)
-                chazaraPoint.notes = ms.copy() as? NSOrderedSet
-                newPointNote.point = chazaraPoint
-            }
-                
-                try viewContext.save()
             } catch StorageError.wipeFailure {
                 print("Error: Wiping data failed. Cannot restore.")
                 self.errorToShow = RestoreError.wipeFailure
@@ -373,7 +375,7 @@ This action will wipe all existing data and close the app.
                 return
             }
             
-//            try! viewContext.save()
+            //            try! viewContext.save()
         }
         
         
@@ -426,7 +428,7 @@ This action will wipe all existing data and close the app.
             var babyLimudim: Set<BabyLimud> = Set()
             let limudData = limuds.components(separatedBy: "CDLimud: ")
         object: for data in limudData {
-            var id: ID?
+            var id: CID?
             var name: String?
             
             for pair in data.components(separatedBy: "|") {
@@ -479,8 +481,8 @@ This action will wipe all existing data and close the app.
             let sectionData = sections.components(separatedBy: "CDSection: ")
             
         object: for data in sectionData {
-            var id: ID?
-            var limudId: ID?
+            var id: CID?
+            var limudId: CID?
             var name: String?
             var initialDate: Date?
             
@@ -543,10 +545,10 @@ This action will wipe all existing data and close the app.
             let scheduledChazaraData = scs.components(separatedBy: "CDScheduledChazara: ")
             
         object: for data in scheduledChazaraData {
-            var id: ID?
-            var limudId: ID?
+            var id: CID?
+            var limudId: CID?
             var name: String?
-            var delayedFrom: ID?
+            var delayedFrom: CID?
             var delay: Int16!
             var daysToComplete: Int16!
             var fixedDueDate: Date?
@@ -638,9 +640,9 @@ This action will wipe all existing data and close the app.
             let chazaraPointData = chazaraPointsData.components(separatedBy: "CDChazaraPoint: ")
             
         object: for data in chazaraPointData {
-            var id: ID!
-            var scId: ID!
-            var sectionId: ID!
+            var id: CID!
+            var scId: CID!
+            var sectionId: CID!
             var status: Int16!
             var date: Date?
             
@@ -714,10 +716,10 @@ This action will wipe all existing data and close the app.
             let pointNoteData = pointNotesData.components(separatedBy: "CDPointNote: ")
             
         object: for data in pointNoteData {
-            var id: ID?
+            var id: CID?
             var creationDate: Date?
             var note: String?
-            var cpId: ID?
+            var cpId: CID?
             
             for pair in data.components(separatedBy: "|") {
                 let parts = pair.components(separatedBy: "=")
@@ -802,23 +804,23 @@ This action will wipe all existing data and close the app.
     
     /// Temporary storage structure for limudim when they are waiting to be approved for restore.
     private struct BabyLimud: Hashable {
-        let id: ID
+        let id: CID
         let name: String?
     }
     
     /// Temporary storage strucuret for sections when they are waiting to be approved for restore.
     private struct BabySection: Hashable {
-        let id: ID
-        let limudId: ID?
+        let id: CID
+        let limudId: CID?
         let name: String?
         let initialDate: Date?
     }
     
     /// Temporary storage strucuret for scheudled chazaras when they are waiting to be approved for restore.
     private struct BabySC: Hashable {
-        let id: ID
-        let limudId: ID?
-        let delayedFromId: ID?
+        let id: CID
+        let limudId: CID?
+        let delayedFromId: CID?
         let name: String?
         let isDynamic: Bool
         let fixedDueDate: Date?
@@ -827,18 +829,18 @@ This action will wipe all existing data and close the app.
     }
     
     private struct BabyChazaraPoint: Hashable {
-        let id: ID
-        let scId: ID
-        let sectionId: ID
+        let id: CID
+        let scId: CID
+        let sectionId: CID
         let status: Int16
         let date: Date?
     }
     
     private struct BabyPointNote: Hashable {
-        let id: ID
+        let id: CID
         let creationDate: Date?
         let note: String
-        let cpId: ID
+        let cpId: CID
     }
     
     /*

@@ -13,7 +13,7 @@ struct NewSectionView: View {
     
     @State var sectionName: String = ""
 //    @State var limud: Limud?
-    @State var limudId: ID?
+    @State var limudId: CID?
     var initialLimud: Limud?
     
     @FetchRequest(
@@ -28,7 +28,7 @@ struct NewSectionView: View {
     var limudim: [Limud] {
         var temp: [Limud] = []
         for cdLimud in cdLimudim {
-            if let limud = Limud(cdLimud) {
+            if let limud = try? Limud(cdLimud, context: viewContext) {
                 temp.append(limud)
             }
         }
@@ -53,7 +53,7 @@ struct NewSectionView: View {
                 Form {
                     Picker("Limud", selection: $limudId) {
                         ForEach(cdLimudim) { cdl in
-                            if let limud = Limud(cdl) {
+                            if let limud = try? Limud(cdl, context: viewContext) {
                                 Text(limud.name)
                                     .tag(limud.id)
                             }
@@ -115,41 +115,40 @@ struct NewSectionView: View {
         let fr = CDLimud.fetchRequest()
         fr.predicate = NSPredicate(format: "id == %@", limud.id)
         
-        guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
-            throw CreationError.invalidData
+        
+        return try viewContext.performAndWait {
+            guard let results = try? viewContext.fetch(fr), let cdLimud = results.first else {
+                throw CreationError.invalidData
+            }
+            
+            //        var cdLimud = limud.cdLimud()
+            
+            let newItem = CDSection(context: viewContext)
+            newItem.sectionId = IDGenerator.generate(withPrefix: "S")
+            newItem.sectionName = sectionName
+            
+            if initialLearningDate.distance(to: Date.now) < 60 {
+                newItem.initialDate = initialLearningDate
+            } else {
+                newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
+            }
+            newItem.limud = cdLimud
+            //        newItem.
+            
+            cdLimud.sections = cdLimud.sections?.adding(newItem) as NSSet?
+            
+            let section = try Section(newItem, context: viewContext)
+            
+            section.generatePoints()
+            
+            let newLimud = try Limud(cdLimud, context: viewContext)
+            
+            try withAnimation {
+                try viewContext.save()
+            }
+            
+            return newLimud
         }
-        
-//        var cdLimud = limud.cdLimud()
-        
-        let newItem = CDSection(context: viewContext)
-        newItem.sectionId = IDGenerator.generate(withPrefix: "S")
-        newItem.sectionName = sectionName
-        
-        if initialLearningDate.distance(to: Date.now) < 60 {
-            newItem.initialDate = initialLearningDate
-        } else {
-            newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
-        }
-        newItem.limud = cdLimud
-//        newItem.
-        
-        cdLimud.sections = cdLimud.sections?.adding(newItem) as NSSet?
-        
-        guard let section = Section(newItem) else {
-            throw CreationError.unknownError
-        }
-        
-        section.generatePoints()
-        
-        guard let limud = Limud(cdLimud) else {
-            throw CreationError.unknownError
-        }
-        
-        try withAnimation {
-            try viewContext.save()
-        }
-        
-        return limud
     }
 }
 

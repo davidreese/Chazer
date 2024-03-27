@@ -6,45 +6,49 @@
 //
 
 import Foundation
+import CoreData
 
 class Limud: Identifiable, Hashable {
-    var id: ID
-    var name: String
-    var sections: Set<Section>
-    var scheduledChazaras: [ScheduledChazara]
+    final var id: CID!
+    var name: String!
+    var sections: Set<Section>!
+    var scheduledChazaras: [ScheduledChazara]!
     
     
-    init?(_ cdLimud: CDLimud) {
-        guard let id = cdLimud.id, let name = cdLimud.name, let cdSections = cdLimud.sections?.allObjects as? [CDSection], let cdScheduledChazaras = cdLimud.scheduledChazaras?.array as? [CDScheduledChazara] else {
-//            print("Failed to initalize CDLimud")
-            return nil
-        }
+    init(_ cdLimud: CDLimud, context: NSManagedObjectContext) throws {
         
-        self.id = id
-        self.name = name
-        
-        var sections: Set<Section> = Set()
-        for cdSection in cdSections {
-            if let section = Section(cdSection) {
-                sections.insert(section)
-            } else {
-                print("Failed to append section: \(cdSection)")
+        try context.performAndWait {
+            guard let id = cdLimud.id, let name = cdLimud.name, let cdSections = cdLimud.sections?.allObjects as? [CDSection], let cdScheduledChazaras = cdLimud.scheduledChazaras?.array as? [CDScheduledChazara] else {
+                //            print("Failed to initalize CDLimud")
+                throw RetrievalError.missingData
             }
-        }
-        
-        var scheduledChazaras: [ScheduledChazara] = []
-        for cdScheduledChazara in cdScheduledChazaras {
-            if let scheduledChazara = ScheduledChazara(cdScheduledChazara) {
-                scheduledChazaras.append(scheduledChazara)
-            } else {
-                print("Failed to append scheduled chazara: \(cdScheduledChazara)")
+            
+            self.id = id
+            self.name = name
+            
+            var sections: Set<Section> = Set()
+            for cdSection in cdSections {
+                if let section = try? Section(cdSection, context: context) {
+                    sections.insert(section)
+                } else {
+                    print("Failed to append section: \(cdSection)")
+                }
             }
+            
+            var scheduledChazaras: [ScheduledChazara] = []
+            for cdScheduledChazara in cdScheduledChazaras {
+                if let scheduledChazara = try? ScheduledChazara(cdScheduledChazara, context: context) {
+                    scheduledChazaras.append(scheduledChazara)
+                } else {
+                    print("Failed to append scheduled chazara: \(cdScheduledChazara)")
+                }
+            }
+            
+            self.sections = sections
+            self.scheduledChazaras = scheduledChazaras
+            
+            //        print("Initialized CDLimud")
         }
-        
-        self.sections = sections
-        self.scheduledChazaras = scheduledChazaras
-        
-//        print("Initialized CDLimud")
     }
     
     static func == (lhs: Limud, rhs: Limud) -> Bool {
@@ -58,20 +62,23 @@ class Limud: Identifiable, Hashable {
 }
 
 class Section: Identifiable, Hashable {
-    final let id: ID
-    private(set) var name: String
-    private(set) var initialDate: Date
-    private(set) var limudId: ID
+    final var id: CID!
+    private(set) var name: String!
+    private(set) var initialDate: Date!
+    private(set) var limudId: String!
     
-    init?(_ cdSection: CDSection) {
-        guard let id = cdSection.sectionId, let name = cdSection.sectionName, let initalDate = cdSection.initialDate, let cdLimud = cdSection.limud, let limudId = cdLimud.id else {
-            return nil
-        }
+    init(_ cdSection: CDSection, context: NSManagedObjectContext) throws {
         
-        self.id = id
-        self.name = name
-        self.initialDate = initalDate
-        self.limudId = limudId
+        try context.performAndWait {
+            guard let id = cdSection.sectionId, let name = cdSection.sectionName, let initalDate = cdSection.initialDate, let cdLimud = cdSection.limud, let limudId = cdLimud.id else {
+                throw RetrievalError.missingData
+            }
+            
+            self.id = id
+            self.name = name
+            self.initialDate = initalDate
+            self.limudId = limudId
+        }
     }
     
     init?(_ nsSetSection: NSSet) {
@@ -94,8 +101,8 @@ class Section: Identifiable, Hashable {
 }
 
 class ScheduledChazara: Identifiable, Hashable {
-    var id: ID
-    var name: String
+    final var id: CID!
+    var name: String!
     var fixedDueDate: Date?
     
     /// The number of days after the initial learning date or the last chazara that the chazara is scheduled to occur
@@ -106,53 +113,59 @@ class ScheduledChazara: Identifiable, Hashable {
     var daysActive: Int?
 //    var window: Int
     
-    init(id: ID, name: String, due dueDate: Date) {
+    init(id: CID, name: String, due dueDate: Date) {
         self.id = id
         self.name = name
         self.fixedDueDate = dueDate
     }
     
-    init(id: ID, name: String, delaySinceInitial: Int) {
+    init(id: CID, name: String, delaySinceInitial: Int) {
         self.id = id
         self.name = name
         self.delay = delaySinceInitial
     }
     
-    init(id: ID, name: String, delay: Int, since delayedFrom: ScheduledChazara) {
+    init(id: CID, name: String, delay: Int, since delayedFrom: ScheduledChazara) {
         self.id = id
         self.name = name
         self.delay = delay
         self.delayedFrom = delayedFrom
     }
     
-    init(id: ID, delaySinceInitial: Int) {
+    init(id: CID, delaySinceInitial: Int) {
         self.id = id
         self.name = "\(delayFormatted(delaySinceInitial)) Day Chazara"
         self.delay = delaySinceInitial
     }
     
-    init(id: ID, delay: Int, since delayedFrom: ScheduledChazara?) {
+    init(id: CID, delay: Int, since delayedFrom: ScheduledChazara?) {
         self.id = id
         self.name = "\(delayFormatted(delay)) Day Chazara"
         self.delay = delay
         self.delayedFrom = delayedFrom
     }
     
-    init?(_ cdScheduledChazara: CDScheduledChazara) {
-        guard let id = cdScheduledChazara.scId, let name = cdScheduledChazara.scName else {
-            return nil
-        }
+    init(_ cdScheduledChazara: CDScheduledChazara, context: NSManagedObjectContext) throws {
         
-        self.id = id
-        self.name = name
-        if let fixedDueDate = cdScheduledChazara.fixedDueDate {
-            self.fixedDueDate = fixedDueDate
-        } else {
-            self.delay = Int(cdScheduledChazara.delay)
-            if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
-                self.delayedFrom = ScheduledChazara(cdDelayedFrom)
+        try context.performAndWait {
+            guard let id = cdScheduledChazara.scId, let name = cdScheduledChazara.scName else {
+                throw RetrievalError.missingData
             }
-            self.daysActive = Int(cdScheduledChazara.daysToComplete)
+            
+            self.id = id
+            self.name = name
+            
+            if let fixedDueDate = cdScheduledChazara.fixedDueDate {
+                self.fixedDueDate = fixedDueDate
+            } else {
+                self.delay = Int(cdScheduledChazara.delay)
+                
+                if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
+                    self.delayedFrom = try ScheduledChazara(cdDelayedFrom, context: context)
+                }
+                
+                self.daysActive = Int(cdScheduledChazara.daysToComplete)
+            }
         }
     }
     
@@ -176,6 +189,12 @@ enum CreationError: Error {
     case unknownError
 }
 
+enum RetrievalError: Error {
+    case missingData
+    case invalidData
+    case unknownError
+}
+
 enum UpdateError: Error {
     /// Thrown when the submitted name is invalid.
     case invalidName
@@ -187,6 +206,8 @@ enum UpdateError: Error {
     case invalidData
     
     case unknownError
+    
+    case missingManagedObjectContext
 }
 
 enum DeletionError: Error {

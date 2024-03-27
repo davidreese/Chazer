@@ -66,12 +66,14 @@ struct ManageLimudView: View {
         let fetchRequest = CDLimud.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", limud.id)
         
-        guard let results = try? viewContext.fetch(fetchRequest), let cdLimud = results.first else {
-            throw UpdateError.unknownError
+        try viewContext.performAndWait {
+            guard let results = try? viewContext.fetch(fetchRequest), let cdLimud = results.first else {
+                throw UpdateError.unknownError
+            }
+            
+            cdLimud.name = self.limudName
+            
+            try viewContext.save()
         }
-
-        cdLimud.name = self.limudName
-        
-        try viewContext.save()
     }
 }
