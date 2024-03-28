@@ -27,6 +27,9 @@ struct Dashboard: View {
                                     .font(.title)
                                     .bold()
                                 Spacer()
+                                Text(model.lateChazaraPoints?.count.description ?? "")
+                                    .font(.title)
+                                    .bold()
                             }
                             
                             Divider()
@@ -59,6 +62,9 @@ struct Dashboard: View {
                                     .font(.title)
                                     .bold()
                                 Spacer()
+                                Text(model.activeChazaraPoints?.count.description ?? "")
+                                    .font(.title)
+                                    .bold()
                             }
                             
                             Divider()
