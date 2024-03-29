@@ -32,7 +32,7 @@ class DashboardModel: ObservableObject {
     
     /// Updates the dashboard to reflect the latest updated data saved in the database.
     func updateDashboard() async {
-        guard let data = await Storage.shared.getActiveAndLateChazaraPoints() else {
+        guard let data = try? await Storage.shared.getActiveAndLateChazaraPoints() else {
             return
         }
         

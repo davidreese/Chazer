@@ -17,7 +17,7 @@ struct ContentView: View {
     @Environment(\.openWindow) var openWindow
     
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)], predicate: NSPredicate(format: "archived == %@", NSNumber(value: false)),
         animation: .default)
     private var cdLimudim: FetchedResults<CDLimud>
     
@@ -33,7 +33,7 @@ struct ContentView: View {
     
     @State private var showingNewLimudView = false
     @State private var showingDeleteAlert = false
-    @State private var indicesToDelete: IndexSet?
+    @State private var limudToDelete: CDLimud? = nil
     
     @State private var isUpdating = false
     
@@ -41,6 +41,7 @@ struct ContentView: View {
     @State var lastScenePhase: ScenePhase? = nil
     
     @State var dashboard = Dashboard()
+    @State var settingsView = SettingsView()
     
     init() {
 //        viewContext.automaticallyMergesChangesFromParent = true
@@ -53,35 +54,49 @@ struct ContentView: View {
                         Text("Dashboard")
                     })
                 ForEach(cdLimudim.filter({ cdl in
-                    cdl.id != nil
+                    cdl.id != nil && cdl != limudToDelete
                 })) { cdl in
                     if let limud = try? Limud(cdl, context: viewContext) {
                         NavigationLink(destination: GraphView(limud: limud, onUpdate: model.objectWillChange.send)
                             .environment(\.managedObjectContext, self.viewContext), label: {
                                 Text(limud.name)
                             })
+                        .swipeActions(allowsFullSwipe: false) {
+                            Button {
+                                self.archiveLimud(cdLimud: cdl)
+                                Task {
+                                    await self.update()
+                                }
+                            } label: {
+                                Text("Archive")
+                            }
+                            .tint(.indigo)
+                            
+                            Button(role: .destructive) {
+                                self.limudToDelete = cdl
+                                showingDeleteAlert = true
+                            } label: {
+                                Text("Delete")
+                            }
+                        }
                     }
                 }
-                .onDelete(perform: { ix in
-                    self.indicesToDelete = ix
-                    showingDeleteAlert = true
-                })
                 .alert(isPresented: self.$showingDeleteAlert) {
                     Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
                             do {
-                                try withAnimation {
-                                    try executeLimudDeletion()
+                                withAnimation {
+                                    executeLimudDeletion()
                                 }
                             } catch {
                                 print("Failed to delete with error: \(error)")
                             }
-                            self.indicesToDelete = nil
+                            self.limudToDelete = nil
                         }, secondaryButton: .cancel() {
-                            self.indicesToDelete = nil
+                            self.limudToDelete = nil
                         }
                     )
                 }
-                NavigationLink(destination: SettingsView(), label: {
+                NavigationLink(destination: settingsView, label: {
                         Text("Settings")
                     })
             }
@@ -165,35 +180,30 @@ struct ContentView: View {
         await dashboard.model.updateDashboard()
     }
     
-    private func executeLimudDeletion() throws {
-        do {
-            try withAnimation {
+    private func executeLimudDeletion()  {
+            try? withAnimation {
                 try viewContext.performAndWait {
-                    try self.indicesToDelete?.map { cdLimudim.filter({ cdl in
-                        cdl.id != nil
-                    })[$0] }.forEach({ cdl in
-                        guard let id = cdl.id else {
-                            print("Deletion failed, id is nil")
-                            throw DeletionError.unknownError
-                        }
-                        
-                        let fr = CDLimud.fetchRequest()
-                        fr.predicate = NSPredicate(format: "id == %@", id)
-                        let results = try viewContext.fetch(fr)
-                        
-                        for result in results {
-                            viewContext.delete(result)
-                        }
-                        viewContext.delete(cdl)
-                    })
+                    guard let limudToDelete = limudToDelete else {
+                        return
+                    }
+                    
+                    viewContext.delete(limudToDelete)
                     
                     try viewContext.save()
                 }
             }
-        } catch {
-            print("Error deleting: \(error)")
-        }
     }
+    
+    private func archiveLimud(cdLimud: CDLimud) {
+            try? withAnimation {
+                try viewContext.performAndWait {
+                    cdLimud.archived = true
+                    
+                    try viewContext.save()
+                }
+            }
+    }
+
 }
 
 private let itemFormatter: DateFormatter = {

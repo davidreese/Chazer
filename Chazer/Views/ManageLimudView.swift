@@ -15,6 +15,7 @@ struct ManageLimudView: View {
     private var onUpdate: (() -> Void)?
     
     @State var limudName: String = ""
+    @State var isArchived: Bool = false
     
     init(_ limud: Limud, onUpdate: (() -> Void)? = nil) {
         self.limud = limud
@@ -26,8 +27,11 @@ struct ManageLimudView: View {
                 Form {
                 TextField("Limud Name", text: $limudName)
 //                    .textFieldStyle(PlainTextFieldStyle())
+                    Toggle(isOn: $isArchived, label: {
+                        Text("Archived")
+                    })
                 }
-            .navigationTitle("New Limud")
+                .navigationTitle("Manage Limud: \(limud.name)")
 //            .padding()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -59,6 +63,7 @@ struct ManageLimudView: View {
             if limudName.isEmpty {
                 self.limudName = self.limud.name
             }
+            self.isArchived = limud.isArchived
         }
     }
     
@@ -72,6 +77,7 @@ struct ManageLimudView: View {
             }
             
             cdLimud.name = self.limudName
+            cdLimud.archived = isArchived
             
             try viewContext.save()
         }

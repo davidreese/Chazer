@@ -83,6 +83,7 @@
 		F2E634A428D353E60039463B /* Chazer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chazer.entitlements; sourceTree = "<group>"; };
 		F2E7990228D900D300295041 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		F2E7990428D900FF00295041 /* GraphViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphViewModel.swift; sourceTree = "<group>"; };
+		F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 7.xcdatamodel"; sourceTree = "<group>"; };
 		F2FE271A28D29E7C006CFDFA /* Chazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerApp.swift; sourceTree = "<group>"; };
 		F2FE271F28D29E7C006CFDFA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -129,6 +130,8 @@
 			children = (
 				F2E0E5C6296DAFC800F3575B /* DashboardModel.swift */,
 				F20B34C62A4A86C7004CA9F9 /* StatusBoxModel.swift */,
+				F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */,
+				F2E7990428D900FF00295041 /* GraphViewModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -136,6 +139,8 @@
 		F243EC942A23D585001093C9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F2FE271F28D29E7C006CFDFA /* ContentView.swift */,
+				F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */,
 				F2E7990228D900D300295041 /* GraphView.swift */,
 				F2A970B62B5C9985003F97B9 /* ManageLimudView.swift */,
 				F24A39BF29840CE800D68B56 /* SettingsView.swift */,
@@ -153,6 +158,8 @@
 			children = (
 				F2E131E52A253E4F00142365 /* Utilities */,
 				F2D1B4EB2A23C86D002B2E2A /* PointNote.swift */,
+				F2E0E5C2296DACE700F3575B /* ChazaraPoint.swift */,
+				F2E0E5CA297ACA1700F3575B /* ChazaraStatus.swift */,
 			);
 			path = Structure;
 			sourceTree = "<group>";
@@ -191,16 +198,10 @@
 				F2CDDBA62AA41E5100BE0175 /* Info.plist */,
 				F2E634A428D353E60039463B /* Chazer.entitlements */,
 				F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */,
-				F2FE271F28D29E7C006CFDFA /* ContentView.swift */,
 				F2E0E5C8296DC92200F3575B /* UI.swift */,
-				F2E0E5CA297ACA1700F3575B /* ChazaraStatus.swift */,
 				F28133212A9008C5000AE451 /* Tools.swift */,
-				F2E0E5C2296DACE700F3575B /* ChazaraPoint.swift */,
 				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
-				F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */,
 				F2FE274C28D29E8E006CFDFA /* Chazer.swift */,
-				F2E561CA28D88B1A0078BE02 /* ContentViewModel.swift */,
-				F2E7990428D900FF00295041 /* GraphViewModel.swift */,
 				F20B34C52A4A857D004CA9F9 /* Models */,
 				F243EC942A23D585001093C9 /* Views */,
 				F2D1B4EA2A23C864002B2E2A /* Structure */,
@@ -731,6 +732,7 @@
 		F2FE272828D29E7E006CFDFA /* Chazer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */,
 				F2D1B4ED2A23CB01002B2E2A /* Chazer 6.xcdatamodel */,
 				F2B920C229FC048200A2C8D9 /* Chazer 5.xcdatamodel */,
 				F2B04BBC29F4E6BD0018F8FA /* Chazer 4.xcdatamodel */,
@@ -738,7 +740,7 @@
 				F24D4960297CCDBB004C3DAE /* Chazer 2.xcdatamodel */,
 				F2FE272928D29E7E006CFDFA /* Chazer.xcdatamodel */,
 			);
-			currentVersion = F2D1B4ED2A23CB01002B2E2A /* Chazer 6.xcdatamodel */;
+			currentVersion = F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */;
 			path = Chazer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

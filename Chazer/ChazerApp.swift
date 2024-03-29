@@ -12,6 +12,7 @@ import CoreData
 @main
 struct ChazerApp: App {
     let persistenceController = PersistenceController.shared
+    static let context = PersistenceController.shared.container.viewContext
     
     static let DEBUGGING_DATA = false
     
@@ -29,99 +30,98 @@ struct ChazerApp: App {
     
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
     private static func migrateData() {
-        let context = PersistenceController.shared.container.viewContext
-        
-        let cdChazaraPoints = printCDChazaraPoints()
-        let cdChazaras = printCDChazaras()
-        let cdExemptions = printCDExemptions()
-        let cdScheduledChazaras = printCDScheduledChazaras()
-        let cdSections = printCDSections()
-        
-        for cdScheduledChazara in cdScheduledChazaras {
-            let matches = cdSections.filter { cdSection in
-                cdSection.limud?.id == cdScheduledChazara.limud?.id
-            }
+        context.performAndWait {
+            let cdChazaraPoints = printCDChazaraPoints()
+            let cdChazaras = printCDChazaras()
+            let cdExemptions = printCDExemptions()
+            let cdScheduledChazaras = printCDScheduledChazaras()
+            let cdSections = printCDSections()
             
-            for cdSection in matches {
-                if cdChazaraPoints.contains(where: { cp in
-                    cp.sectionId == cdSection.sectionId && cp.scId == cdScheduledChazara.scId
-                }) {
-                    print("CDChazaraPoint already exists for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
-                } else {
-                    if let cdChazara = cdChazaras.first(where: { cdEntity in
-                        cdEntity.sectionId == cdSection.sectionId && cdEntity.scId == cdScheduledChazara.scId
+            for cdScheduledChazara in cdScheduledChazaras {
+                let matches = cdSections.filter { cdSection in
+                    cdSection.limud?.id == cdScheduledChazara.limud?.id
+                }
+                
+                for cdSection in matches {
+                    if cdChazaraPoints.contains(where: { cp in
+                        cp.sectionId == cdSection.sectionId && cp.scId == cdScheduledChazara.scId
                     }) {
-                        guard let id = cdChazara.id, let sectionId = cdChazara.sectionId, let scId = cdChazara.scId else {
-                            print("Skipping CDChazaraPoint for CDChazara (\(cdChazara.id ?? "nil")")
-                            continue
-                        }
-                        
-                        print("Creating and saving CDChazaraPoint for CDChazara (\(cdChazara.id ?? "nil")")
-                        
-                        let state = CDChazaraState(context: context)
-                        state.stateId = IDGenerator.generate(withPrefix: "CS")
-                        state.date = cdChazara.date
-                        state.status = 4
-                        
-                        let cp = CDChazaraPoint(context: context)
-                        cp.pointId = id
-                        cp.sectionId = sectionId
-                        cp.scId = scId
-                        cp.chazaraState = state
-                        
-                        state.chazaraPoint = cp
-                        
-                        print("COPIED CDChazara to CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") DATE=\(cp.chazaraState?.date?.description ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
-                    } else if let cdExemption = cdExemptions.first(where: { cdEntity in
-                        cdEntity.sectionId == cdSection.sectionId && cdEntity.scId == cdScheduledChazara.scId
-                    }) {
-                        guard let id = cdExemption.id, let sectionId = cdExemption.sectionId, let scId = cdExemption.scId else {
-                            print("Skipping CDChazaraPoint for CDExemption (\(cdExemption.id ?? "nil")")
-                            continue
-                        }
-                        
-                        print("Creating and saving CDChazaraPoint for CDExemption (\(cdExemption.id ?? "nil")")
-                        
-                        let state = CDChazaraState(context: context)
-                        state.stateId = IDGenerator.generate(withPrefix: "CS")
-//                        state.date = cdExemption.date
-                        state.status = 0
-                        
-                        let cp = CDChazaraPoint(context: context)
-                        cp.pointId = id
-                        cp.sectionId = sectionId
-                        cp.scId = scId
-                        cp.chazaraState = state
-                        
-                        state.chazaraPoint = cp
-                        
-                        print("COPIED CDExemption to CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
+                        print("CDChazaraPoint already exists for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
                     } else {
-                        guard let sectionId = cdSection.sectionId, let scId = cdScheduledChazara.scId else {
-                            print("Skipping CDChazaraPoint for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
-                            continue
+                        if let cdChazara = cdChazaras.first(where: { cdEntity in
+                            cdEntity.sectionId == cdSection.sectionId && cdEntity.scId == cdScheduledChazara.scId
+                        }) {
+                            guard let id = cdChazara.id, let sectionId = cdChazara.sectionId, let scId = cdChazara.scId else {
+                                print("Skipping CDChazaraPoint for CDChazara (\(cdChazara.id ?? "nil")")
+                                continue
+                            }
+                            
+                            print("Creating and saving CDChazaraPoint for CDChazara (\(cdChazara.id ?? "nil")")
+                            
+                            let state = CDChazaraState(context: context)
+                            state.stateId = IDGenerator.generate(withPrefix: "CS")
+                            state.date = cdChazara.date
+                            state.status = 4
+                            
+                            let cp = CDChazaraPoint(context: context)
+                            cp.pointId = id
+                            cp.sectionId = sectionId
+                            cp.scId = scId
+                            cp.chazaraState = state
+                            
+                            state.chazaraPoint = cp
+                            
+                            print("COPIED CDChazara to CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") DATE=\(cp.chazaraState?.date?.description ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
+                        } else if let cdExemption = cdExemptions.first(where: { cdEntity in
+                            cdEntity.sectionId == cdSection.sectionId && cdEntity.scId == cdScheduledChazara.scId
+                        }) {
+                            guard let id = cdExemption.id, let sectionId = cdExemption.sectionId, let scId = cdExemption.scId else {
+                                print("Skipping CDChazaraPoint for CDExemption (\(cdExemption.id ?? "nil")")
+                                continue
+                            }
+                            
+                            print("Creating and saving CDChazaraPoint for CDExemption (\(cdExemption.id ?? "nil")")
+                            
+                            let state = CDChazaraState(context: context)
+                            state.stateId = IDGenerator.generate(withPrefix: "CS")
+                            //                        state.date = cdExemption.date
+                            state.status = 0
+                            
+                            let cp = CDChazaraPoint(context: context)
+                            cp.pointId = id
+                            cp.sectionId = sectionId
+                            cp.scId = scId
+                            cp.chazaraState = state
+                            
+                            state.chazaraPoint = cp
+                            
+                            print("COPIED CDExemption to CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
+                        } else {
+                            guard let sectionId = cdSection.sectionId, let scId = cdScheduledChazara.scId else {
+                                print("Skipping CDChazaraPoint for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
+                                continue
+                            }
+                            
+                            print("Creating and saving CDChazaraPoint for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
+                            
+                            let state = CDChazaraState(context: context)
+                            state.stateId = IDGenerator.generate(withPrefix: "CS")
+                            //                        state.date = cdExemption.date
+                            state.status = -1
+                            
+                            let cp = CDChazaraPoint(context: context)
+                            cp.pointId = IDGenerator.generate(withPrefix: "CP")
+                            cp.sectionId = sectionId
+                            cp.scId = scId
+                            cp.chazaraState = state
+                            
+                            state.chazaraPoint = cp
+                            
+                            print("CREATED CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
                         }
-                        
-                        print("Creating and saving CDChazaraPoint for coordinates: (\(cdSection.sectionId ?? "nil"):\(cdScheduledChazara.scId ?? "nil"))")
-                        
-                        let state = CDChazaraState(context: context)
-                        state.stateId = IDGenerator.generate(withPrefix: "CS")
-//                        state.date = cdExemption.date
-                        state.status = -1
-                        
-                        let cp = CDChazaraPoint(context: context)
-                        cp.pointId = IDGenerator.generate(withPrefix: "CP")
-                        cp.sectionId = sectionId
-                        cp.scId = scId
-                        cp.chazaraState = state
-                        
-                        state.chazaraPoint = cp
-                        
-                        print("CREATED CDChazaraPoint: ID=\(cp.pointId ?? "nil") SECID=\(cp.sectionId ?? "nil") SCID=\(cp.scId ?? "nil") STATUS=\(cp.chazaraState?.status ?? -3)")
                     }
                 }
             }
-        }
         
         do {
             try context.save()
@@ -129,17 +129,11 @@ struct ChazerApp: App {
             print("Couldn't migrate data: \(error)")
         }
     }
-    
-    private static func changeDelayedFrom(for scId: CID, to delayedFromId: CID) {
-        let cdScheduledChazara = getCDScheduledChazara(for: scId)
-        let newDelayedFrom = getCDScheduledChazara(for: delayedFromId)
-        cdScheduledChazara.delayedFrom = newDelayedFrom
-        try! PersistenceController.shared.container.viewContext.save()
     }
     
     private static func printCDChazaras() -> [CDChazara] {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDChazara.fetchRequest()
-        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDChazara]
+        let results = try! context.fetch(fetchRequest) as! [CDChazara]
         
         print("Listing CDChazaras:")
         for result in results {
@@ -168,7 +162,8 @@ struct ChazerApp: App {
        let results = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest) as! [CDLimud]
        
        for result in results {
-           text += "CDLimud: ID=\(result.id ?? "nil")|NAME=\(result.name ?? "nil")\n"
+//           N=NAME, A=ARCHIVED
+           text += "CDLimud: ID=\(result.id ?? "nil")|N=\(result.name ?? "nil")|A=\(result.archived)\n"
        }
        
        return text

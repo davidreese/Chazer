@@ -10,6 +10,8 @@ import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    
     @State var showRestoreView = false
     @State var showWipeConfirmation = false
     @State var showWipeFailureAlert = false
@@ -20,14 +22,58 @@ struct SettingsView: View {
     
     @State var restoreView: RestoreView = RestoreView()
     
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \CDLimud .name, ascending: true)],
+                  predicate: NSPredicate(format: "archived == %@", NSNumber(value: true)), animation: .default)
+    private var cdArchivedLimudim: FetchedResults<CDLimud>
+    
+    @State private var showingDeleteAlert = false
+    @State private var limudToDelete: CDLimud? = nil
+    
     var body: some View {
         List {
-            /*
-             SwiftUI.Section {
-             Button("About this application") {
-             
-             }
-             }*/
+            SwiftUI.Section("Limudim") {
+                NavigationLink {
+                    List {
+                        ForEach(cdArchivedLimudim.filter({ cdl in cdl != limudToDelete })) { cdLimud in
+                            Text(cdLimud.name ?? "nil")
+                                .swipeActions(allowsFullSwipe: false) {
+                                    Button {
+                                        unarchiveLimud(cdLimud: cdLimud)
+                                    } label: {
+                                        Text("Unarchive")
+                                    }
+                                    .tint(.indigo)
+                                    
+                                    Button(role: .destructive) {
+                                        self.limudToDelete = cdLimud
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Text("Delete")
+                                    }
+                                }
+                        }
+                    }
+                    .alert(isPresented: self.$showingDeleteAlert) {
+                        Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
+                            do {
+                                try withAnimation {
+                                    try executeLimudDeletion()
+                                }
+                            } catch {
+                                print("Failed to delete with error: \(error)")
+                            }
+                            self.limudToDelete = nil
+                        }, secondaryButton: .cancel() {
+                            self.limudToDelete = nil
+                        }
+                        )
+                    }
+                    .navigationTitle("Archived")
+                } label: {
+                    Text("Archived")
+                }
+            }
+            
             SwiftUI.Section("Data") {
                 Button {
                     showRestoreView = true
@@ -101,6 +147,31 @@ Proceeding will erase all app data and close the app.
             )
         }
     }
+    
+    private func executeLimudDeletion() throws {
+            try withAnimation {
+                try viewContext.performAndWait {
+                    guard let limudToDelete = limudToDelete else {
+                        return
+                    }
+                    
+                    viewContext.delete(limudToDelete)
+                    
+                    try viewContext.save()
+                }
+            }
+    }
+    
+    private func unarchiveLimud(cdLimud: CDLimud) {
+        try? withAnimation {
+            try viewContext.performAndWait {
+                cdLimud.archived = false
+                
+                try viewContext.save()
+            }
+        }
+    }
+    
     
     /// Based on https://www.hackingwithswift.com/quick-start/swiftui/how-to-export-files-using-fileexporter
     struct BackupFile: FileDocument {
@@ -254,6 +325,7 @@ This action will wipe all existing data and close the app.
                     let newLimud = CDLimud(context: viewContext)
                     newLimud.id = baby.id
                     newLimud.name = baby.name
+                    newLimud.archived = baby.archived
                     newLimud.sections = NSSet()
                     cdLimuds.append(newLimud)
                 }
@@ -430,6 +502,7 @@ This action will wipe all existing data and close the app.
         object: for data in limudData {
             var id: CID?
             var name: String?
+            var archived: Bool!
             
             for pair in data.components(separatedBy: "|") {
                 let parts = pair.components(separatedBy: "=")
@@ -444,8 +517,16 @@ This action will wipe all existing data and close the app.
                         } else {
                             id = value.trimmingCharacters(in: .newlines)
                         }
-                    case "NAME":
+                    case "N":
                         name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                    case "A":
+                        if let value = Bool(value.trimmingCharacters(in: .newlines)) {
+                            archived = value
+                        } else {
+                            print("Limud archived value is invalid, skipping data point")
+                            continue object
+                        }
+                        
                     default:
                         print("Failed to parse data for limud:.")
                         continue object;
@@ -458,7 +539,7 @@ This action will wipe all existing data and close the app.
             }
             
             if let id = id {
-                babyLimudim.insert(BabyLimud(id: id, name: name))
+                babyLimudim.insert(BabyLimud(id: id, name: name, archived: archived))
             }
         }
             
@@ -806,6 +887,7 @@ This action will wipe all existing data and close the app.
     private struct BabyLimud: Hashable {
         let id: CID
         let name: String?
+        let archived: Bool
     }
     
     /// Temporary storage strucuret for sections when they are waiting to be approved for restore.

@@ -13,10 +13,9 @@ class Limud: Identifiable, Hashable {
     var name: String!
     var sections: Set<Section>!
     var scheduledChazaras: [ScheduledChazara]!
-    
+    var isArchived: Bool!
     
     init(_ cdLimud: CDLimud, context: NSManagedObjectContext) throws {
-        
         try context.performAndWait {
             guard let id = cdLimud.id, let name = cdLimud.name, let cdSections = cdLimud.sections?.allObjects as? [CDSection], let cdScheduledChazaras = cdLimud.scheduledChazaras?.array as? [CDScheduledChazara] else {
                 //            print("Failed to initalize CDLimud")
@@ -25,6 +24,7 @@ class Limud: Identifiable, Hashable {
             
             self.id = id
             self.name = name
+            self.isArchived = cdLimud.archived
             
             var sections: Set<Section> = Set()
             for cdSection in cdSections {
@@ -206,8 +206,6 @@ enum UpdateError: Error {
     case invalidData
     
     case unknownError
-    
-    case missingManagedObjectContext
 }
 
 enum DeletionError: Error {
