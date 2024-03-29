@@ -20,7 +20,7 @@ struct Dashboard: View {
         ScrollView(.vertical, showsIndicators: false) {
             HStack {
                 VStack {
-                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 1.0, saturation: 0.6854498070406627, brightness: 0.8, opacity: 1.0), location: 0.19659705528846155), Gradient.Stop(color: Color(hue: 0.5677681428840362, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.7326472355769231)]), center: UnitPoint.topLeading, angle: .radians(5.007772431542131))) {
+                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.0, saturation: 0.47299451713102414, brightness: 0.9067559299698796, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 1.0, saturation: 0.19771860881024098, brightness: 0.8947812735316266, opacity: 1.0), location: 0.49006911057692304)]), center: UnitPoint.topLeading, angle: .radians(6.251897256168942))) {
                         VStack {
                             HStack {
                                 Text("Late")
@@ -55,7 +55,7 @@ struct Dashboard: View {
                     }
                     .padding()
                     
-                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.5453719173569278, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 0.950868905308735, saturation: 1.0, brightness: 0.8, opacity: 1.0), location: 0.6383263221153845)]), center: UnitPoint.topLeading, angle: .radians(6.2744539114252245)), content:  {
+                    Panel(gradient: AngularGradient(gradient: Gradient(stops: [Gradient.Stop(color: Color(hue: 0.665665592055723, saturation: 0.1391160344503012, brightness: 0.9067559299698796, opacity: 1.0), location: 0.0), Gradient.Stop(color: Color(hue: 0.6813464796686748, saturation: 0.576671922063253, brightness: 0.8947812735316266, opacity: 1.0), location: 0.8050030048076923)]), center: UnitPoint.topLeading, angle: .radians(6.18344144834115)), content:  {
                         VStack {
                             HStack {
                                 Text("Active")
