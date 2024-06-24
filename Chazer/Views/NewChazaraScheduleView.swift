@@ -30,7 +30,7 @@ struct NewChazaraScheduleView: View {
     @State var fixedDueDate: Date = Date().addingTimeInterval(60 * 60 * 24 * 10)
     @State var delay = 1
     @State var daysActive = 2
-    @State var delayedFromId: CID = "init"
+    @State var delayedFromId: CID?
     
     var limudim: [Limud] {
         var temp: [Limud] = []
@@ -193,7 +193,7 @@ struct NewChazaraScheduleView: View {
                 newItem.daysToComplete = Int16(daysActive)
                 
                 let delayedFrom: CDScheduledChazara?
-                if delayedFromId == "init" {
+                if delayedFromId == nil {
                     delayedFrom = nil
                 } else {
                     delayedFrom = cdScheduledChazaras.first(where: { cdsc in
