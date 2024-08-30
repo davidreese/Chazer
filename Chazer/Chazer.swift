@@ -164,7 +164,7 @@ class ScheduledChazara: Identifiable, Hashable {
             self.id = id
             self.name = name
             
-            if let fixedDueDate = cdScheduledChazara.fixedDueDate {
+            if let fixedDueDate = cdScheduledChazara.fixedDueDate, !cdScheduledChazara.isDynamic {
                 self.fixedDueDate = fixedDueDate
                 self.isDynamic = false
             } else {

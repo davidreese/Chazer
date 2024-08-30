@@ -26,7 +26,7 @@ struct EditChazaraScheduleView: View {
     
     @State var fixedDueDate: Date = Date.now.addingTimeInterval(60 * 60 * 24 * 10)
     
-    @State private var fixedDueMode: Bool = false
+    @State private var isStatic: Bool = false
     
     @State var hiddenFromDashboard = false
     
@@ -34,7 +34,7 @@ struct EditChazaraScheduleView: View {
         self.limudId = limudId
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
-        self.fixedDueMode = !scheduledChazara.isDynamic
+        self.isStatic = !scheduledChazara.isDynamic
         self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
         self.delay = scheduledChazara.delay ?? 1
         self.daysActive = scheduledChazara.daysActive ?? 2
@@ -62,9 +62,9 @@ struct EditChazaraScheduleView: View {
                 }
                 
                 SwiftUI.Section {
-                    Toggle("Fixed Due Date", isOn: self.$fixedDueMode.animation())
+                    Toggle("Fixed Due Date", isOn: self.$isStatic.animation())
 
-                    if fixedDueMode {
+                    if isStatic {
                         DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
                     } else {
@@ -121,7 +121,7 @@ struct EditChazaraScheduleView: View {
         .onAppear {
             self.scName = scheduledChazara.name
             
-            self.fixedDueMode = !scheduledChazara.isDynamic
+            self.isStatic = !scheduledChazara.isDynamic
             self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
             
             self.delay = scheduledChazara.delay ?? 1
@@ -159,6 +159,10 @@ struct EditChazaraScheduleView: View {
         
         try context.performAndWait {
             cdSC.scName = self.scName
+            
+            cdSC.isDynamic = !self.isStatic
+            cdSC.fixedDueDate = self.fixedDueDate
+            
             cdSC.delay = Int16(self.delay)
             cdSC.daysToComplete = Int16(self.daysActive)
             
