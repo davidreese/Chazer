@@ -402,6 +402,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             return activeDate
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
+                if !scheduledChazara.isDynamic {
+                    return nil
+                }
                 //                will now try to calculate the right date
                 if let delay = scheduledChazara.delay {
                     if let delayedFrom = scheduledChazara.delayedFrom {
@@ -567,8 +570,8 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         } else if status == .exempt {
             return .exempt
         } else {
-            guard let dateActive = await getActiveDate(retryOnFail: false),
-                  let dueDate = await getDueDate(retryOnFail: false) else {
+            
+            guard let dueDate = await getDueDate(retryOnFail: false) else {
                 guard let delayedFromId = self.scheduledChazara?.delayedFrom?.id else {
                     return .unknown
                 }
@@ -582,12 +585,26 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             let now = Date.now
             
-            if now < dateActive {
-                return .early
-            } else if now >= dateActive && now < dueDate {
-                return .active
+            
+            if let dateActive = await getActiveDate(retryOnFail: false) {
+                if now < dateActive {
+                    return .early
+                } else if now >= dateActive && now < dueDate {
+                    return .active
+                } else {
+                    return .late
+                }
             } else {
-                return .late
+//                assuming that the dateActive is nil because this chazara schedule is not dynamic
+                if let sc = scheduledChazara {
+                    assert(!sc.isDynamic)
+                }
+                
+                if now < dueDate {
+                    return .active
+                } else {
+                    return .late
+                }
             }
         }
     }
