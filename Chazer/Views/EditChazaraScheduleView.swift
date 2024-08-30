@@ -24,13 +24,22 @@ struct EditChazaraScheduleView: View {
     @State var daysActive = 2
     @State var delayedFromId: CID?
     
+    @State var fixedDueDate: Date = Date.now.addingTimeInterval(60 * 60 * 24 * 10)
+    
+    @State private var fixedDueMode: Bool = false
+    
+    @State var hiddenFromDashboard = false
+    
     init(limudId: CID, scheduledChazara: ScheduledChazara, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
         self.limudId = limudId
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
+        self.fixedDueMode = !scheduledChazara.isDynamic
+        self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
         self.delay = scheduledChazara.delay ?? 1
         self.daysActive = scheduledChazara.daysActive ?? 2
         self.delayedFromId = scheduledChazara.delayedFrom?.id ?? "init"
+        self.hiddenFromDashboard = scheduledChazara.hiddenFromDashboard
         self.onUpdate = onUpdate
     }
     
@@ -53,6 +62,12 @@ struct EditChazaraScheduleView: View {
                 }
                 
                 SwiftUI.Section {
+                    Toggle("Fixed Due Date", isOn: self.$fixedDueMode.animation())
+
+                    if fixedDueMode {
+                        DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
+                            .datePickerStyle(CompactDatePickerStyle())
+                    } else {
                         Picker("Delayed From", selection: $delayedFromId) {
                             Text("Initial Learning")
                                 .tag("init")
@@ -64,11 +79,18 @@ struct EditChazaraScheduleView: View {
                                         .tag(sc.id)
                                 }
                             }
+                        }
+                        
+                        Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
+                        
+                        Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                     }
-                    
-                    Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
-                    
-                    Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
+                }
+                
+                SwiftUI.Section {
+                    Toggle(isOn: $hiddenFromDashboard, label: {
+                        Text("Hidden from Dashboard")
+                    })
                 }
             }
             .navigationTitle("Edit Scheduled Chazara")
@@ -98,9 +120,14 @@ struct EditChazaraScheduleView: View {
         }
         .onAppear {
             self.scName = scheduledChazara.name
+            
+            self.fixedDueMode = !scheduledChazara.isDynamic
+            self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
+            
             self.delay = scheduledChazara.delay ?? 1
             self.daysActive = scheduledChazara.daysActive ?? 2
             self.delayedFromId = scheduledChazara.delayedFrom?.id
+            self.hiddenFromDashboard = scheduledChazara.hiddenFromDashboard
             updateOtherScheduledChazaras()
         }
     }
@@ -125,6 +152,7 @@ struct EditChazaraScheduleView: View {
     /// Applies custom changes to the ``CDScheduledChazara`` object.
     private func updateScheduledChazara() throws -> Limud {
         let cdSCResult = Storage.shared.pinCDScheduledChazara(id: self.scheduledChazara.id)
+        
         guard let cdSC = cdSCResult.scheduledChazara, let context = cdSCResult.context else {
             throw UpdateError.unknownError
         }
@@ -133,6 +161,7 @@ struct EditChazaraScheduleView: View {
             cdSC.scName = self.scName
             cdSC.delay = Int16(self.delay)
             cdSC.daysToComplete = Int16(self.daysActive)
+            
             if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
                 if delayedFromId == "init" {
                     cdSC.delayedFrom = nil
@@ -148,6 +177,8 @@ struct EditChazaraScheduleView: View {
                     cdSC.delayedFrom = result
                 }
             }
+            
+            cdSC.hiddenFromDashboard = hiddenFromDashboard
             
             try withAnimation {
                 try context.save()

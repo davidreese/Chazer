@@ -41,6 +41,7 @@
         <attribute name="daysToComplete" optional="YES" attributeType="Integer 16" defaultValueString="2" usesScalarValueType="YES"/>
         <attribute name="delay" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="fixedDueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="hiddenFromDashboard" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isDynamic" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="scId" attributeType="String"/>
         <attribute name="scName" optional="YES" attributeType="String"/>

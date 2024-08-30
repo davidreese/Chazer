@@ -195,6 +195,7 @@ struct GraphView: View {
                 if let scheduledChazaraToUpdate = self.model.scheduledChazaraToUpdate {
                     EditChazaraScheduleView(limudId: self.model.limud.id, scheduledChazara: scheduledChazaraToUpdate, onUpdate: { limud in
                         print("Updating...")
+                        
                         withAnimation {
                             self.model.limud = limud
                             self.model.objectWillChange.send()
@@ -276,6 +277,45 @@ struct GraphView: View {
                 Spacer()
             }
             .navigationTitle(model.limud.name)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        self.showingManageLimudView = true
+                    } label: {
+                        Text("Manage")
+                    }
+                    
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu(content: {
+                        Button {
+                            self.showingNewSectionView = true
+                        } label: {
+                            Label("Add section", systemImage: "note.text")
+                        }
+                        Button {
+                            self.showingAddChazaraScheduleView = true
+                        } label: {
+                            Label("Add scheduled chazara", systemImage: "calendar")
+                        }
+                        //                        Button {
+                        //                            self.showingEditChazaraScheduleView = true
+                        //                        } label: {
+                        //                            Label("Edit the Chazara Schedule", systemImage: "calendar")
+                        //                        }
+                    }, label: {
+                        Label("Add", systemImage: "plus")
+                    }) {
+                        self.showingNewSectionView = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showingManageLimudView, content: {
+                ManageLimudView(self.model.limud, onUpdate: {
+                    self.model.updateLimud()
+                })
+            })
         }
     }
     

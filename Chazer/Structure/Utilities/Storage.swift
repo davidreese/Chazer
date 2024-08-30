@@ -76,6 +76,29 @@ class Storage {
         }
     }
     
+    private func getHiddenChazaraScheduleIDs() throws -> Set<CID> {
+        let scheduledChazaraFetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
+        
+        scheduledChazaraFetchRequest.predicate = NSPredicate(format: "hiddenFromDashboard == %@", NSNumber(value: true))
+        
+        let context = self.container.newBackgroundContext()
+        context.automaticallyMergesChangesFromParent = true
+        
+        return try context.performAndWait {
+            let scheduledChazaraResults = try context.fetch(scheduledChazaraFetchRequest) as! [CDScheduledChazara]
+            
+            var ids = Set<CID>()
+            
+            for cdScheduledChazara in scheduledChazaraResults {
+                if let id = cdScheduledChazara.scId {
+                    ids.insert(id)
+                }
+            }
+            
+            return ids
+        }
+    }
+    
     private func getArchivedSectionIDs() throws -> Set<CID> {
         let archivedLimudIds = try getArchivedLimudimIDs()
         
@@ -401,17 +424,18 @@ class Storage {
             
             return try context.performAndWait {
                 let archivedSectionIds = try getArchivedSectionIDs()
-                let noArchivePredicate = NSPredicate(format: "NOT (sectionId IN %@)", archivedSectionIds)
+                let hiddenScheduledChazaraIds = try getHiddenChazaraScheduleIDs()
+//                let noArchivePredicate = NSPredicate(format: "NOT (sectionId IN %@)", archivedSectionIds)
                 
                 let activeRequest = CDChazaraPoint.fetchRequest()
-                let activePredicate = NSPredicate(format: "chazaraState.status == %i AND NOT (sectionId IN %@)", 2, archivedSectionIds)
+                let activePredicate = NSPredicate(format: "chazaraState.status == %i AND NOT (sectionId IN %@) AND NOT (scId IN %@)", 2, archivedSectionIds, hiddenScheduledChazaraIds)
                 
                 activeRequest.predicate = activePredicate
                 
                 let activeCDPoints = try context.fetch(activeRequest)
                 
                 let lateRequest = CDChazaraPoint.fetchRequest()
-                let latePredicate = NSPredicate(format: "chazaraState.status == %i AND NOT (sectionId IN %@)", 3, archivedSectionIds)
+                let latePredicate = NSPredicate(format: "chazaraState.status == %i AND NOT (sectionId IN %@) AND NOT (scId IN %@)", 3, archivedSectionIds, hiddenScheduledChazaraIds)
                 lateRequest.predicate = latePredicate
                 
                 let lateCDPoints = try context.fetch(lateRequest)

@@ -36,8 +36,6 @@ class DashboardModel: ObservableObject {
             return
         }
         
-        //MARK: DEBUGGING
-        
         for point in data.active {
             await point.getDueDate()
         }

@@ -102,27 +102,33 @@ class Section: Identifiable, Hashable {
 
 class ScheduledChazara: Identifiable, Hashable {
     final var id: CID!
-    var name: String!
-    var fixedDueDate: Date?
+    private(set) var name: String!
+    private(set) var fixedDueDate: Date?
     
     /// The number of days after the initial learning date or the last chazara that the chazara is scheduled to occur
-    var delay: Int?
-    var delayedFrom: ScheduledChazara?
+    private(set) var delay: Int?
+    private(set) var delayedFrom: ScheduledChazara?
     
     /// The number of days after the dynamic start date that the chazara point should be marked active.
-    var daysActive: Int?
+    private(set) var daysActive: Int?
 //    var window: Int
+    
+    private(set) var hiddenFromDashboard: Bool = false
+    
+    private(set) var isDynamic: Bool!
     
     init(id: CID, name: String, due dueDate: Date) {
         self.id = id
         self.name = name
         self.fixedDueDate = dueDate
+        self.isDynamic = false
     }
     
     init(id: CID, name: String, delaySinceInitial: Int) {
         self.id = id
         self.name = name
         self.delay = delaySinceInitial
+        self.isDynamic = true
     }
     
     init(id: CID, name: String, delay: Int, since delayedFrom: ScheduledChazara) {
@@ -130,12 +136,14 @@ class ScheduledChazara: Identifiable, Hashable {
         self.name = name
         self.delay = delay
         self.delayedFrom = delayedFrom
+        self.isDynamic = true
     }
     
     init(id: CID, delaySinceInitial: Int) {
         self.id = id
         self.name = "\(delayFormatted(delaySinceInitial)) Day Chazara"
         self.delay = delaySinceInitial
+        self.isDynamic = true
     }
     
     init(id: CID, delay: Int, since delayedFrom: ScheduledChazara?) {
@@ -143,6 +151,7 @@ class ScheduledChazara: Identifiable, Hashable {
         self.name = "\(delayFormatted(delay)) Day Chazara"
         self.delay = delay
         self.delayedFrom = delayedFrom
+        self.isDynamic = true
     }
     
     init(_ cdScheduledChazara: CDScheduledChazara, context: NSManagedObjectContext) throws {
@@ -157,6 +166,7 @@ class ScheduledChazara: Identifiable, Hashable {
             
             if let fixedDueDate = cdScheduledChazara.fixedDueDate {
                 self.fixedDueDate = fixedDueDate
+                self.isDynamic = false
             } else {
                 self.delay = Int(cdScheduledChazara.delay)
                 
@@ -165,7 +175,12 @@ class ScheduledChazara: Identifiable, Hashable {
                 }
                 
                 self.daysActive = Int(cdScheduledChazara.daysToComplete)
+                
+                
+                self.isDynamic = true
             }
+            
+            self.hiddenFromDashboard = cdScheduledChazara.hiddenFromDashboard
         }
     }
     

@@ -32,6 +32,8 @@ struct NewChazaraScheduleView: View {
     @State var daysActive = 2
     @State var delayedFromId: CID?
     
+    @State var hiddenFromDashboard = false
+    
     var limudim: [Limud] {
         var temp: [Limud] = []
         for cdLimud in cdLimudim {
@@ -103,6 +105,12 @@ struct NewChazaraScheduleView: View {
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                     }
+                }
+                
+                SwiftUI.Section {
+                    Toggle(isOn: $hiddenFromDashboard, label: {
+                        Text("Hidden from Dashboard")
+                    })
                 }
             }
             .navigationTitle("New Scheduled Chazara")
@@ -208,7 +216,8 @@ struct NewChazaraScheduleView: View {
                 newItem.delayedFrom = delayedFrom
                 newItem.isDynamic = true
             }
-            //        newItem.
+            
+            newItem.hiddenFromDashboard = hiddenFromDashboard
             
             //        TODO: what if this is nil
             guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {

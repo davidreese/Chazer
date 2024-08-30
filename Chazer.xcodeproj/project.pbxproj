@@ -58,6 +58,7 @@
 
 /* Begin PBXFileReference section */
 		F20B34C62A4A86C7004CA9F9 /* StatusBoxModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBoxModel.swift; sourceTree = "<group>"; };
+		F20D9DA12C3C000E00C43407 /* Chazer 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 8.xcdatamodel"; sourceTree = "<group>"; };
 		F2154F8128D9E25500CF8063 /* NewChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChazaraScheduleView.swift; sourceTree = "<group>"; };
 		F218147829814940002D35C4 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		F243EC952A23FB78001093C9 /* EditSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSectionView.swift; sourceTree = "<group>"; };
@@ -732,6 +733,7 @@
 		F2FE272828D29E7E006CFDFA /* Chazer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				F20D9DA12C3C000E00C43407 /* Chazer 8.xcdatamodel */,
 				F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */,
 				F2D1B4ED2A23CB01002B2E2A /* Chazer 6.xcdatamodel */,
 				F2B920C229FC048200A2C8D9 /* Chazer 5.xcdatamodel */,
@@ -740,7 +742,7 @@
 				F24D4960297CCDBB004C3DAE /* Chazer 2.xcdatamodel */,
 				F2FE272928D29E7E006CFDFA /* Chazer.xcdatamodel */,
 			);
-			currentVersion = F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */;
+			currentVersion = F20D9DA12C3C000E00C43407 /* Chazer 8.xcdatamodel */;
 			path = Chazer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

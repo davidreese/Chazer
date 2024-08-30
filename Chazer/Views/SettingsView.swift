@@ -358,6 +358,7 @@ This action will wipe all existing data and close the app.
                     newSC.fixedDueDate = baby.fixedDueDate
                     newSC.delay = baby.delay
                     newSC.daysToComplete = baby.daysToComplete
+                    newSC.hiddenFromDashboard = baby.hiddenFromDashboard
                     //                haven't set delayed from, need to run that afterwards
                     
                     guard let cdLimud = cdLimuds.first(where: { cdLimud in
@@ -634,6 +635,7 @@ This action will wipe all existing data and close the app.
             var daysToComplete: Int16!
             var fixedDueDate: Date?
             var isDynamic: Bool!
+            var hiddenFromDashboard: Bool!
             
             for pair in data.components(separatedBy: "|") {
                 let parts = pair.components(separatedBy: "=")
@@ -680,6 +682,13 @@ This action will wipe all existing data and close the app.
                             print("Scheduled chazara isDynamic value is invalid, skipping data point")
                             continue object
                         }
+                    case "H":
+                        if let value = Bool(value.trimmingCharacters(in: .newlines)) {
+                            hiddenFromDashboard = value
+                        } else {
+                            print("Scheduled chazara hiddenFromDashboard value is invalid, skipping data point")
+                            continue object
+                        }
                     default:
                         print("Failed to parse data for scheduled chazara: \(pair)")
                         continue object;
@@ -692,7 +701,7 @@ This action will wipe all existing data and close the app.
             }
             
             if let id = id {
-                babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, delayedFromId: delayedFrom, name: name, isDynamic: isDynamic, fixedDueDate: fixedDueDate, delay: delay, daysToComplete: daysToComplete))
+                babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, delayedFromId: delayedFrom, name: name, isDynamic: isDynamic, fixedDueDate: fixedDueDate, delay: delay, daysToComplete: daysToComplete, hiddenFromDashboard: hiddenFromDashboard))
             } else {
                 print("Skipping scheduled chazara with nil id")
             }
@@ -908,6 +917,7 @@ This action will wipe all existing data and close the app.
         let fixedDueDate: Date?
         let delay: Int16
         let daysToComplete: Int16
+        let hiddenFromDashboard: Bool
     }
     
     private struct BabyChazaraPoint: Hashable {

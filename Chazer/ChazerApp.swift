@@ -28,6 +28,7 @@ struct ChazerApp: App {
         return "LIMUDS\n" + getCDLimudimData() + "SECTIONS\n" + getCDSectionData() + "SCHEDULEDCHAZARAS\n" + getCDScheduledChazaraData() + "CHAZARAPOINTS\n" + getCDChazaraPointData() + "POINTNOTES\n" + getCDPointNoteData()
     }
     
+    @available(*, unavailable)
     /// Migrates data from original data model to data model 2.0, which uses `CDChazaraPoint` instead of `CDExemption` and `CDChazara`.
     private static func migrateData() {
         context.performAndWait {
@@ -211,7 +212,7 @@ struct ChazerApp: App {
                 continue
             }
             for cdSC in cdScheduledChazaras {
-                text += "CDScheduledChazara: ID=\(cdSC.scId ?? "nil")|NAME=\(cdSC.scName ?? "nil")|LIMUDID=\(cdSC.limud?.id ?? "nil")|DELAYEDFROM=\(cdSC.delayedFrom?.scId ?? "nil")|DELAY=\(cdSC.delay)|DAYSTOCOMPLETE=\(cdSC.daysToComplete)|FIXEDDUEDATE=\(cdSC.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(cdSC.isDynamic)\n"
+                text += "CDScheduledChazara: ID=\(cdSC.scId ?? "nil")|NAME=\(cdSC.scName ?? "nil")|LIMUDID=\(cdSC.limud?.id ?? "nil")|DELAYEDFROM=\(cdSC.delayedFrom?.scId ?? "nil")|DELAY=\(cdSC.delay)|DAYSTOCOMPLETE=\(cdSC.daysToComplete)|FIXEDDUEDATE=\(cdSC.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(cdSC.isDynamic)|H=\(cdSC.hiddenFromDashboard)\n"
             }
         }
         
