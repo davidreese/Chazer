@@ -403,6 +403,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         } else {
             if let section = self.section, let scheduledChazara = self.scheduledChazara {
                 if !scheduledChazara.isDynamic {
+//                    assumes current functionality, that fixed due date chazara schedules do not allow start dates. could change in the future
                     return nil
                 }
                 //                will now try to calculate the right date
