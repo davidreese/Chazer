@@ -269,7 +269,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
         }
         
         isUpdating = true
-        print("Updating all data on point... (PID=\(self.id))")
+//        print("Updating all data on point... (PID=\(self.id))")
                 
         //            Update the relevant section and scheduled chazara objects\
         //            TODO: try and figure these next four lines, what is making this function stop the UI for so long. maybe kill the @MainActor requirements of these functions and figure out a way for them to all run on one thread, like if you create the coredata thread here maybe.
