@@ -31,7 +31,7 @@ struct ContentView: View {
         return temp
     }
     
-    @State private var showingNewLimudView = false
+    @State var showingNewLimudView = false
     @State private var showingDeleteAlert = false
     @State private var limudToDelete: CDLimud? = nil
     
@@ -143,6 +143,7 @@ struct ContentView: View {
                 lastScenePhase = scenePhase
             }
         }
+        
         /*
         .onChange(of: scenePhase, perform: { phase in
             if self.scenePhase == .active {

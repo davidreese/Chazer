@@ -315,6 +315,7 @@ struct GraphView: View {
             }
         }
         
+        
     }
     
     private func deleteSection(_ section: Section) throws {

@@ -305,9 +305,11 @@ struct ChazerApp: App {
         return cdScheduledChazara
     }
     
+    var contentView = ContentView()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            contentView
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
 //                .environmentObject(storage)
         }
