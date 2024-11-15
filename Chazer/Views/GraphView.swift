@@ -134,6 +134,7 @@ struct GraphView: View {
                     //                        .ignoresSafeArea([.container], edges: [.horizontal])
                     
                 }
+                .padding(.bottom, 1)
                 .listStyle(PlainListStyle())
                 .scrollIndicators(.hidden)
                 .listSectionSeparator(.hidden)
