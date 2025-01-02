@@ -234,39 +234,42 @@ struct GraphView: View {
                         .multilineTextAlignment(.center)
                     Group {
                         
-                        
-                        Button {
-                            //                            self.limudShowing = limud
-                            self.showingNewSectionView = true
-                        } label: {
-                            Text("New Section")
-                        }
-                        .buttonStyle(BorderedProminentButtonStyle())
-                        .sheet(isPresented: $showingNewSectionView) {
-                            NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
-                                withAnimation {
-                                    self.model.limud = limud
-                                    self.model.objectWillChange.send()
-                                }
-                            })
-                            .environment(\.managedObjectContext, self.viewContext)
-                        }
-                        
-                        Button {
-                            //                            self.limudShowing = limud
-                            self.showingAddChazaraScheduleView = true
-                        } label: {
-                            Text("New Scheduled Chazara")
-                        }
-                        .buttonStyle(BorderedProminentButtonStyle())
-                        .sheet(isPresented: $showingAddChazaraScheduleView) {
-                            NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
-                                withAnimation {
-                                    self.model.limud = limud
-                                    self.model.objectWillChange.send()
-                                }
-                            })
-                            .environment(\.managedObjectContext, self.viewContext)
+                        HStack {
+                            Spacer()
+                            Button {
+                                //                            self.limudShowing = limud
+                                self.showingNewSectionView = true
+                            } label: {
+                                Text("New Section")
+                            }
+                            .buttonStyle(BorderedProminentButtonStyle())
+                            .sheet(isPresented: $showingNewSectionView) {
+                                NewSectionView(initialLimud: self.model.limud, onUpdate: { limud in
+                                    withAnimation {
+                                        self.model.limud = limud
+                                        self.model.objectWillChange.send()
+                                    }
+                                })
+                                .environment(\.managedObjectContext, self.viewContext)
+                            }
+                            
+                            Button {
+                                //                            self.limudShowing = limud
+                                self.showingAddChazaraScheduleView = true
+                            } label: {
+                                Text("New Scheduled Chazara")
+                            }
+                            .buttonStyle(BorderedProminentButtonStyle())
+                            .sheet(isPresented: $showingAddChazaraScheduleView) {
+                                NewChazaraScheduleView(initialLimud: self.model.limud, onUpdate: { limud in
+                                    withAnimation {
+                                        self.model.limud = limud
+                                        self.model.objectWillChange.send()
+                                    }
+                                })
+                                .environment(\.managedObjectContext, self.viewContext)
+                            }
+                            Spacer()
                         }
                         
                         Spacer()
@@ -700,8 +703,6 @@ struct GraphView: View {
                         }
                 }
             }
-            
-        
             
             func updateDate() throws {
                 self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date))

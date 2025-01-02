@@ -127,11 +127,13 @@ struct NewSectionView: View {
             newItem.sectionId = IDGenerator.generate(withPrefix: "S")
             newItem.sectionName = sectionName
             
-            if initialLearningDate.distance(to: Date.now) < 60 {
+            /*
+            if abs(initialLearningDate.distance(to: Date.now)) < 60 {
                 newItem.initialDate = initialLearningDate
             } else {
                 newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
-            }
+            }*/
+            newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
             newItem.limud = cdLimud
             //        newItem.
             

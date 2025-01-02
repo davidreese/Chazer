@@ -304,6 +304,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Sets the `date` attribute for this object, and also saves it as such in storage.
     @MainActor
     func setDate(_ date: Date?) {
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -312,11 +313,11 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             }
             
             try context.performAndWait {
-                entity.chazaraState?.date = date
+                entity.chazaraState?.date = standardizedDate
 
                 try context.save()
                 
-                self.date = date
+                self.date = standardizedDate
             }
         } catch {
             print("Error: Could not set the chazara date: \(error)")
@@ -346,6 +347,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     @MainActor
     func setState(status: ChazaraStatus, date: Date?) throws {
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -355,12 +357,12 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             try context.performAndWait {
                 entity.chazaraState?.status = status.rawValue
-                entity.chazaraState?.date = date
+                entity.chazaraState?.date = standardizedDate
 
                 try context.save()
                 
                 self.status = status
-                self.date = date
+                self.date = standardizedDate
             }
         } catch {
             print("Error: Could not set the chazara status/date: \(error)")

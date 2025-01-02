@@ -50,6 +50,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
+//                adding horizontal padding to the dashboard seems to help fix the horizontal line issue
                 NavigationLink(destination: dashboard, label: {
                         Text("Dashboard")
                     })

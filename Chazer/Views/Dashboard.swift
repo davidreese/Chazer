@@ -116,9 +116,11 @@ struct Dashboard: View {
                     Spacer()
                 }
                  */
+//                .padding(.bottom, 1)
             }
         }
-        .padding(.bottom, 1)
+//        .frame(minWidth: 1000)
+//        .padding(.bottom, 1)
         .navigationTitle("Dashboard")
         .toolbar {
             if let pdf = model.pdf {
