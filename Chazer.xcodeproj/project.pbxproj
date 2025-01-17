@@ -35,7 +35,7 @@
 		F2FE273428D29E7E006CFDFA /* ChazerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273328D29E7E006CFDFA /* ChazerTests.swift */; };
 		F2FE273E28D29E7E006CFDFA /* ChazerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273D28D29E7E006CFDFA /* ChazerUITests.swift */; };
 		F2FE274028D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE273F28D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift */; };
-		F2FE274D28D29E8E006CFDFA /* Chazer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE274C28D29E8E006CFDFA /* Chazer.swift */; };
+		F2FE274D28D29E8E006CFDFA /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE274C28D29E8E006CFDFA /* Data.swift */; };
 		F2FE274F28D29EBB006CFDFA /* NewLimudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FE274E28D29EBB006CFDFA /* NewLimudView.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +68,7 @@
 		F28133212A9008C5000AE451 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChazaraScheduleView.swift; sourceTree = "<group>"; };
 		F28ED09F28D7B4A6005995D4 /* NewSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSectionView.swift; sourceTree = "<group>"; };
+		F29F41682D3AAB7F00422660 /* Chazer 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 9.xcdatamodel"; sourceTree = "<group>"; };
 		F2A970B62B5C9985003F97B9 /* ManageLimudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageLimudView.swift; sourceTree = "<group>"; };
 		F2B04BBC29F4E6BD0018F8FA /* Chazer 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 4.xcdatamodel"; sourceTree = "<group>"; };
 		F2B920C229FC048200A2C8D9 /* Chazer 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 5.xcdatamodel"; sourceTree = "<group>"; };
@@ -97,7 +98,7 @@
 		F2FE273928D29E7E006CFDFA /* ChazerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChazerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2FE273D28D29E7E006CFDFA /* ChazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerUITests.swift; sourceTree = "<group>"; };
 		F2FE273F28D29E7E006CFDFA /* ChazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		F2FE274C28D29E8E006CFDFA /* Chazer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chazer.swift; sourceTree = "<group>"; };
+		F2FE274C28D29E8E006CFDFA /* Data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		F2FE274E28D29EBB006CFDFA /* NewLimudView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewLimudView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -202,7 +203,7 @@
 				F2E0E5C8296DC92200F3575B /* UI.swift */,
 				F28133212A9008C5000AE451 /* Tools.swift */,
 				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
-				F2FE274C28D29E8E006CFDFA /* Chazer.swift */,
+				F2FE274C28D29E8E006CFDFA /* Data.swift */,
 				F20B34C52A4A857D004CA9F9 /* Models */,
 				F243EC942A23D585001093C9 /* Views */,
 				F2D1B4EA2A23C864002B2E2A /* Structure */,
@@ -392,7 +393,7 @@
 				F2E0E5C3296DACE700F3575B /* ChazaraPoint.swift in Sources */,
 				F2FE271E28D29E7C006CFDFA /* ChazerApp.swift in Sources */,
 				F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */,
-				F2FE274D28D29E8E006CFDFA /* Chazer.swift in Sources */,
+				F2FE274D28D29E8E006CFDFA /* Data.swift in Sources */,
 				F2FE274F28D29EBB006CFDFA /* NewLimudView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -735,6 +736,7 @@
 		F2FE272828D29E7E006CFDFA /* Chazer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				F29F41682D3AAB7F00422660 /* Chazer 9.xcdatamodel */,
 				F20D9DA12C3C000E00C43407 /* Chazer 8.xcdatamodel */,
 				F2EED4102BB7057500D2D99A /* Chazer 7.xcdatamodel */,
 				F2D1B4ED2A23CB01002B2E2A /* Chazer 6.xcdatamodel */,

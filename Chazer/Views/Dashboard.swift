@@ -188,6 +188,7 @@ struct Dashboard: View {
                 HStack {
                     Text(model.point?.getLimud()?.name ?? "nil")
                         .bold()
+//                        .accessibility(label: Text(model.point?.getLimud()?.name ?? "nil"))
                     Spacer()
                 }
                     .frame(width: 150)

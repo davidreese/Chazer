@@ -22,25 +22,74 @@ struct EditChazaraScheduleView: View {
     @State var scName: String = ""
     @State var delay = 1
     @State var daysActive = 2
-    @State var delayedFromId: CID?
+    @State var delayedFromId: CID = "init"
     
     @State var fixedDueDate: Date = Date.now.addingTimeInterval(60 * 60 * 24 * 10)
     
-    @State private var isStatic: Bool = false
+//    @State private var isStatic: Bool = false
+    @State private var ruleType: RuleType = .horizontalDelay
+    
+    enum RuleType: String {
+        case fixedDate = "Fixed Date"
+        case horizontalDelay = "Chazara Delay"
+        case verticalDelay = "Section Delay"
+        
+        init (rawValue: String) {
+            switch rawValue {
+            case "Fixed Date":
+                self = .fixedDate
+            case "Chazara Delay":
+                self = .horizontalDelay
+            case "Section Delay":
+                self = .verticalDelay
+            default:
+                self = .fixedDate
+            }
+        }
+        
+        init (_ scheduleRule: ScheduleRule) {
+            switch scheduleRule {
+                
+            case .fixedDueDate(_):
+                self = .fixedDate
+            case .horizontalDelay(_, _, _):
+                self = .horizontalDelay
+            case .verticalDelay(_, _, _):
+                self = .verticalDelay
+            }
+        }
+        
+        static let allCases: [RuleType] = [.fixedDate, .horizontalDelay, .verticalDelay]
+    }
     
     @State var hiddenFromDashboard = false
     
     init(limudId: CID, scheduledChazara: ScheduledChazara, onUpdate: ((_ limud: Limud) -> Void)? = nil) {
+        // *** NOTE: ANY TIME THIS PART IS EDITED, IT NEEDS TO BE UPDATED IN THE .ONAPPEAR BLOCK ***
         self.limudId = limudId
         self.scheduledChazara = scheduledChazara
         self.scName = scheduledChazara.name
-        self.isStatic = !scheduledChazara.isDynamic
-        self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
-        self.delay = scheduledChazara.delay ?? 1
-        self.daysActive = scheduledChazara.daysActive ?? 2
-        self.delayedFromId = scheduledChazara.delayedFrom?.id ?? "init"
+        
+        let scheduleRule = scheduledChazara.scheduleRule!
+        self.ruleType = RuleType(scheduleRule)
+        
         self.hiddenFromDashboard = scheduledChazara.hiddenFromDashboard
         self.onUpdate = onUpdate
+        
+        switch scheduleRule {
+        case .fixedDueDate(let date):
+            self.fixedDueDate = date
+            return
+        case .horizontalDelay(delayedFrom: let delayedFrom, daysDelayed: let daysDelayed, daysActive: let daysActive):
+            self.delayedFromId = delayedFrom?.id ?? "init"
+            self.delay = daysDelayed
+            self.daysActive = daysActive
+            return
+        case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysDelayed: let maxDaysDelayed):
+            return
+        }
+        // *** NOTE: ANY TIME THIS PART IS EDITED, IT NEEDS TO BE UPDATED IN THE .ONAPPEAR BLOCK ***
+        
     }
     
     var body: some View {
@@ -62,18 +111,32 @@ struct EditChazaraScheduleView: View {
                 }
                 
                 SwiftUI.Section {
-                    Toggle("Fixed Due Date", isOn: self.$isStatic.animation())
+//                    Toggle("Fixed Due Date", isOn: self.$isStatic.animation())
+                    HStack {
+                        Text("Rule Type")
+                        Spacer()
+                        Picker("Rule Type", selection: $ruleType) {
+                            ForEach(RuleType.allCases, id: \.rawValue) { val in
+                                Text(val.rawValue)
+                                    .tag(val)
+                            }
+                        }.pickerStyle(.segmented)
+                            .frame(maxWidth: 350)
+                    }
+                    
+                    
 
-                    if isStatic {
+                    if case .fixedDate = ruleType {
                         DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
-                    } else {
+                    } else if case .horizontalDelay = ruleType {
+                        let options = cdScheduledChazaras.filter({ cdsc in
+                            cdsc.scId != nil
+                        })
                         Picker("Delayed From", selection: $delayedFromId) {
                             Text("Initial Learning")
                                 .tag("init")
-                            ForEach(cdScheduledChazaras.filter({ cdsc in
-                                cdsc.scId != nil
-                            }), id: \.scId) { cdsc in
+                            ForEach(options, id: \.scId!) { cdsc in
                                 if let sc = try? ScheduledChazara(cdsc, context: viewContext) {
                                     Text(sc.name)
                                         .tag(sc.id)
@@ -84,6 +147,8 @@ struct EditChazaraScheduleView: View {
                         Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
+                    } else {
+                        
                     }
                 }
                 
@@ -121,14 +186,25 @@ struct EditChazaraScheduleView: View {
         .onAppear {
             self.scName = scheduledChazara.name
             
-            self.isStatic = !scheduledChazara.isDynamic
-            self.fixedDueDate = scheduledChazara.fixedDueDate ?? Date.now.addingTimeInterval(60 * 60 * 24 * 10)
+            let scheduleRule = scheduledChazara.scheduleRule!
             
-            self.delay = scheduledChazara.delay ?? 1
-            self.daysActive = scheduledChazara.daysActive ?? 2
-            self.delayedFromId = scheduledChazara.delayedFrom?.id
+            self.ruleType = RuleType(scheduleRule)
+            
             self.hiddenFromDashboard = scheduledChazara.hiddenFromDashboard
             updateOtherScheduledChazaras()
+            
+            switch scheduleRule {
+            case .fixedDueDate(let date):
+                self.fixedDueDate = date
+                return
+            case .horizontalDelay(delayedFrom: let delayedFrom, daysDelayed: let daysDelayed, daysActive: let daysActive):
+                self.delayedFromId = delayedFrom?.id ?? "init"
+                self.delay = daysDelayed
+                self.daysActive = daysActive
+                return
+            case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysDelayed: let maxDaysDelayed):
+                return
+            }
         }
     }
     
@@ -160,13 +236,18 @@ struct EditChazaraScheduleView: View {
         try context.performAndWait {
             cdSC.scName = self.scName
             
-            cdSC.isDynamic = !self.isStatic
+            if case .fixedDate = self.ruleType {
+                cdSC.isDynamic = false
+            } else {
+                cdSC.isDynamic = true
+            }
+            
             cdSC.fixedDueDate = self.fixedDueDate
             
             cdSC.delay = Int16(self.delay)
             cdSC.daysToComplete = Int16(self.daysActive)
             
-            if let delayedFromId = self.delayedFromId, delayedFromId != cdSC.delayedFrom?.scId {
+            if delayedFromId != cdSC.delayedFrom?.scId {
                 if delayedFromId == "init" {
                     cdSC.delayedFrom = nil
                 } else {
