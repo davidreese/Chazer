@@ -23,14 +23,16 @@ struct NewChazaraScheduleView: View {
     var initialLimud: Limud?
     
     @State private var cdScheduledChazaras: [CDScheduledChazara] = []
-    @State private var fixedDueMode = false
+//    @State private var fixedDueMode = false
+    @State private var ruleType: RuleType = .horizontalDelay
     
     @State var scId: CID = ""
     @State var scName: String = ""
     @State var fixedDueDate: Date = Date().addingTimeInterval(60 * 60 * 24 * 10)
     @State var delay = 1
     @State var daysActive = 2
-    @State var delayedFromId: CID?
+    @State var delayedFromId: CID = "init"
+    @State var sectionDelay = 1
     
     @State var hiddenFromDashboard = false
     
@@ -79,29 +81,42 @@ struct NewChazaraScheduleView: View {
                     
                 }
                 SwiftUI.Section {
-                    Toggle("Fixed Due Date", isOn: self.$fixedDueMode.animation())
-//                        TextField("", value: $delay, formatter: NumberFormatter())
-                    if fixedDueMode {
+                    HStack {
+                        Text("Rule Type")
+                        Spacer()
+                        Picker("Rule Type", selection: $ruleType) {
+                            ForEach(RuleType.allCases, id: \.rawValue) { val in
+                                Text(val.rawValue)
+                                    .tag(val)
+                            }
+                        }.pickerStyle(.segmented)
+                            .frame(maxWidth: 350)
+                    }
+                    
+                    //                        TextField("", value: $delay, formatter: NumberFormatter())
+                    if case .fixedDate = ruleType {
                         DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
-                    } else {
+                    } else if case .horizontalDelay = ruleType {
+                        let options = cdScheduledChazaras.filter({ cdsc in
+                            cdsc.scId != nil
+                        })
                         Picker("Delayed From", selection: $delayedFromId) {
                             Text("Initial Learning")
                                 .tag("init")
-                            ForEach(cdScheduledChazaras.filter({ cdsc in
-                                cdsc.scId != nil
-                            }), id: \.scId) { cdsc in
+                            ForEach(options, id: \.scId!) { cdsc in
                                 if let sc = try? ScheduledChazara(cdsc, context: viewContext) {
                                     Text(sc.name)
                                         .tag(sc.id)
                                 }
                             }
-                            .onAppear {
-                                print(self.cdScheduledChazaras)
-                            }
-                            
                         }
+                        
                         Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
+                        
+                        Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
+                    } else if case .verticalDelay = ruleType {
+                        Stepper("\(sectionDelay) Section Delay", value: $sectionDelay, in: 0...100)
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                     }
@@ -185,20 +200,27 @@ struct NewChazaraScheduleView: View {
                 throw CreationError.invalidData
             }
             
-            let newItem = CDScheduledChazara(context: viewContext)
+            let newSC = CDScheduledChazara(context: viewContext)
             if self.scId.isEmpty {
-                newItem.scId = IDGenerator.generate(withPrefix: "SC")
+                newSC.scId = IDGenerator.generate(withPrefix: "SC")
             } else {
-                newItem.scId = self.scId
+                newSC.scId = self.scId
             }
-            newItem.scName = scName
+            newSC.scName = scName
             
-            if self.fixedDueMode {
-                newItem.fixedDueDate = self.fixedDueDate
-                newItem.isDynamic = false
+            if case .fixedDate = self.ruleType {
+                newSC.isDynamic = false
             } else {
-                newItem.delay = Int16(delay)
-                newItem.daysToComplete = Int16(daysActive)
+                newSC.isDynamic = true
+            }
+            
+            switch self.ruleType {
+            case .fixedDate:
+                newSC.fixedDueDate = self.fixedDueDate
+                break
+            case .horizontalDelay:
+                newSC.delay = Int16(delay)
+                newSC.daysToComplete = Int16(daysActive)
                 
                 let delayedFrom: CDScheduledChazara?
                 if delayedFromId == nil {
@@ -213,17 +235,19 @@ struct NewChazaraScheduleView: View {
                     }
                 }
                 
-                newItem.delayedFrom = delayedFrom
-                newItem.isDynamic = true
+                newSC.delayedFrom = delayedFrom
+                break
+            case .verticalDelay:
+                break
             }
             
-            newItem.hiddenFromDashboard = hiddenFromDashboard
+            newSC.hiddenFromDashboard = hiddenFromDashboard
             
             //        TODO: what if this is nil
             guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
                 throw CreationError.unknownError
             }
-            ms.add(newItem)
+            ms.add(newSC)
             cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
             
             guard let limud = try? Limud(cdLimud, context: viewContext) else {

@@ -23,44 +23,12 @@ struct EditChazaraScheduleView: View {
     @State var delay = 1
     @State var daysActive = 2
     @State var delayedFromId: CID = "init"
+    @State var sectionDelay = 1
     
     @State var fixedDueDate: Date = Date.now.addingTimeInterval(60 * 60 * 24 * 10)
     
 //    @State private var isStatic: Bool = false
     @State private var ruleType: RuleType = .horizontalDelay
-    
-    enum RuleType: String {
-        case fixedDate = "Fixed Date"
-        case horizontalDelay = "Chazara Delay"
-        case verticalDelay = "Section Delay"
-        
-        init (rawValue: String) {
-            switch rawValue {
-            case "Fixed Date":
-                self = .fixedDate
-            case "Chazara Delay":
-                self = .horizontalDelay
-            case "Section Delay":
-                self = .verticalDelay
-            default:
-                self = .fixedDate
-            }
-        }
-        
-        init (_ scheduleRule: ScheduleRule) {
-            switch scheduleRule {
-                
-            case .fixedDueDate(_):
-                self = .fixedDate
-            case .horizontalDelay(_, _, _):
-                self = .horizontalDelay
-            case .verticalDelay(_, _, _):
-                self = .verticalDelay
-            }
-        }
-        
-        static let allCases: [RuleType] = [.fixedDate, .horizontalDelay, .verticalDelay]
-    }
     
     @State var hiddenFromDashboard = false
     
@@ -124,8 +92,6 @@ struct EditChazaraScheduleView: View {
                             .frame(maxWidth: 350)
                     }
                     
-                    
-
                     if case .fixedDate = ruleType {
                         DatePicker("Due Date", selection: $fixedDueDate, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
@@ -147,8 +113,10 @@ struct EditChazaraScheduleView: View {
                         Stepper("\(delay) Day Delay", value: $delay, in: 0...1500)
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
-                    } else {
+                    } else if case .verticalDelay = ruleType {
+                        Stepper("\(sectionDelay) Section Delay", value: $sectionDelay, in: 0...100)
                         
+                        Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
                     }
                 }
                 
@@ -280,6 +248,39 @@ struct EditChazaraScheduleView: View {
         
         return limud
     }
+}
+
+enum RuleType: String {
+    case fixedDate = "Fixed Date"
+    case horizontalDelay = "Chazara Delay"
+    case verticalDelay = "Section Delay"
+    
+    init (rawValue: String) {
+        switch rawValue {
+        case "Fixed Date":
+            self = .fixedDate
+        case "Chazara Delay":
+            self = .horizontalDelay
+        case "Section Delay":
+            self = .verticalDelay
+        default:
+            self = .fixedDate
+        }
+    }
+    
+    init (_ scheduleRule: ScheduleRule) {
+        switch scheduleRule {
+            
+        case .fixedDueDate(_):
+            self = .fixedDate
+        case .horizontalDelay(_, _, _):
+            self = .horizontalDelay
+        case .verticalDelay(_, _, _):
+            self = .verticalDelay
+        }
+    }
+    
+    static let allCases: [RuleType] = [.fixedDate, .horizontalDelay, .verticalDelay]
 }
 
 struct EditChazaraScheduleView_Previews: PreviewProvider {
