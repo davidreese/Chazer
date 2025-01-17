@@ -158,10 +158,10 @@ class ScheduledChazara: Identifiable, Hashable {
         self.scheduleRule = .horizontalDelay(delayedFrom: delayedFrom, daysDelayed: delay, daysActive: daysActive)
     }
     
-    init(id: CID, sectionsDelay: Int, daysActive: Int = 2, maxDaysDelayed: Int? = 10) {
+    init(id: CID, sectionsDelay: Int, daysActive: Int = 2, maxDaysActive: Int? = 10) {
         self.id = id
         self.name = "\(delayFormatted(sectionsDelay)) Delay Chazara"
-        self.scheduleRule = .verticalDelay(sectionsDelay: sectionsDelay, daysActive: daysActive, maxDaysDelayed: maxDaysDelayed)
+        self.scheduleRule = .verticalDelay(sectionsDelay: sectionsDelay, daysActive: daysActive, maxDaysActive: maxDaysActive)
     }
     
     init(_ cdScheduledChazara: CDScheduledChazara, context: NSManagedObjectContext) throws {
@@ -211,7 +211,7 @@ enum ScheduleRule: Equatable {
     case horizontalDelay(delayedFrom: ScheduledChazara?, daysDelayed: Int, daysActive: Int)
     
     /// A rule which sets all points on the schedule to be due after a set amount of sections have had their initial learning logged afterwards.
-    case verticalDelay(sectionsDelay: Int, daysActive: Int, maxDaysDelayed: Int?)
+    case verticalDelay(sectionsDelay: Int, daysActive: Int, maxDaysActive: Int?)
 }
 
 func delayFormatted(_ delay: Int) -> String {

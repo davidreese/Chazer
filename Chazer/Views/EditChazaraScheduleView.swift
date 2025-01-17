@@ -24,6 +24,8 @@ struct EditChazaraScheduleView: View {
     @State var daysActive = 2
     @State var delayedFromId: CID = "init"
     @State var sectionDelay = 1
+    @State var maxDaysActive: Int = 10
+    @State var limitMaxDaysActive = false
     
     @State var fixedDueDate: Date = Date.now.addingTimeInterval(60 * 60 * 24 * 10)
     
@@ -53,7 +55,18 @@ struct EditChazaraScheduleView: View {
             self.delay = daysDelayed
             self.daysActive = daysActive
             return
-        case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysDelayed: let maxDaysDelayed):
+        case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysActive: let maxDaysActive):
+            
+            self.sectionDelay = sectionsDelay
+            self.daysActive = daysActive
+            self.maxDaysActive = maxDaysActive ?? 10
+            
+            if maxDaysActive == nil {
+                self.limitMaxDaysActive = false
+            } else {
+                self.limitMaxDaysActive = true
+            }
+            
             return
         }
         // *** NOTE: ANY TIME THIS PART IS EDITED, IT NEEDS TO BE UPDATED IN THE .ONAPPEAR BLOCK ***
@@ -117,6 +130,13 @@ struct EditChazaraScheduleView: View {
                         Stepper("\(sectionDelay) Section Delay", value: $sectionDelay, in: 0...100)
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
+                        
+                        SwiftUI.Section {
+                            Toggle("Max Days Active Limit", isOn: $limitMaxDaysActive)
+                            if limitMaxDaysActive {
+                                Stepper("\(maxDaysActive) Days Active", value: $maxDaysActive, in: 0...1500)
+                            }
+                        }
                     }
                 }
                 
@@ -170,7 +190,15 @@ struct EditChazaraScheduleView: View {
                 self.delay = daysDelayed
                 self.daysActive = daysActive
                 return
-            case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysDelayed: let maxDaysDelayed):
+            case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysActive: let maxDaysActive):
+                self.sectionDelay = sectionsDelay
+                self.daysActive = daysActive
+                self.maxDaysActive = maxDaysActive ?? 10
+                if maxDaysActive == nil {
+                    self.limitMaxDaysActive = false
+                } else {
+                    self.limitMaxDaysActive = true
+                }
                 return
             }
         }

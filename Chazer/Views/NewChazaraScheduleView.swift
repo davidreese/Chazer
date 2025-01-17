@@ -33,6 +33,8 @@ struct NewChazaraScheduleView: View {
     @State var daysActive = 2
     @State var delayedFromId: CID = "init"
     @State var sectionDelay = 1
+    @State var maxDaysActive: Int = 10
+    @State var limitMaxDaysActive = false
     
     @State var hiddenFromDashboard = false
     
@@ -119,6 +121,13 @@ struct NewChazaraScheduleView: View {
                         Stepper("\(sectionDelay) Section Delay", value: $sectionDelay, in: 0...100)
                         
                         Stepper("\(daysActive) Days Active", value: $daysActive, in: 0...1500)
+                        
+                        SwiftUI.Section {
+                            Toggle("Max Days Active Limit", isOn: $limitMaxDaysActive)
+                            if limitMaxDaysActive {
+                                Stepper("\(maxDaysActive) Days Active", value: $maxDaysActive, in: 0...1500)
+                            }
+                        }
                     }
                 }
                 

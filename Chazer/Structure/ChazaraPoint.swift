@@ -519,7 +519,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                         
                         return dueDate
                     }
-                case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysDelayed: let maxDaysDelayed):
+                case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysActive: let maxDaysActive):
                     return nil
                 }
             } else if retryOnFail {
