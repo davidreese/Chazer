@@ -40,10 +40,11 @@ struct GraphView: View {
     var headerCellHeight = 50.0
     
     var body: some View {
-        //        VStack {
-        Group {
+        HStack {
+//            Spacer().frame(width: 0)
             if !(model.limud.sections.isEmpty && model.limud.scheduledChazaras.isEmpty) {
                 ScrollView(.vertical, showsIndicators: false) {
+                    //                    LazyVStack {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             //                            Spacer()
@@ -132,13 +133,14 @@ struct GraphView: View {
                     .listSectionSeparator(.hidden)
                     
                     //                        .ignoresSafeArea([.container], edges: [.horizontal])
-                    
+                    //                }
                 }
                 .padding(.bottom, 1)
                 .listStyle(PlainListStyle())
                 .scrollIndicators(.hidden)
                 .listSectionSeparator(.hidden)
                 .listRowSeparator(.hidden)
+                //                .position(x: geo.size.width/2, y: (geo.size.height/2) - 50)
                 .navigationTitle(model.limud.name)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -317,9 +319,11 @@ struct GraphView: View {
                     })
                 })
             }
+            if #available(macOS 13.0, *) {
+//                This is added in order to get rid of the strange line under the navigation title. Probably not an issue on iOS, though I haven't tested it.
+                Spacer()
+            }
         }
-        
-        
     }
     
     private func deleteSection(_ section: Section) throws {
@@ -339,7 +343,6 @@ struct GraphView: View {
                 model.updateLimud()
             }
         }
-        
     }
     
     private func deleteSC(_ scheduledChazara: ScheduledChazara) throws {
@@ -491,6 +494,7 @@ struct GraphView: View {
                     }
                     .sheet(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
+                            
                             ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
                                 //                                self.updateParent?()
                                 try? self.model.point?.updatePointData()
@@ -499,8 +503,8 @@ struct GraphView: View {
                                 self.updateParent?()
                             })
                             .environment(\.managedObjectContext, self.viewContext)
-                            //                                .presentationDetents([.medium])
-                            //                        }
+                            
+                            
                         }
                     }
             }
@@ -705,7 +709,7 @@ struct GraphView: View {
             }
             
             func updateDate() throws {
-                self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date))
+                self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date))
                 self.chazaraPoint.objectWillChange.send()
                 updateParent?()
             }

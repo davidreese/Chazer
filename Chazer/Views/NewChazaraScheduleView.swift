@@ -225,28 +225,27 @@ struct NewChazaraScheduleView: View {
             
             switch self.ruleType {
             case .fixedDate:
-                newSC.fixedDueDate = self.fixedDueDate
+                newSC.rule = ScheduleRule.fixedDueDate(self.fixedDueDate).ruleForDatabase()
                 break
             case .horizontalDelay:
-                newSC.delay = Int16(delay)
-                newSC.daysToComplete = Int16(daysActive)
+//                newSC.delay = Int16(delay)
+//                newSC.daysToComplete = Int16(daysActive)
                 
                 let delayedFrom: CDScheduledChazara?
-                if delayedFromId == nil {
-                    delayedFrom = nil
-                } else {
                     delayedFrom = cdScheduledChazaras.first(where: { cdsc in
                         cdsc.scId == delayedFromId
                     })
                     
-                    if delayedFrom == nil {
-                        throw CreationError.invalidData
-                    }
+                if delayedFrom == nil {
+                    throw CreationError.invalidData
                 }
                 
                 newSC.delayedFrom = delayedFrom
+                
+                newSC.rule = ScheduleRule.horizontalDelay(delayedFromID: delayedFromId, daysDelayed: delay, daysActive: daysActive).ruleForDatabase()
                 break
             case .verticalDelay:
+                newSC.rule = ScheduleRule.verticalDelay(sectionsDelay: sectionDelay, daysActive: daysActive, maxDaysActive: maxDaysActive).ruleForDatabase()
                 break
             }
             

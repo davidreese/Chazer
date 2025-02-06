@@ -50,8 +50,8 @@ struct EditChazaraScheduleView: View {
         case .fixedDueDate(let date):
             self.fixedDueDate = date
             return
-        case .horizontalDelay(delayedFrom: let delayedFrom, daysDelayed: let daysDelayed, daysActive: let daysActive):
-            self.delayedFromId = delayedFrom?.id ?? "init"
+        case .horizontalDelay(delayedFromID: let delayedFromID, daysDelayed: let daysDelayed, daysActive: let daysActive):
+            self.delayedFromId = delayedFromID ?? "init"
             self.delay = daysDelayed
             self.daysActive = daysActive
             return
@@ -185,8 +185,8 @@ struct EditChazaraScheduleView: View {
             case .fixedDueDate(let date):
                 self.fixedDueDate = date
                 return
-            case .horizontalDelay(delayedFrom: let delayedFrom, daysDelayed: let daysDelayed, daysActive: let daysActive):
-                self.delayedFromId = delayedFrom?.id ?? "init"
+            case .horizontalDelay(delayedFromID: let delayedFromID, daysDelayed: let daysDelayed, daysActive: let daysActive):
+                self.delayedFromId = delayedFromID ?? "init"
                 self.delay = daysDelayed
                 self.daysActive = daysActive
                 return
@@ -238,10 +238,14 @@ struct EditChazaraScheduleView: View {
                 cdSC.isDynamic = true
             }
             
-            cdSC.fixedDueDate = self.fixedDueDate
-            
-            cdSC.delay = Int16(self.delay)
-            cdSC.daysToComplete = Int16(self.daysActive)
+            switch self.ruleType {
+            case .fixedDate:
+                cdSC.rule = ScheduleRule.fixedDueDate(self.fixedDueDate).ruleForDatabase()
+            case .horizontalDelay:
+                cdSC.rule = ScheduleRule.horizontalDelay(delayedFromID: self.delayedFromId, daysDelayed: self.delay, daysActive: self.daysActive).ruleForDatabase()
+            case .verticalDelay:
+                cdSC.rule = ScheduleRule.verticalDelay(sectionsDelay: self.sectionDelay, daysActive: self.daysActive, maxDaysActive: self.maxDaysActive).ruleForDatabase()
+            }
             
             if delayedFromId != cdSC.delayedFrom?.scId {
                 if delayedFromId == "init" {

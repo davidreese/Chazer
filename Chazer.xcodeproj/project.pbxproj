@@ -12,6 +12,8 @@
 		F218147929814940002D35C4 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F218147829814940002D35C4 /* Storage.swift */; };
 		F243EC962A23FB78001093C9 /* EditSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F243EC952A23FB78001093C9 /* EditSectionView.swift */; };
 		F24A39C029840CE800D68B56 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F24A39BF29840CE800D68B56 /* SettingsView.swift */; };
+		F25C4F9B2D43FA1C00072FF8 /* 8-9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = F25C4F9A2D43FA1C00072FF8 /* 8-9.xcmappingmodel */; };
+		F25C4F9E2D43FB3000072FF8 /* 8-9.swift in Sources */ = {isa = PBXBuildFile; fileRef = F25C4F9D2D43FB3000072FF8 /* 8-9.swift */; };
 		F28133222A9008C5000AE451 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28133212A9008C5000AE451 /* Tools.swift */; };
 		F28D23EE28E5BF6D006CFB1B /* EditChazaraScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */; };
 		F28ED0A028D7B4A6005995D4 /* NewSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28ED09F28D7B4A6005995D4 /* NewSectionView.swift */; };
@@ -64,6 +66,8 @@
 		F243EC952A23FB78001093C9 /* EditSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSectionView.swift; sourceTree = "<group>"; };
 		F24A39BF29840CE800D68B56 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F24D4960297CCDBB004C3DAE /* Chazer 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 2.xcdatamodel"; sourceTree = "<group>"; };
+		F25C4F9A2D43FA1C00072FF8 /* 8-9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; name = "8-9.xcmappingmodel"; path = "../8-9.xcmappingmodel"; sourceTree = "<group>"; };
+		F25C4F9D2D43FB3000072FF8 /* 8-9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "8-9.swift"; sourceTree = "<group>"; };
 		F25F451429894BAF00BBCA1D /* Chazer 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Chazer 3.xcdatamodel"; sourceTree = "<group>"; };
 		F28133212A9008C5000AE451 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		F28D23ED28E5BF6D006CFB1B /* EditChazaraScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChazaraScheduleView.swift; sourceTree = "<group>"; };
@@ -155,6 +159,15 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		F25C4F9C2D43FB1A00072FF8 /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				F25C4F9A2D43FA1C00072FF8 /* 8-9.xcmappingmodel */,
+				F25C4F9D2D43FB3000072FF8 /* 8-9.swift */,
+			);
+			path = Migration;
+			sourceTree = "<group>";
+		};
 		F2D1B4EA2A23C864002B2E2A /* Structure */ = {
 			isa = PBXGroup;
 			children = (
@@ -169,6 +182,7 @@
 		F2E131E52A253E4F00142365 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
 				F218147829814940002D35C4 /* Storage.swift */,
 			);
 			path = Utilities;
@@ -197,12 +211,12 @@
 		F2FE271C28D29E7C006CFDFA /* Chazer */ = {
 			isa = PBXGroup;
 			children = (
+				F25C4F9C2D43FB1A00072FF8 /* Migration */,
 				F2CDDBA62AA41E5100BE0175 /* Info.plist */,
 				F2E634A428D353E60039463B /* Chazer.entitlements */,
 				F2FE271D28D29E7C006CFDFA /* ChazerApp.swift */,
 				F2E0E5C8296DC92200F3575B /* UI.swift */,
 				F28133212A9008C5000AE451 /* Tools.swift */,
-				F2E0E5C0296D9FE700F3575B /* IDGenerator.swift */,
 				F2FE274C28D29E8E006CFDFA /* Data.swift */,
 				F20B34C52A4A857D004CA9F9 /* Models */,
 				F243EC942A23D585001093C9 /* Views */,
@@ -389,7 +403,9 @@
 				F28133222A9008C5000AE451 /* Tools.swift in Sources */,
 				F2E7990528D900FF00295041 /* GraphViewModel.swift in Sources */,
 				F28ED0A028D7B4A6005995D4 /* NewSectionView.swift in Sources */,
+				F25C4F9B2D43FA1C00072FF8 /* 8-9.xcmappingmodel in Sources */,
 				F2E0E5CB297ACA1700F3575B /* ChazaraStatus.swift in Sources */,
+				F25C4F9E2D43FB3000072FF8 /* 8-9.swift in Sources */,
 				F2E0E5C3296DACE700F3575B /* ChazaraPoint.swift in Sources */,
 				F2FE271E28D29E7C006CFDFA /* ChazerApp.swift in Sources */,
 				F2154F8228D9E25500CF8063 /* NewChazaraScheduleView.swift in Sources */,
@@ -564,7 +580,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -572,8 +588,11 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.reesedevelopment.Chazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -599,7 +618,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -607,8 +626,11 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.reesedevelopment.Chazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -746,7 +768,7 @@
 				F24D4960297CCDBB004C3DAE /* Chazer 2.xcdatamodel */,
 				F2FE272928D29E7E006CFDFA /* Chazer.xcdatamodel */,
 			);
-			currentVersion = F20D9DA12C3C000E00C43407 /* Chazer 8.xcdatamodel */;
+			currentVersion = F29F41682D3AAB7F00422660 /* Chazer 9.xcdatamodel */;
 			path = Chazer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

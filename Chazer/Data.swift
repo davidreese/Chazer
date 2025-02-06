@@ -112,12 +112,12 @@ class ScheduledChazara: Identifiable, Hashable {
     /// - Note: Value will be `nil` if the schedule is not using a delay rule.
     //private(set) var delay: Int?
     
-    /// The ``ScheduledChazara`` that this schedule is delayed from, if this schedule is using a delay rule.
-    /// - Note: Value will be `nil` if the schedule is not using a delay rule.
-    //private(set) var delayedFrom: ScheduledChazara?
-    
     /// The rule which defines when points are to be chazered.
     private(set) var scheduleRule: ScheduleRule!
+    
+    /// The ``ScheduledChazara`` that this schedule is delayed from, if this schedule is using a delay rule.
+    /// - Note: Value will be `nil` if the schedule is not using a horizontal delay rule.
+    private(set) var delayedFrom: ScheduledChazara?
     
     /// The number of days after the dynamic start date that the chazara point should be marked active.
     /// - Note: Value will be `nil` if there is no dynamic rule in place.
@@ -137,25 +137,27 @@ class ScheduledChazara: Identifiable, Hashable {
     init(id: CID, name: String, delaySinceInitial: Int, daysActive: Int = 2) {
         self.id = id
         self.name = name
-        self.scheduleRule = .horizontalDelay(delayedFrom: nil, daysDelayed: delaySinceInitial, daysActive: daysActive)
+        self.scheduleRule = .horizontalDelay(delayedFromID: nil, daysDelayed: delaySinceInitial, daysActive: daysActive)
     }
     
     init(id: CID, name: String, delay: Int, since delayedFrom: ScheduledChazara, daysActive: Int = 2) {
         self.id = id
         self.name = name
-        self.scheduleRule = .horizontalDelay(delayedFrom: delayedFrom, daysDelayed: delay, daysActive: daysActive)
+        self.delayedFrom = delayedFrom
+        self.scheduleRule = .horizontalDelay(delayedFromID: delayedFrom.id, daysDelayed: delay, daysActive: daysActive)
     }
     
     init(id: CID, delaySinceInitial: Int, daysActive: Int = 2) {
         self.id = id
         self.name = "\(delayFormatted(delaySinceInitial)) Day Chazara"
-        self.scheduleRule = .horizontalDelay(delayedFrom: nil, daysDelayed: delaySinceInitial, daysActive: daysActive)
+        self.scheduleRule = .horizontalDelay(delayedFromID: nil, daysDelayed: delaySinceInitial, daysActive: daysActive)
     }
     
     init(id: CID, delay: Int, since delayedFrom: ScheduledChazara?, daysActive: Int = 2) {
         self.id = id
         self.name = "\(delayFormatted(delay)) Day Chazara"
-        self.scheduleRule = .horizontalDelay(delayedFrom: delayedFrom, daysDelayed: delay, daysActive: daysActive)
+        self.delayedFrom = delayedFrom
+        self.scheduleRule = .horizontalDelay(delayedFromID: delayedFrom?.id, daysDelayed: delay, daysActive: daysActive)
     }
     
     init(id: CID, sectionsDelay: Int, daysActive: Int = 2, maxDaysActive: Int? = 10) {
@@ -173,20 +175,16 @@ class ScheduledChazara: Identifiable, Hashable {
             self.id = id
             self.name = name
             
-            if let fixedDueDate = cdScheduledChazara.fixedDueDate, !cdScheduledChazara.isDynamic {
-                self.scheduleRule = .fixedDueDate(fixedDueDate)
-            } else {
-                let daysActive = Int(cdScheduledChazara.daysToComplete)
+            guard let ruleString = cdScheduledChazara.rule else {
+                throw RetrievalError.missingData
+            }
+            
+            self.scheduleRule = try ScheduleRule(ruleFromDatabase: ruleString)
+            
+            if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
+                let delayedFrom = try ScheduledChazara(cdDelayedFrom, context: context)
                 
-                let delay = Int(cdScheduledChazara.delay)
-                
-                if let cdDelayedFrom = cdScheduledChazara.delayedFrom {
-                    let delayedFrom = try ScheduledChazara(cdDelayedFrom, context: context)
-                    
-                    self.scheduleRule = .horizontalDelay(delayedFrom: delayedFrom, daysDelayed: delay, daysActive: daysActive)
-                } else {
-                    self.scheduleRule = .horizontalDelay(delayedFrom: nil, daysDelayed: delay, daysActive: daysActive)
-                }
+                self.delayedFrom = delayedFrom
             }
             
             self.hiddenFromDashboard = cdScheduledChazara.hiddenFromDashboard
@@ -203,15 +201,153 @@ class ScheduledChazara: Identifiable, Hashable {
 }
 
 enum ScheduleRule: Equatable {
+    
     /// A rule which sets all points on the schedule to be due on a certain date, and active for all dates before it.
     case fixedDueDate(Date)
     
     /// A rule which sets all points on the schedule to be due a set amount of days after the completion of that point's section on the previous schedule.
     /// - Note: `delayedFrom` should be set to `nil` if the schedule is to be delayed after the initial learning of each section.
-    case horizontalDelay(delayedFrom: ScheduledChazara?, daysDelayed: Int, daysActive: Int)
+//    case horizontalDelay(delayedFrom: ScheduledChazara?, daysDelayed: Int, daysActive: Int)
+    
+    /// A rule which sets all points on the schedule to be due a set amount of days after the completion of that point's section on the previous schedule.
+    /// - Note: `delayedFromID` should be set to `nil` if the schedule is to be delayed after the initial learning of each section.
+    case horizontalDelay(delayedFromID: CID?, daysDelayed: Int, daysActive: Int)
     
     /// A rule which sets all points on the schedule to be due after a set amount of sections have had their initial learning logged afterwards.
     case verticalDelay(sectionsDelay: Int, daysActive: Int, maxDaysActive: Int?)
+    
+    init(ruleFromDatabase: String) throws {
+        if ruleFromDatabase == "NORULE" {
+            throw RetrievalError.missingData
+        }
+        
+        guard let first = ruleFromDatabase.first else {
+            throw RetrievalError.invalidData
+        }
+        
+        let ruleComponents = ruleFromDatabase.split(separator: ":")
+        
+        switch first {
+        case "H":
+            guard ruleComponents.count == 4 else {
+                throw RetrievalError.invalidData
+            }
+            
+            let delayedFromIDUncleaned = String(ruleComponents[1])
+            assert(delayedFromIDUncleaned.starts(with: "DF"))
+            
+//            dealing with prefix of DF
+            let delayedFromIDIndex = delayedFromIDUncleaned.index(delayedFromIDUncleaned.startIndex, offsetBy: 2)
+            let delayedFromIDCleaned = delayedFromIDUncleaned[delayedFromIDIndex...]
+            
+            var delayedFromID: CID? = String(delayedFromIDCleaned)
+            
+            if delayedFromID == "INITIAL" {
+                delayedFromID = nil
+            } else {
+//                #if DEBUG
+                guard let delayedFromID = delayedFromID else {
+                    assertionFailure(#function + ": unexpected delayedFromID \(delayedFromIDUncleaned)")
+                    throw RetrievalError.invalidData
+                }
+                assert(delayedFromID.starts(with: "SC"))
+//                #endif
+            }
+            
+            let delayUncleaned = ruleComponents[2]
+//            dealing with prefix of DL
+            let delayIndex = delayUncleaned.index(delayUncleaned.startIndex, offsetBy: 2)
+            let delay = delayUncleaned[delayIndex...]
+            
+            guard let delay = Int(delay) else {
+                throw RetrievalError.invalidData
+            }
+            
+            let daysActiveUncleaned = ruleComponents[3]
+            // dealing with prefix of DTC
+            let daysActiveIndex = daysActiveUncleaned.index(daysActiveUncleaned.startIndex, offsetBy: 3)
+            let daysActive = daysActiveUncleaned[daysActiveIndex...]
+            
+            guard let daysActive = Int(daysActive) else {
+                throw RetrievalError.invalidData
+            }
+            
+            self = .horizontalDelay(delayedFromID: delayedFromID, daysDelayed: delay, daysActive: daysActive)
+            return
+        case "V":
+            guard ruleComponents.count == 4 else {
+                throw RetrievalError.invalidData
+            }
+            
+            let delayedFromIDUncleaned = String(ruleComponents[1])
+            assert(delayedFromIDUncleaned.starts(with: "SC"))
+            
+//            dealing with prefix of DF
+            let delayedFromIDIndex = delayedFromIDUncleaned.index(delayedFromIDUncleaned.startIndex, offsetBy: 2)
+            var delayedFromID: CID? = CID(delayedFromIDUncleaned[delayedFromIDIndex...])
+            if delayedFromID == "INITIAL" {
+                delayedFromID = nil
+            } else {
+                assert(!delayedFromID!.starts(with: "SC"))
+            }
+            
+            
+            
+            let delayUncleaned = ruleComponents[2]
+//            dealing with prefix of DL
+            let delayIndex = delayUncleaned.index(delayUncleaned.startIndex, offsetBy: 2)
+            let delay = delayUncleaned[delayIndex...]
+            
+            guard let delay = Int(delay) else {
+                throw RetrievalError.invalidData
+            }
+            
+            let daysActiveUncleaned = ruleComponents[3]
+            // dealing with prefix of DTC
+            let daysActiveIndex = daysActiveUncleaned.index(daysActiveUncleaned.startIndex, offsetBy: 3)
+            let daysActive = daysActiveUncleaned[daysActiveIndex...]
+            
+            guard let daysActive = Int(daysActive) else {
+                throw RetrievalError.invalidData
+            }
+            
+            self = .horizontalDelay(delayedFromID: delayedFromID, daysDelayed: delay, daysActive: daysActive)
+            return
+        case "F":
+            guard ruleComponents.count == 2 else {
+                throw RetrievalError.invalidData
+            }
+            
+            let fixedDateUncleaned = String(ruleComponents[1])
+            assert(fixedDateUncleaned.starts(with: "FD"))
+//            dealing with prefix of DF
+            let fixedDateUncleanedIndex = fixedDateUncleaned.index(fixedDateUncleaned.startIndex, offsetBy: 2)
+            let fixedDate = fixedDateUncleaned[fixedDateUncleanedIndex...]
+            
+            guard let timeIntervalSince1970 = TimeInterval(fixedDate) else {
+                throw RetrievalError.invalidData
+            }
+            
+            let date = Date(timeIntervalSince1970: timeIntervalSince1970)
+            
+            self = .fixedDueDate(date)
+            return
+        default:
+            print("Error: unrecognized schedule rule format: \(ruleFromDatabase)")
+            throw RetrievalError.invalidData
+        }
+    }
+    
+    func ruleForDatabase() -> String {
+        switch self {
+        case .horizontalDelay(let delayedFromID, let delay, let daysActive):
+            return "H:DF\(delayedFromID ?? "INITIAL"):DL\(delay):DTC\(daysActive)"
+        case .verticalDelay(let sectionsDelay, let daysActive, let maxDaysActive):
+            return "V:SD\(sectionsDelay):DTC\(daysActive):MAX\(maxDaysActive?.description ?? "NIL")"
+        case .fixedDueDate(let date):
+            return "F:FD\(date.timeIntervalSince1970)"
+        }
+    }
 }
 
 func delayFormatted(_ delay: Int) -> String {

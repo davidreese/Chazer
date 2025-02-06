@@ -39,7 +39,7 @@ class StatusBoxModel: ObservableObject {
         case .unknown:
             return nil
         case .exempt:
-            return ""
+            return "Exempt"
         }
     }
     

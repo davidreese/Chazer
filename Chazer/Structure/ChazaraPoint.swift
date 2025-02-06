@@ -304,7 +304,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Sets the `date` attribute for this object, and also saves it as such in storage.
     @MainActor
     func setDate(_ date: Date?) {
-        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -347,7 +347,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     @MainActor
     func setState(status: ChazaraStatus, date: Date?) throws {
-        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -409,10 +409,10 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 case .fixedDueDate(_):
                     // assumes current functionality, that fixed due date chazara schedules do not allow start dates. could change in the future
                     return nil
-                case .horizontalDelay(let delayedFrom, let daysDelayed, _):
+                case .horizontalDelay(let delayedFromId, let daysDelayed, _):
                     // will now try to calculate the right date
 
-                    guard let delayedFrom = delayedFrom else {
+                    guard let delayedFrom = scheduledChazara.delayedFrom else {
                         let activeDate: Date? = ChazaraPoint.getActiveDate(section.initialDate, delay: daysDelayed)
                         setActiveDate(activeDate)
                         return activeDate
@@ -490,8 +490,9 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 case .fixedDueDate(let dueDate):
                     self.setDueDate(dueDate)
                     return dueDate
-                case .horizontalDelay(delayedFrom: let delayedFrom, daysDelayed: let daysDelayed, daysActive: let daysActive):
-                    guard let delayedFrom = delayedFrom else {
+                case .horizontalDelay(delayedFromID: _, daysDelayed: let daysDelayed, daysActive: let daysActive):
+                    guard let delayedFrom = scheduledChazara.delayedFrom else {
+//                        using initial chazara
                         let dueDate: Date? = self.getDueDate(section.initialDate, delay: daysDelayed, daysActive: daysActive)
                         setDueDate(dueDate)
                         
@@ -572,15 +573,15 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
             
             guard let dueDate = await getDueDate(retryOnFail: false) else {
                 
-                guard case .horizontalDelay(let delayedFrom, _, _) = scheduleRule else {
+                guard case .horizontalDelay(let delayedFromID, _, _) = scheduleRule else {
                     return .unknown
                 }
                 
-                guard let delayedFromId = delayedFrom?.id else {
+                guard let delayedFromID = delayedFromID else {
                     return .unknown
                 }
                 
-                if (try? ChazaraPoint.getCompletionDate(sectionId: sectionId, scheduledChazaraId: delayedFromId)) == nil {
+                if (try? ChazaraPoint.getCompletionDate(sectionId: sectionId, scheduledChazaraId: delayedFromID)) == nil {
                     return .early
                 } else {
                     return .unknown

@@ -43,31 +43,50 @@ struct ContentView: View {
     @State var dashboard = Dashboard()
     @State var settingsView = SettingsView()
     
+//    @State private var selectedLimud: Limud?
+    
     init() {
-//        viewContext.automaticallyMergesChangesFromParent = true
+        //        viewContext.automaticallyMergesChangesFromParent = true
     }
     
     var body: some View {
+        /*
+        NavigationSplitView {
+            NavigationLink(destination: dashboard, label: {
+                Text("Dashboard")
+            })
+            List(limudim, selection: $selectedLimud) { limud in
+                Text(limud.name)
+                    .tag(limud)
+            }
+        } detail: {
+            
+            if let selectedLimud = selectedLimud {
+                Text(selectedLimud.name)
+                GraphView(limud: selectedLimud, onUpdate: model.objectWillChange.send)
+                    .environment(\.managedObjectContext, self.viewContext)
+            }
+        }*/
+
         NavigationView {
             List {
-//                adding horizontal padding to the dashboard seems to help fix the horizontal line issue
+                //                adding horizontal padding to the dashboard seems to help fix the horizontal line issue
                 NavigationLink(destination: dashboard, label: {
-                        Text("Dashboard")
-                    })
+                    Text("Dashboard")
+                })
                 ForEach(cdLimudim.filter({ cdl in
                     cdl.id != nil && cdl != limudToDelete
                 })) { cdl in
                     if let limud = try? Limud(cdl, context: viewContext) {
-                        NavigationLink(destination: GraphView(limud: limud, onUpdate: model.objectWillChange.send)
-                            .environment(\.managedObjectContext, self.viewContext), label: {
+                        let gv = GraphView(limud: limud, onUpdate: model.objectWillChange.send)
+                            .environment(\.managedObjectContext, self.viewContext)
+                        NavigationLink(destination: gv, label: {
                                 Text(limud.name)
                             })
                         .swipeActions(allowsFullSwipe: false) {
                             Button {
                                 self.archiveLimud(cdLimud: cdl)
-                                Task {
-                                    await self.update()
-                                }
+                                self.reload()
                             } label: {
                                 Text("Archive")
                             }
@@ -84,22 +103,18 @@ struct ContentView: View {
                 }
                 .alert(isPresented: self.$showingDeleteAlert) {
                     Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
-                            do {
-                                withAnimation {
-                                    executeLimudDeletion()
-                                }
-                            } catch {
-                                print("Failed to delete with error: \(error)")
-                            }
-                            self.limudToDelete = nil
-                        }, secondaryButton: .cancel() {
-                            self.limudToDelete = nil
+                        withAnimation {
+                            executeLimudDeletion()
                         }
+                        self.limudToDelete = nil
+                    }, secondaryButton: .cancel() {
+                        self.limudToDelete = nil
+                    }
                     )
                 }
                 NavigationLink(destination: settingsView, label: {
-                        Text("Settings")
-                    })
+                    Text("Settings")
+                })
             }
             .navigationTitle("Chazer")
             .toolbar {
@@ -108,7 +123,17 @@ struct ContentView: View {
                         ProgressView()
                     }
                 }
+#if DEBUG
                 ToolbarItem {
+                    Button(action: {
+                        reload()
+                    }) {
+                        Label("Reload", systemImage: "arrow.trianglehead.clockwise.rotate.90")
+                    }
+                }
+#endif
+                ToolbarItem {
+                    
                     Button(action: {
                         self.showingNewLimudView = true
                     }) {
@@ -117,6 +142,7 @@ struct ContentView: View {
                 }
             }
         }
+        .frame(minWidth: 1060, minHeight: 800)
         .sheet(isPresented: $showingNewLimudView) {
             NewLimudView().environment(\.managedObjectContext, self.viewContext)
         }
@@ -129,83 +155,56 @@ struct ContentView: View {
                     }
                 }
                 
-                print("Loading chazara points...")
-                self.isUpdating = true
-                
-                lastScenePhase = .active
-                
-                Task {
-                    await update()
-                    self.isUpdating = false
-                }
+                reload()
             } else {
-//                will never update when the screen is out of view
+                // will never update when the screen is out of view
                 print("Skipping chazara points load.")
                 lastScenePhase = scenePhase
             }
         }
-        
-        /*
-        .onChange(of: scenePhase, perform: { phase in
-            if self.scenePhase == .active {
-                if !(updateTimer?.isValid ?? false) {
-                    setTimer()
-                }
-            } else {
-                updateTimer?.invalidate()
-            }
-            
-            switch phase {
-            case .active: print("SP: Active")
-            case .background: print("SP: Background")
-            case .inactive: print("SP: Inactive")
-            default: print("SP: Unknown")
-            }
-        })
-         */
-        //        .alert("New Limud", isPresented: $showingNewLimudAlert, actions: {
-        //                    TextField("Name", text: $limudName)
-        //
-        //            Button("Login", action: {})
-        //                        Button("Cancel", role: .cancel, action: {})
-        //                }, message: {
-        //                    Text("Enter the name of the Limud.")
-        //                })
     }
     
     @State var lastUpdate: Date? = nil
     
     /// Runs a full update on the app data and on the views that enable updates.
-    func update() async {
-        self.lastUpdate = Date.now
+    private func reload() {
+        print("Loading chazara points...")
+        self.isUpdating = true
         
-        await dashboard.model.updateDashboard()
+        lastScenePhase = .active
+        
+        Task {
+            self.lastUpdate = Date.now
+            await dashboard.model.updateDashboard()
+            
+            self.isUpdating = false
+        }
     }
     
     private func executeLimudDeletion()  {
-            try? withAnimation {
-                try viewContext.performAndWait {
-                    guard let limudToDelete = limudToDelete else {
-                        return
-                    }
-                    
-                    viewContext.delete(limudToDelete)
-                    
-                    try viewContext.save()
+        try? withAnimation {
+            try viewContext.performAndWait {
+                guard let limudToDelete = limudToDelete else {
+                    return
                 }
+                
+                viewContext.delete(limudToDelete)
+                
+                try viewContext.save()
             }
+        }
     }
     
     private func archiveLimud(cdLimud: CDLimud) {
-            try? withAnimation {
-                try viewContext.performAndWait {
-                    cdLimud.archived = true
-                    
-                    try viewContext.save()
-                }
+        try? withAnimation {
+            try viewContext.performAndWait {
+                cdLimud.archived = true
+                
+                try viewContext.save()
             }
+        }
     }
-
+    
 }
 
 private let itemFormatter: DateFormatter = {

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import UIKit
+//import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
@@ -30,136 +30,140 @@ struct SettingsView: View {
     @State private var limudToDelete: CDLimud? = nil
     
     var body: some View {
-        List {
-            SwiftUI.Section("Limudim") {
-                NavigationLink {
-                    List {
-                        ForEach(cdArchivedLimudim.filter({ cdl in cdl != limudToDelete })) { cdLimud in
-                            Text(cdLimud.name ?? "nil")
-                                .swipeActions(allowsFullSwipe: false) {
-                                    Button {
-                                        unarchiveLimud(cdLimud: cdLimud)
-                                    } label: {
-                                        Text("Unarchive")
+        HStack {
+            Spacer()
+            List {
+                SwiftUI.Section("Limudim") {
+                    NavigationLink {
+                        List {
+                            ForEach(cdArchivedLimudim.filter({ cdl in cdl != limudToDelete })) { cdLimud in
+                                Text(cdLimud.name ?? "nil")
+                                    .swipeActions(allowsFullSwipe: false) {
+                                        Button {
+                                            unarchiveLimud(cdLimud: cdLimud)
+                                        } label: {
+                                            Text("Unarchive")
+                                        }
+                                        .tint(.indigo)
+                                        
+                                        Button(role: .destructive) {
+                                            self.limudToDelete = cdLimud
+                                            showingDeleteAlert = true
+                                        } label: {
+                                            Text("Delete")
+                                        }
                                     }
-                                    .tint(.indigo)
-                                    
-                                    Button(role: .destructive) {
-                                        self.limudToDelete = cdLimud
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Text("Delete")
-                                    }
-                                }
-                        }
-                    }
-                    .alert(isPresented: self.$showingDeleteAlert) {
-                        Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
-                            do {
-                                try withAnimation {
-                                    try executeLimudDeletion()
-                                }
-                            } catch {
-                                print("Failed to delete with error: \(error)")
                             }
-                            self.limudToDelete = nil
-                        }, secondaryButton: .cancel() {
-                            self.limudToDelete = nil
                         }
-                        )
+                        .alert(isPresented: self.$showingDeleteAlert) {
+                            Alert(title: Text("Delete Limud?"), message: Text("This action cannot be undone."), primaryButton: .destructive(Text("Delete")) {
+                                do {
+                                    try withAnimation {
+                                        try executeLimudDeletion()
+                                    }
+                                } catch {
+                                    print("Failed to delete with error: \(error)")
+                                }
+                                self.limudToDelete = nil
+                            }, secondaryButton: .cancel() {
+                                self.limudToDelete = nil
+                            }
+                            )
+                        }
+                        .navigationTitle("Archived")
+                    } label: {
+                        Text("Archived")
                     }
-                    .navigationTitle("Archived")
-                } label: {
-                    Text("Archived")
                 }
-            }
-            
-            SwiftUI.Section("Data") {
-                Button {
-                    showRestoreView = true
-                } label: {
-                    Text("Restore from backup")
-                }
-                /*
-                 Button {
-                 showUploadBackupView = true
-                 } label: {
-                 Text("Restore Backup")
-                 }*/
                 
-                Button {
-                    showFileExporter = true
-                    //                let date = Date.now.formatted(date: .numeric, time: .shortened)
-                } label: {
-                    Text("Download backup")
-                }
-                .onAppear {
-                    //                updates the backup file
-                    self.backupDocument = BackupFile()
+                SwiftUI.Section("Data") {
+                    Button {
+                        showRestoreView = true
+                    } label: {
+                        Text("Restore from backup")
+                    }
+                    /*
+                     Button {
+                     showUploadBackupView = true
+                     } label: {
+                     Text("Restore Backup")
+                     }*/
                     
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
-                    let formattedDate = dateFormatter.string(from: Date.now)
-                    defaultFilename = "chazerbackup-\(formattedDate).txt"
-                    print(defaultFilename)
+                    Button {
+                        showFileExporter = true
+                        //                let date = Date.now.formatted(date: .numeric, time: .shortened)
+                    } label: {
+                        Text("Download backup")
+                    }
+                    .onAppear {
+                        //                updates the backup file
+                        self.backupDocument = BackupFile()
+                        
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+                        let formattedDate = dateFormatter.string(from: Date.now)
+                        defaultFilename = "chazerbackup-\(formattedDate).txt"
+                        print(defaultFilename)
+                    }
+                    .fileExporter(isPresented: $showFileExporter, document: backupDocument, contentType: .plainText, defaultFilename: defaultFilename, onCompletion: {result in})
+                    Button(role: .destructive) {
+                        showWipeConfirmation = true
+                    } label: {
+                        Text("Erase all data")
+                    }
                 }
-                .fileExporter(isPresented: $showFileExporter, document: backupDocument, contentType: .plainText, defaultFilename: defaultFilename, onCompletion: {result in})
-                Button(role: .destructive) {
-                    showWipeConfirmation = true
+            }
+            .listStyle(.plain)
+            .navigationTitle("Settings")
+            .sheet(isPresented: $showRestoreView) {
+                restoreView
+            }
+            .alert("Confirmation", isPresented: $showWipeConfirmation) {
+                Button(role: .cancel) {
+                    showWipeConfirmation = false
                 } label: {
-                    Text("Erase all data")
+                    Text("Cancel")
                 }
-            }
-        }
-        //        .listStyle(ListSt())
-        .navigationTitle("Settings")
-        .sheet(isPresented: $showRestoreView) {
-            restoreView
-        }
-        .alert("Confirmation", isPresented: $showWipeConfirmation) {
-            Button(role: .cancel) {
-                showWipeConfirmation = false
-            } label: {
-                Text("Cancel")
-            }
-            Button(role: .destructive) {
-                showWipeConfirmation = false
-                do {
-                    try Storage.shared.wipe()
-                    print("Closing app...")
-                    exit(0)
-                } catch {
-                    showWipeFailureAlert = true
+                Button(role: .destructive) {
+                    showWipeConfirmation = false
+                    do {
+                        try Storage.shared.wipe()
+                        print("Closing app...")
+                        exit(0)
+                    } catch {
+                        showWipeFailureAlert = true
+                    }
+                } label: {
+                    Text("Erase")
                 }
-            } label: {
-                Text("Erase")
-            }
-        } message: {
-            Text("""
+            } message: {
+                Text("""
 Proceeding will erase all app data and close the app.
                     This action cannot be undone.
 """)
-        }
-        .alert(isPresented: $showWipeFailureAlert) {
-            Alert(
-                title: Text("Error"),
-                message: Text("The erase operation could not be completed.")
-            )
+            }
+            .alert(isPresented: $showWipeFailureAlert) {
+                Alert(
+                    title: Text("Error"),
+                    message: Text("The erase operation could not be completed.")
+                )
+            }
+            Spacer()
         }
     }
     
     private func executeLimudDeletion() throws {
-            try withAnimation {
-                try viewContext.performAndWait {
-                    guard let limudToDelete = limudToDelete else {
-                        return
-                    }
-                    
-                    viewContext.delete(limudToDelete)
-                    
-                    try viewContext.save()
+        try withAnimation {
+            try viewContext.performAndWait {
+                guard let limudToDelete = limudToDelete else {
+                    return
                 }
+                
+                viewContext.delete(limudToDelete)
+                
+                try viewContext.save()
             }
+        }
     }
     
     private func unarchiveLimud(cdLimud: CDLimud) {
@@ -321,65 +325,66 @@ This action will wipe all existing data and close the app.
                 
                 try viewContext.performAndWait {
                     
-                limuds: for baby in babyLimuds {
-                    let newLimud = CDLimud(context: viewContext)
-                    newLimud.id = baby.id
-                    newLimud.name = baby.name
-                    newLimud.archived = baby.archived
-                    newLimud.sections = NSSet()
-                    cdLimuds.append(newLimud)
-                }
-                    
-                sections: for baby in babySections {
-                    let newSection = CDSection(context: viewContext)
-                    newSection.sectionId = baby.id
-                    newSection.sectionName = baby.name
-                    
-                    newSection.initialDate = baby.initialDate
-                    guard let cdLimud = cdLimuds.first(where: { cdLimud in
-                        cdLimud.id == baby.limudId
-                    }) else {
-                        print("Warning: Unexpectedly found nil for limud id")
-                        continue sections
+                    limuds: for baby in babyLimuds {
+                        let newLimud = CDLimud(context: viewContext)
+                        newLimud.id = baby.id
+                        newLimud.name = baby.name
+                        newLimud.archived = baby.archived
+                        newLimud.sections = NSSet()
+                        cdLimuds.append(newLimud)
                     }
-                    newSection.limud = cdLimud
                     
-                    cdLimud.sections = cdLimud.sections?.adding(newSection) as? NSSet
-                }
+                    sections: for baby in babySections {
+                        let newSection = CDSection(context: viewContext)
+                        newSection.sectionId = baby.id
+                        newSection.sectionName = baby.name
+                        
+                        newSection.initialDate = baby.initialDate
+                        guard let cdLimud = cdLimuds.first(where: { cdLimud in
+                            cdLimud.id == baby.limudId
+                        }) else {
+                            print("Warning: Unexpectedly found nil for limud id")
+                            continue sections
+                        }
+                        newSection.limud = cdLimud
+                        
+                        cdLimud.sections = cdLimud.sections?.adding(newSection) as? NSSet
+                    }
                     
                     var cdSCs: [CDScheduledChazara] = []
                     
-                scs: for baby in babySCs {
-                    let newSC = CDScheduledChazara(context: viewContext)
-                    newSC.scId = baby.id
-                    newSC.scName = baby.name
-                    
-                    newSC.isDynamic = baby.isDynamic
-                    newSC.fixedDueDate = baby.fixedDueDate
-                    newSC.delay = baby.delay
-                    newSC.daysToComplete = baby.daysToComplete
-                    newSC.hiddenFromDashboard = baby.hiddenFromDashboard
-                    //                haven't set delayed from, need to run that afterwards
-                    
-                    guard let cdLimud = cdLimuds.first(where: { cdLimud in
-                        cdLimud.id == baby.limudId
-                    }) else {
-                        print("Warning: Unexpectedly found nil for limud id")
-                        continue scs
+                    scs: for baby in babySCs {
+                        let newSC = CDScheduledChazara(context: viewContext)
+                        newSC.scId = baby.id
+                        newSC.scName = baby.name
+                        
+                        newSC.isDynamic = baby.isDynamic
+//                        newSC.fixedDueDate = baby.fixedDueDate
+//                        newSC.delay = baby.delay
+//                        newSC.daysToComplete = baby.daysToComplete
+                        newSC.rule = baby.rule
+                        newSC.hiddenFromDashboard = baby.hiddenFromDashboard
+                        //                haven't set delayed from, need to run that afterwards
+                        
+                        guard let cdLimud = cdLimuds.first(where: { cdLimud in
+                            cdLimud.id == baby.limudId
+                        }) else {
+                            print("Warning: Unexpectedly found nil for limud id")
+                            continue scs
+                        }
+                        newSC.limud = cdLimud
+                        
+                        //        TODO: what if this is nil
+                        guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
+                            throw CreationError.unknownError
+                        }
+                        ms.add(newSC)
+                        cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
+                        
+                        let limud = try Limud(cdLimud, context: viewContext)
+                        
+                        cdSCs.append(newSC)
                     }
-                    newSC.limud = cdLimud
-                    
-                    //        TODO: what if this is nil
-                    guard let ms = cdLimud.scheduledChazaras?.mutableCopy() as? NSMutableOrderedSet else {
-                        throw CreationError.unknownError
-                    }
-                    ms.add(newSC)
-                    cdLimud.scheduledChazaras = ms.copy() as? NSOrderedSet
-                    
-                    let limud = try Limud(cdLimud, context: viewContext)
-                    
-                    cdSCs.append(newSC)
-                }
                     
                     for cdSC in cdSCs {
                         guard let baby = babySCs.first(where: { baby in
@@ -397,42 +402,42 @@ This action will wipe all existing data and close the app.
                     
                     var cdChazaraPoints: [CDChazaraPoint] = []
                     
-                cps: for baby in babyChazaraPoints {
-                    let newPoint = CDChazaraPoint(context: viewContext)
-                    newPoint.pointId = baby.id
-                    newPoint.sectionId = baby.sectionId
-                    newPoint.scId = baby.scId
-                    
-                    let state = CDChazaraState(context: viewContext)
-                    state.stateId = IDGenerator.generate(withPrefix: "CS")
-                    state.status = baby.status
-                    state.date = baby.date
-                    
-                    newPoint.chazaraState = state
-                    
-                    cdChazaraPoints.append(newPoint)
-                }
-                    
-                pns: for babyPointNote in babyPointNotes {
-                    let newPointNote = CDPointNote(context: viewContext)
-                    newPointNote.noteId = babyPointNote.id
-                    newPointNote.creationDate = babyPointNote.creationDate
-                    newPointNote.note = babyPointNote.note
-                    
-                    guard let chazaraPoint = cdChazaraPoints.first(where: { point in
-                        point.pointId == babyPointNote.cpId
-                    }) else {
-                        print("Point note must belong to a chazara point to be added.")
-                        continue pns
+                    cps: for baby in babyChazaraPoints {
+                        let newPoint = CDChazaraPoint(context: viewContext)
+                        newPoint.pointId = baby.id
+                        newPoint.sectionId = baby.sectionId
+                        newPoint.scId = baby.scId
+                        
+                        let state = CDChazaraState(context: viewContext)
+                        state.stateId = IDGenerator.generate(withPrefix: "CS")
+                        state.status = baby.status
+                        state.date = baby.date
+                        
+                        newPoint.chazaraState = state
+                        
+                        cdChazaraPoints.append(newPoint)
                     }
                     
-                    guard let ms = chazaraPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
-                        throw CreationError.unknownError
+                    pns: for babyPointNote in babyPointNotes {
+                        let newPointNote = CDPointNote(context: viewContext)
+                        newPointNote.noteId = babyPointNote.id
+                        newPointNote.creationDate = babyPointNote.creationDate
+                        newPointNote.note = babyPointNote.note
+                        
+                        guard let chazaraPoint = cdChazaraPoints.first(where: { point in
+                            point.pointId == babyPointNote.cpId
+                        }) else {
+                            print("Point note must belong to a chazara point to be added.")
+                            continue pns
+                        }
+                        
+                        guard let ms = chazaraPoint.notes?.mutableCopy() as? NSMutableOrderedSet else {
+                            throw CreationError.unknownError
+                        }
+                        ms.add(newPointNote)
+                        chazaraPoint.notes = ms.copy() as? NSOrderedSet
+                        newPointNote.point = chazaraPoint
                     }
-                    ms.add(newPointNote)
-                    chazaraPoint.notes = ms.copy() as? NSOrderedSet
-                    newPointNote.point = chazaraPoint
-                }
                     
                     try viewContext.save()
                 }
@@ -500,49 +505,49 @@ This action will wipe all existing data and close the app.
             
             var babyLimudim: Set<BabyLimud> = Set()
             let limudData = limuds.components(separatedBy: "CDLimud: ")
-        object: for data in limudData {
-            var id: CID?
-            var name: String?
-            var archived: Bool!
-            
-            for pair in data.components(separatedBy: "|") {
-                let parts = pair.components(separatedBy: "=")
-                if parts.count == 2 {
-                    let key = parts[0]
-                    let value = parts[1]
-                    
-                    switch key {
-                    case "ID":
-                        if value == "nil" {
-                            continue object
-                        } else {
-                            id = value.trimmingCharacters(in: .newlines)
-                        }
-                    case "N":
-                        name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "A":
-                        if let value = Bool(value.trimmingCharacters(in: .newlines)) {
-                            archived = value
-                        } else {
-                            print("Limud archived value is invalid, skipping data point")
-                            continue object
-                        }
+            object: for data in limudData {
+                var id: CID?
+                var name: String?
+                var archived: Bool!
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
                         
-                    default:
-                        print("Failed to parse data for limud:.")
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "N":
+                            name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "A":
+                            if let value = Bool(value.trimmingCharacters(in: .newlines)) {
+                                archived = value
+                            } else {
+                                print("Limud archived value is invalid, skipping data point")
+                                continue object
+                            }
+                            
+                        default:
+                            print("Failed to parse data for limud:.")
+                            continue object;
+                        }
+                    } else if pair == "" {
+                    } else {
+                        print("Failed to parse data for limud: \(pair)")
                         continue object;
                     }
-                } else if pair == "" {
-                } else {
-                    print("Failed to parse data for limud: \(pair)")
-                    continue object;
+                }
+                
+                if let id = id {
+                    babyLimudim.insert(BabyLimud(id: id, name: name, archived: archived))
                 }
             }
-            
-            if let id = id {
-                babyLimudim.insert(BabyLimud(id: id, name: name, archived: archived))
-            }
-        }
             
             print("Found \(babyLimudim.count) valid limudim.")
             return babyLimudim
@@ -562,51 +567,51 @@ This action will wipe all existing data and close the app.
             var babySections: Set<BabySection> = Set()
             let sectionData = sections.components(separatedBy: "CDSection: ")
             
-        object: for data in sectionData {
-            var id: CID?
-            var limudId: CID?
-            var name: String?
-            var initialDate: Date?
-            
-            for pair in data.components(separatedBy: "|") {
-                let parts = pair.components(separatedBy: "=")
-                if parts.count == 2 {
-                    let key = parts[0]
-                    let value = parts[1]
-                    
-                    switch key {
-                    case "ID":
-                        if value == "nil" {
-                            print("Section id is invalid, skipping data point")
-                            continue object
-                        } else {
-                            id = value.trimmingCharacters(in: .newlines)
+            object: for data in sectionData {
+                var id: CID?
+                var limudId: CID?
+                var name: String?
+                var initialDate: Date?
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
+                        
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                print("Section id is invalid, skipping data point")
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "LIMUDID":
+                            limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "NAME":
+                            name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "INITIALDATE":
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                            initialDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                        default:
+                            print("Failed to parse data for section: \(pair)")
+                            continue object;
                         }
-                    case "LIMUDID":
-                        limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "NAME":
-                        name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "INITIALDATE":
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                        initialDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                    default:
+                    } else if pair == "" {
+                    } else {
                         print("Failed to parse data for section: \(pair)")
                         continue object;
                     }
-                } else if pair == "" {
+                }
+                
+                if let id = id {
+                    babySections.insert(BabySection(id: id, limudId: limudId, name: name, initialDate: initialDate))
                 } else {
-                    print("Failed to parse data for section: \(pair)")
-                    continue object;
+                    print("Skipping section with nil id")
                 }
             }
-            
-            if let id = id {
-                babySections.insert(BabySection(id: id, limudId: limudId, name: name, initialDate: initialDate))
-            } else {
-                print("Skipping section with nil id")
-            }
-        }
             
             print("Found \(babySections.count) valid sections.")
             return babySections
@@ -626,86 +631,68 @@ This action will wipe all existing data and close the app.
             var babyScheduledChazaras: [BabySC] = []
             let scheduledChazaraData = scs.components(separatedBy: "CDScheduledChazara: ")
             
-        object: for data in scheduledChazaraData {
-            var id: CID?
-            var limudId: CID?
-            var name: String?
-            var delayedFrom: CID?
-            var delay: Int16!
-            var daysToComplete: Int16!
-            var fixedDueDate: Date?
-            var isDynamic: Bool!
-            var hiddenFromDashboard: Bool!
-            
-            for pair in data.components(separatedBy: "|") {
-                let parts = pair.components(separatedBy: "=")
-                if parts.count == 2 {
-                    let key = parts[0]
-                    let value = parts[1]
-                    
-                    switch key {
-                    case "ID":
-                        if value == "nil" {
-                            print("Scheduled chazara id is invalid, skipping data point")
-                            continue object
-                        } else {
-                            id = value.trimmingCharacters(in: .newlines)
+            object: for data in scheduledChazaraData {
+                var id: CID?
+                var limudId: CID?
+                var name: String?
+                var delayedFrom: CID?
+                var rule: String = "NORULE"
+                var isDynamic: Bool!
+                var hiddenFromDashboard: Bool!
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
+                        
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                print("Scheduled chazara id is invalid, skipping data point")
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "LIMUDID":
+                            limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "NAME":
+                            name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "DELAYEDFROM":
+                            delayedFrom = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
+                        case "RULE":
+                            rule = value.trimmingCharacters(in: .newlines)
+                        case "ISDYNAMIC":
+                            if let value = Bool(value.trimmingCharacters(in: .newlines)) {
+                                isDynamic = value
+                            } else {
+                                print("Scheduled chazara isDynamic value is invalid, skipping data point")
+                                continue object
+                            }
+                        case "H":
+                            if let value = Bool(value.trimmingCharacters(in: .newlines)) {
+                                hiddenFromDashboard = value
+                            } else {
+                                print("Scheduled chazara hiddenFromDashboard value is invalid, skipping data point")
+                                continue object
+                            }
+                        default:
+                            print("Failed to parse data for scheduled chazara: \(pair)")
+                            continue object;
                         }
-                    case "LIMUDID":
-                        limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "NAME":
-                        name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "DELAYEDFROM":
-                        delayedFrom = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                    case "DELAY":
-                        if let value = Int16(value.trimmingCharacters(in: .newlines)) {
-                            delay = value
-                        } else {
-                            print("Scheduled chazara delay value is invalid, skipping data point")
-                            continue object
-                        }
-                    case "DAYSTOCOMPLETE":
-                        if let value = Int16(value.trimmingCharacters(in: .newlines)) {
-                            daysToComplete = value
-                        } else {
-                            print("Scheduled chazara daysToComplete value is invalid, skipping data point")
-                            continue object
-                        }
-                    case "FIXEDDUEDATE":
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                        fixedDueDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                    case "ISDYNAMIC":
-                        if let value = Bool(value.trimmingCharacters(in: .newlines)) {
-                            isDynamic = value
-                        } else {
-                            print("Scheduled chazara isDynamic value is invalid, skipping data point")
-                            continue object
-                        }
-                    case "H":
-                        if let value = Bool(value.trimmingCharacters(in: .newlines)) {
-                            hiddenFromDashboard = value
-                        } else {
-                            print("Scheduled chazara hiddenFromDashboard value is invalid, skipping data point")
-                            continue object
-                        }
-                    default:
+                    } else if pair == "" {
+                    } else {
                         print("Failed to parse data for scheduled chazara: \(pair)")
                         continue object;
                     }
-                } else if pair == "" {
+                }
+                
+                if let id = id {
+                    babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, delayedFromId: delayedFrom, name: name, isDynamic: isDynamic, rule: rule, hiddenFromDashboard: hiddenFromDashboard))
                 } else {
-                    print("Failed to parse data for scheduled chazara: \(pair)")
-                    continue object;
+                    print("Skipping scheduled chazara with nil id")
                 }
             }
-            
-            if let id = id {
-                babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, delayedFromId: delayedFrom, name: name, isDynamic: isDynamic, fixedDueDate: fixedDueDate, delay: delay, daysToComplete: daysToComplete, hiddenFromDashboard: hiddenFromDashboard))
-            } else {
-                print("Skipping scheduled chazara with nil id")
-            }
-        }
             
             print("Found \(babyScheduledChazaras.count) valid scheduled chazaras.")
             return babyScheduledChazaras
@@ -729,65 +716,65 @@ This action will wipe all existing data and close the app.
             var babyChazaraPoints: Set<BabyChazaraPoint> = Set()
             let chazaraPointData = chazaraPointsData.components(separatedBy: "CDChazaraPoint: ")
             
-        object: for data in chazaraPointData {
-            var id: CID!
-            var scId: CID!
-            var sectionId: CID!
-            var status: Int16!
-            var date: Date?
-            
-            for pair in data.components(separatedBy: "|") {
-                let parts = pair.components(separatedBy: "=")
-                if parts.count == 2 {
-                    let key = parts[0]
-                    let value = parts[1]
-                    
-                    switch key {
-                    case "ID":
-                        if value == "nil" {
-                            print("Chazara point id is invalid, skipping data point")
-                            continue object
-                        } else {
-                            id = value.trimmingCharacters(in: .newlines)
+            object: for data in chazaraPointData {
+                var id: CID!
+                var scId: CID!
+                var sectionId: CID!
+                var status: Int16!
+                var date: Date?
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
+                        
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                print("Chazara point id is invalid, skipping data point")
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "SCID":
+                            if value == "nil" {
+                                print("Chazara point scId is invalid, skipping data point")
+                                continue object
+                            } else {
+                                scId = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "SECID":
+                            if value == "nil" {
+                                print("Chazara point sectionId is invalid, skipping data point")
+                                continue object
+                            } else {
+                                sectionId = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "STATUS":
+                            if let value = Int16(value.trimmingCharacters(in: .newlines)) {
+                                status = value
+                            } else {
+                                print("Chazara point status is invalid, skipping data point")
+                                continue object
+                            }
+                        case "DATE":
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                            date = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                        default:
+                            print("Failed to parse data for chazara point: \(pair)")
+                            continue object;
                         }
-                    case "SCID":
-                        if value == "nil" {
-                            print("Chazara point scId is invalid, skipping data point")
-                            continue object
-                        } else {
-                            scId = value.trimmingCharacters(in: .newlines)
-                        }
-                    case "SECID":
-                        if value == "nil" {
-                            print("Chazara point sectionId is invalid, skipping data point")
-                            continue object
-                        } else {
-                            sectionId = value.trimmingCharacters(in: .newlines)
-                        }
-                    case "STATUS":
-                        if let value = Int16(value.trimmingCharacters(in: .newlines)) {
-                            status = value
-                        } else {
-                            print("Chazara point status is invalid, skipping data point")
-                            continue object
-                        }
-                    case "DATE":
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                        date = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                    default:
+                    } else if pair == "" {
+                    } else {
                         print("Failed to parse data for chazara point: \(pair)")
                         continue object;
                     }
-                } else if pair == "" {
-                } else {
-                    print("Failed to parse data for chazara point: \(pair)")
-                    continue object;
                 }
+                
+                babyChazaraPoints.insert(BabyChazaraPoint(id: id, scId: scId, sectionId: sectionId, status: status, date: date))
             }
-            
-            babyChazaraPoints.insert(BabyChazaraPoint(id: id, scId: scId, sectionId: sectionId, status: status, date: date))
-        }
             
             print("Found \(babyChazaraPoints.count) valid chazara points.")
             return babyChazaraPoints
@@ -805,61 +792,61 @@ This action will wipe all existing data and close the app.
             var babyPointNotes: Set<BabyPointNote> = Set()
             let pointNoteData = pointNotesData.components(separatedBy: "CDPointNote: ")
             
-        object: for data in pointNoteData {
-            var id: CID?
-            var creationDate: Date?
-            var note: String?
-            var cpId: CID?
-            
-            for pair in data.components(separatedBy: "|") {
-                let parts = pair.components(separatedBy: "=")
-                if parts.count == 2 {
-                    let key = parts[0]
-                    let value = parts[1]
-                    
-                    switch key {
-                    case "ID":
-                        if value == "nil" {
-                            print("CDPointNote ID is invalid, skipping data point")
-                            continue object
-                        } else {
-                            id = value.trimmingCharacters(in: .newlines)
+            object: for data in pointNoteData {
+                var id: CID?
+                var creationDate: Date?
+                var note: String?
+                var cpId: CID?
+                
+                for pair in data.components(separatedBy: "|") {
+                    let parts = pair.components(separatedBy: "=")
+                    if parts.count == 2 {
+                        let key = parts[0]
+                        let value = parts[1]
+                        
+                        switch key {
+                        case "ID":
+                            if value == "nil" {
+                                print("CDPointNote ID is invalid, skipping data point")
+                                continue object
+                            } else {
+                                id = value.trimmingCharacters(in: .newlines)
+                            }
+                        case "CREATIONDATE":
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                            creationDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
+                        case "NOTE":
+                            if value == "nil" {
+                                print("CDPointNote note is invalid, skipping data point")
+                                continue object
+                            } else {
+                                note = value
+                            }
+                        case "CPID":
+                            if value == "nil" {
+                                print("CDPointNote cpId is invalid, skipping data point")
+                                continue object
+                            } else {
+                                cpId = value.trimmingCharacters(in: .newlines)
+                            }
+                        default:
+                            print("Failed to parse data for CDPointNote: \(pair)")
+                            continue object;
                         }
-                    case "CREATIONDATE":
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
-                        creationDate = dateFormatter.date(from: value.trimmingCharacters(in: .newlines))
-                    case "NOTE":
-                        if value == "nil" {
-                            print("CDPointNote note is invalid, skipping data point")
-                            continue object
-                        } else {
-                            note = value
-                        }
-                    case "CPID":
-                        if value == "nil" {
-                            print("CDPointNote cpId is invalid, skipping data point")
-                            continue object
-                        } else {
-                            cpId = value.trimmingCharacters(in: .newlines)
-                        }
-                    default:
+                    } else if pair == "" {
+                    } else {
                         print("Failed to parse data for CDPointNote: \(pair)")
                         continue object;
                     }
-                } else if pair == "" {
-                } else {
-                    print("Failed to parse data for CDPointNote: \(pair)")
+                }
+                
+                guard let id = id, let note = note, let cpId = cpId else {
+                    print("Didn't find full data for CDPointNote: \(data)")
                     continue object;
                 }
+                babyPointNotes.insert(BabyPointNote(id: id, creationDate: creationDate, note: note, cpId: cpId))
             }
-            
-            guard let id = id, let note = note, let cpId = cpId else {
-                print("Didn't find full data for CDPointNote: \(data)")
-                continue object;
-            }
-            babyPointNotes.insert(BabyPointNote(id: id, creationDate: creationDate, note: note, cpId: cpId))
-        }
             
             print("Found \(babyPointNotes.count) valid point notes.")
             return babyPointNotes
@@ -914,9 +901,10 @@ This action will wipe all existing data and close the app.
         let delayedFromId: CID?
         let name: String?
         let isDynamic: Bool
-        let fixedDueDate: Date?
-        let delay: Int16
-        let daysToComplete: Int16
+//        let fixedDueDate: Date?
+//        let delay: Int16
+//        let daysToComplete: Int16
+        let rule: String
         let hiddenFromDashboard: Bool
     }
     

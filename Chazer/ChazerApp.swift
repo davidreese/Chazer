@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import UIKit
+//import UIKit
 import CoreData
 
 @main
@@ -212,7 +212,7 @@ struct ChazerApp: App {
                 continue
             }
             for cdSC in cdScheduledChazaras {
-                text += "CDScheduledChazara: ID=\(cdSC.scId ?? "nil")|NAME=\(cdSC.scName ?? "nil")|LIMUDID=\(cdSC.limud?.id ?? "nil")|DELAYEDFROM=\(cdSC.delayedFrom?.scId ?? "nil")|DELAY=\(cdSC.delay)|DAYSTOCOMPLETE=\(cdSC.daysToComplete)|FIXEDDUEDATE=\(cdSC.fixedDueDate?.description ?? "nil")|ISDYNAMIC=\(cdSC.isDynamic)|H=\(cdSC.hiddenFromDashboard)\n"
+                text += "CDScheduledChazara: ID=\(cdSC.scId ?? "nil")|NAME=\(cdSC.scName ?? "nil")|LIMUDID=\(cdSC.limud?.id ?? "nil")|RULE=\(cdSC.rule ?? "nil")|ISDYNAMIC=\(cdSC.isDynamic)|H=\(cdSC.hiddenFromDashboard)\n"
             }
         }
         
@@ -250,7 +250,7 @@ struct ChazerApp: App {
         
         print("Listing CDScheduledChazaras:")
         for result in results {
-            print("CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|DELAYEDFROM=\(result.delayedFrom?.scId ?? "nil")|DELAY=\(result.delay)")
+            print("CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|RULE=\(result.rule ?? "nil")")
         }
         
         return results
@@ -312,6 +312,6 @@ struct ChazerApp: App {
             contentView
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
 //                .environmentObject(storage)
-        }
+        }.windowResizability(.contentMinSize)
     }
 }
