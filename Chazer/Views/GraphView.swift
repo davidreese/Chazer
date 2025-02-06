@@ -492,8 +492,9 @@ struct GraphView: View {
                             try await update()
                         }
                     }
-                    .sheet(isPresented: $showingDateChanger) {
+                    .popover(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
+                            
                             
                             ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
                                 //                                self.updateParent?()
@@ -503,7 +504,10 @@ struct GraphView: View {
                                 self.updateParent?()
                             })
                             .environment(\.managedObjectContext, self.viewContext)
-                            
+                            /*
+                            DatePicker("Chazara Date", selection: .constant(.now), displayedComponents: .date)
+                                .datePickerStyle(GraphicalDatePickerStyle())
+                                .frame(width: 420, height: 380)*/
                             
                         }
                     }
@@ -681,6 +685,7 @@ struct GraphView: View {
             }
             
             var body: some View {
+                /*
                 NavigationView {
                     Form {
                         DatePicker("Chazara Date", selection: $date, displayedComponents: .date)
@@ -706,6 +711,15 @@ struct GraphView: View {
                             }
                         }
                 }
+                 */
+                    DatePicker("Chazara Date", selection: $date, displayedComponents: .date)
+                        .datePickerStyle(GraphicalDatePickerStyle())
+                        .frame(width: 420, height: 380)
+                        .onDisappear {
+                            try? updateDate()
+                            updateParent?()
+                        }
+                        
             }
             
             func updateDate() throws {
