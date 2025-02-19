@@ -394,10 +394,11 @@ This action will wipe all existing data and close the app.
                             continue
                         }
                         
-                        let delayedFromId = baby.delayedFromId
-                        cdSC.delayedFrom = cdSCs.first(where: { match in
-                            match.scId == delayedFromId
-                        })
+                        if let delayedFromId = baby.delayedFromId {
+                            cdSC.delayedFrom = cdSCs.first(where: { match in
+                                match.scId == delayedFromId
+                            })
+                        }
                     }
                     
                     var cdChazaraPoints: [CDChazaraPoint] = []
@@ -635,7 +636,7 @@ This action will wipe all existing data and close the app.
                 var id: CID?
                 var limudId: CID?
                 var name: String?
-                var delayedFrom: CID?
+//                var delayedFrom: CID?
                 var rule: String = "NORULE"
                 var isDynamic: Bool!
                 var hiddenFromDashboard: Bool!
@@ -658,8 +659,6 @@ This action will wipe all existing data and close the app.
                             limudId = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
                         case "NAME":
                             name = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
-                        case "DELAYEDFROM":
-                            delayedFrom = (value == "nil") ? nil : value.trimmingCharacters(in: .newlines)
                         case "RULE":
                             rule = value.trimmingCharacters(in: .newlines)
                         case "ISDYNAMIC":
@@ -688,7 +687,7 @@ This action will wipe all existing data and close the app.
                 }
                 
                 if let id = id {
-                    babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, delayedFromId: delayedFrom, name: name, isDynamic: isDynamic, rule: rule, hiddenFromDashboard: hiddenFromDashboard))
+                    babyScheduledChazaras.append(BabySC(id: id, limudId: limudId, name: name, isDynamic: isDynamic, rule: rule, hiddenFromDashboard: hiddenFromDashboard))
                 } else {
                     print("Skipping scheduled chazara with nil id")
                 }
@@ -906,6 +905,26 @@ This action will wipe all existing data and close the app.
 //        let daysToComplete: Int16
         let rule: String
         let hiddenFromDashboard: Bool
+        
+        init(id: CID, limudId: CID?, name: String?, isDynamic: Bool, rule: String, hiddenFromDashboard: Bool) {
+            self.id = id
+            self.limudId = limudId
+            self.name = name
+            self.isDynamic = isDynamic
+            self.rule = rule
+            self.hiddenFromDashboard = hiddenFromDashboard
+            
+            self.delayedFromId = {
+                guard let rule = try? ScheduleRule(ruleFromDatabase: rule) else {
+                    return nil
+                }
+                if case .horizontalDelay(delayedFromID: let dfid, daysDelayed: _, daysActive: _) = rule {
+                    return dfid
+                } else {
+                    return nil
+                }
+            }()
+        }
     }
     
     private struct BabyChazaraPoint: Hashable {
