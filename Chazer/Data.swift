@@ -9,11 +9,12 @@ import Foundation
 import CoreData
 
 class Limud: Identifiable, Hashable {
-    final var id: CID!
-    var name: String!
-    var sections: Set<Section>!
-    var scheduledChazaras: [ScheduledChazara]!
-    var isArchived: Bool!
+    final private(set) var id: CID!
+    private(set) var name: String!
+    private(set) var sections: Set<Section>!
+    private var sortedSections: [Section]?
+    private(set) var scheduledChazaras: [ScheduledChazara]!
+    private(set) var isArchived: Bool!
     
     init(_ cdLimud: CDLimud, context: NSManagedObjectContext) throws {
         try context.performAndWait {
@@ -48,6 +49,17 @@ class Limud: Identifiable, Hashable {
             self.scheduledChazaras = scheduledChazaras
             
             //        print("Initialized CDLimud")
+        }
+    }
+    
+    func getSectionsSorted() -> [Section] {
+        if let sortedSections = self.sortedSections {
+            return sortedSections
+        } else {
+            let sortedSections = Array(self.sections).sorted { lhs, rhs in
+                lhs.initialDate > rhs.initialDate }
+            self.sortedSections = sortedSections
+            return sortedSections
         }
     }
     
@@ -185,6 +197,26 @@ class ScheduledChazara: Identifiable, Hashable {
                 let delayedFrom = try ScheduledChazara(cdDelayedFrom, context: context)
                 
                 self.delayedFrom = delayedFrom
+            } else {
+                if case .horizontalDelay(let delayedFromID, let daysDelayed, let daysActive) = scheduleRule {
+                    
+                    if let delayedFromID = delayedFromID {
+                        //code for restoring delayedFrom relationship after it was wiped
+                        /*
+                        let delayedFrom = {
+                            let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
+                            fetchRequest.predicate = NSPredicate(format: "scId == %@", delayedFromID)
+                            let cdScheduledChazara = try! context.fetch(fetchRequest).first as! CDScheduledChazara
+                            return cdScheduledChazara
+                        }()
+                        
+                        cdScheduledChazara.delayedFrom = delayedFrom
+                        try context.save()
+//                        fatalError()
+                        */
+                        assert(delayedFromID != nil)
+                    }
+                }
             }
             
             self.hiddenFromDashboard = cdScheduledChazara.hiddenFromDashboard
@@ -279,39 +311,42 @@ enum ScheduleRule: Equatable {
                 throw RetrievalError.invalidData
             }
             
-            let delayedFromIDUncleaned = String(ruleComponents[1])
-            assert(delayedFromIDUncleaned.starts(with: "SC"))
+            let sectionDelayUncleaned = String(ruleComponents[1])
+            assert(sectionDelayUncleaned.starts(with: "SD"))
             
-//            dealing with prefix of DF
-            let delayedFromIDIndex = delayedFromIDUncleaned.index(delayedFromIDUncleaned.startIndex, offsetBy: 2)
-            var delayedFromID: CID? = CID(delayedFromIDUncleaned[delayedFromIDIndex...])
-            if delayedFromID == "INITIAL" {
-                delayedFromID = nil
+            //  dealing with prefix of SD
+            let sdIndex = sectionDelayUncleaned.index(sectionDelayUncleaned.startIndex, offsetBy: 2)
+            let sectionDelay = sectionDelayUncleaned[sdIndex...]
+            guard let sectionDelay = Int(sectionDelay) else {
+                throw RetrievalError.invalidData
+            }
+            
+            let daysToCompleteUncleaned = String(ruleComponents[2])
+            assert(daysToCompleteUncleaned.starts(with: "DTC"))
+            
+            //  dealing with prefix of DTC
+            let dtcIndex = daysToCompleteUncleaned.index(daysToCompleteUncleaned.startIndex, offsetBy: 3)
+            let daysToComplete = daysToCompleteUncleaned[dtcIndex...]
+            guard let daysToComplete = Int(daysToComplete) else {
+                throw RetrievalError.invalidData
+            }
+            
+            let maxUncleaned = String(ruleComponents[3])
+            assert(maxUncleaned.starts(with: "MAX"))
+            
+//            dealing with prefix of MAX
+            let maxIndex = maxUncleaned.index(maxUncleaned.startIndex, offsetBy: 3)
+            let max = maxUncleaned[maxIndex...]
+            var maxValue: Int?
+            if max == "NIL" {
+                maxValue = nil
+            } else if let max = Int(max) {
+                maxValue = max
             } else {
-                assert(!delayedFromID!.starts(with: "SC"))
-            }
-            
-            
-            
-            let delayUncleaned = ruleComponents[2]
-//            dealing with prefix of DL
-            let delayIndex = delayUncleaned.index(delayUncleaned.startIndex, offsetBy: 2)
-            let delay = delayUncleaned[delayIndex...]
-            
-            guard let delay = Int(delay) else {
                 throw RetrievalError.invalidData
             }
             
-            let daysActiveUncleaned = ruleComponents[3]
-            // dealing with prefix of DTC
-            let daysActiveIndex = daysActiveUncleaned.index(daysActiveUncleaned.startIndex, offsetBy: 3)
-            let daysActive = daysActiveUncleaned[daysActiveIndex...]
-            
-            guard let daysActive = Int(daysActive) else {
-                throw RetrievalError.invalidData
-            }
-            
-            self = .horizontalDelay(delayedFromID: delayedFromID, daysDelayed: delay, daysActive: daysActive)
+            self = .verticalDelay(sectionsDelay: sectionDelay, daysActive: daysToComplete, maxDaysActive: maxValue)
             return
         case "F":
             guard ruleComponents.count == 2 else {
@@ -365,6 +400,7 @@ enum RetrievalError: Error {
     case missingData
     case invalidData
     case unknownError
+    case notFound
 }
 
 enum UpdateError: Error {

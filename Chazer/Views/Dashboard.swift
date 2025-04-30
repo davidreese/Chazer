@@ -190,20 +190,21 @@ struct Dashboard: View {
             let hasNotes = !(model.point?.notes?.isEmpty ?? true)
             HStack {
                 HStack {
-                    Text(model.point?.getLimud()?.name ?? "nil")
+                    let limud = try? model.point?.getLimud()
+                    Text(limud?.name ?? "nil")
                         .bold()
                     //                        .accessibility(label: Text(model.point?.getLimud()?.name ?? "nil"))
                     Spacer()
                 }
-                .frame(width: 150)
+                .frame(minWidth: 100)
                 
                 Divider()
                 HStack {
                     Text(model.point?.fetchSection()?.name ?? "nil")
                     Spacer()
-                }.frame(minWidth: 60, maxWidth: 150)
+                }.frame(minWidth: 30, maxWidth: 150)
                 
-                Spacer()
+//                Spacer()
                 
                 Divider()
                 HStack {
@@ -211,7 +212,7 @@ struct Dashboard: View {
                     Spacer()
                 }.frame(minWidth: 150)
                 
-                Spacer()
+//                Spacer()
                 
                 Divider()
                 
@@ -224,8 +225,9 @@ struct Dashboard: View {
                         }
                     Spacer()
                 }.frame(minWidth: 100)
-                Spacer()
+//                Spacer()
             }
+//            .frame(height: 100)
             .font(.title3)
             .padding()
             .overlay {

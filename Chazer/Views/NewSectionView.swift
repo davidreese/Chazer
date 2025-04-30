@@ -133,7 +133,7 @@ struct NewSectionView: View {
             } else {
                 newItem.initialDate = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: initialLearningDate)
             }*/
-            newItem.initialDate = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: initialLearningDate)
+            newItem.initialDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: initialLearningDate)
             newItem.limud = cdLimud
             //        newItem.
             

@@ -142,7 +142,6 @@ struct ContentView: View {
                 }
             }
         }
-        .frame(minWidth: 1060, minHeight: 800)
         .sheet(isPresented: $showingNewLimudView) {
             NewLimudView().environment(\.managedObjectContext, self.viewContext)
         }
@@ -150,7 +149,7 @@ struct ContentView: View {
             if scenePhase == .active {
                 if let lastUpdate = lastUpdate, lastUpdate.timeIntervalSince(.now) > -(60*10) && !ChazerApp.DEBUGGING_DATA {
                     if lastScenePhase == .active {
-                        print("Skipping chazara points load.")
+                        //print("Skipping chazara points load.")
                         return
                     }
                 }
@@ -158,7 +157,7 @@ struct ContentView: View {
                 reload()
             } else {
                 // will never update when the screen is out of view
-                print("Skipping chazara points load.")
+                //print("Skipping chazara points load.")
                 lastScenePhase = scenePhase
             }
         }

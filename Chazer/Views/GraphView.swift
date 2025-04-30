@@ -85,9 +85,7 @@ struct GraphView: View {
                                 
                                 //                            .frame(height: headerCellHeight)
                                 
-                                let sortedSections = model.limud.sections.sorted(by: { lhs, rhs in
-                                    lhs.initialDate > rhs.initialDate
-                                })
+                                let sortedSections = model.limud.getSectionsSorted()
                                 
                                 //                            LazyVStack {
                                 ForEach(sortedSections) { section in
@@ -494,14 +492,17 @@ struct GraphView: View {
                     }
                     .popover(isPresented: $showingDateChanger) {
                         if let point = model.point, let date = model.point?.getCompletionDate() {
-                            
-                            
-                            ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
+                            let cdc = ChazaraDateChanger(chazaraPoint: point, initialDate: date, onUpdate: {
                                 //                                self.updateParent?()
                                 try? self.model.point?.updatePointData()
                                 //                                print(model.point?.date)
                                 self.model.updateText()
                                 self.updateParent?()
+                            })
+                            cdc
+                            .onKeyPress(.return, action: {
+                                cdc.saveAndDismiss()
+                                return .handled
                             })
                             .environment(\.managedObjectContext, self.viewContext)
                             /*
@@ -668,20 +669,23 @@ struct GraphView: View {
             @Environment(\.managedObjectContext) private var viewContext
             @Environment(\.presentationMode) var presentationMode
             
-            @ObservedObject var chazaraPoint: ChazaraPoint
-            @State var date: Date = Date()
+            @ObservedObject private var chazaraPoint: ChazaraPoint
+            @State private var date: Date = Date()
+            private let initialDate: Date
             
-            var updateParent: (() -> Void)?
+            private var updateParent: (() -> Void)?
             
             init(chazaraPoint: ChazaraPoint, initialDate: Date, onUpdate updateParent: (() -> Void)? = nil) {
                 self.chazaraPoint = chazaraPoint
                 self.date = initialDate
+                self.initialDate = initialDate
                 self.updateParent = updateParent
             }
             
             init(chazaraPoint: ChazaraPoint, onUpdate updateParent: (() -> Void)? = nil) {
                 self.chazaraPoint = chazaraPoint
                 self.updateParent = updateParent
+                self.initialDate = Date()
             }
             
             var body: some View {
@@ -719,13 +723,28 @@ struct GraphView: View {
                             try? updateDate()
                             updateParent?()
                         }
+                        .onAppear {
+                            self.date = initialDate
+                        }
                         
             }
             
             func updateDate() throws {
-                self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date))
+                self.chazaraPoint.setDate(Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date))
                 self.chazaraPoint.objectWillChange.send()
                 updateParent?()
+            }
+            
+            func saveAndDismiss() -> KeyPress.Result {
+                do {
+//                    cant get this to run on keypress. also need to check that restoring from backups work. and need to check that i can create new vertical scheduled chazaras.
+                    try updateDate()
+                    updateParent?()
+                    presentationMode.wrappedValue.dismiss()
+                    return .handled
+                } catch {
+                    return .ignored
+                }
             }
         }
     }

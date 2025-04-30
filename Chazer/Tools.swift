@@ -58,3 +58,27 @@ struct PDFDocumentForExport: FileDocument {
         FileWrapper(regularFileWithContents: (pdf!.dataRepresentation())!)
     }
 }
+
+
+extension Collection {
+    /// Source: [Stack Overflow](https://stackoverflow.com/a/40226976/1187415)
+    func binarySearch(predicate: (Iterator.Element) -> Int) -> Index {
+        var high = startIndex
+        var low = endIndex
+        while high != low {
+            let mid = index(high, offsetBy: distance(from: high, to: low)/2)
+            let res = predicate(self[mid])
+            if res == 0 {
+                return mid
+            } else if res < 0 {
+//                self[mid] was larger than the target
+                high = mid
+            } else if res > 0 {
+//                self[mid] was smaller than the target
+                low = mid
+            }
+        }
+        return high
+    }
+}
+

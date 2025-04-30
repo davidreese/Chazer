@@ -147,7 +147,7 @@ struct NewChazaraScheduleView: View {
                             onUpdate?(newLimud)
                             presentationMode.wrappedValue.dismiss()
                         } catch {
-                            print("Error saving section: \(error)")
+                            print("Error saving scheduled chazara: \(error)")
                         }
                     }).buttonStyle(BorderedProminentButtonStyle())
                 }
@@ -231,21 +231,27 @@ struct NewChazaraScheduleView: View {
 //                newSC.delay = Int16(delay)
 //                newSC.daysToComplete = Int16(daysActive)
                 
-                let delayedFrom: CDScheduledChazara?
+                let delayedFromIdOptional = delayedFromId == "init" ? nil : delayedFromId
+                
+                if delayedFromIdOptional != nil {
+                    let delayedFrom: CDScheduledChazara?
                     delayedFrom = cdScheduledChazaras.first(where: { cdsc in
                         cdsc.scId == delayedFromId
                     })
                     
-                if delayedFrom == nil {
-                    throw CreationError.invalidData
+                    if delayedFrom == nil {
+                        throw CreationError.invalidData
+                    }
+                    
+                    newSC.delayedFrom = delayedFrom
+                } else {
+                    newSC.delayedFrom = nil
                 }
                 
-                newSC.delayedFrom = delayedFrom
-                
-                newSC.rule = ScheduleRule.horizontalDelay(delayedFromID: delayedFromId, daysDelayed: delay, daysActive: daysActive).ruleForDatabase()
+                newSC.rule = ScheduleRule.horizontalDelay(delayedFromID: delayedFromIdOptional, daysDelayed: delay, daysActive: daysActive).ruleForDatabase()
                 break
             case .verticalDelay:
-                newSC.rule = ScheduleRule.verticalDelay(sectionsDelay: sectionDelay, daysActive: daysActive, maxDaysActive: maxDaysActive).ruleForDatabase()
+                newSC.rule = ScheduleRule.verticalDelay(sectionsDelay: sectionDelay, daysActive: daysActive, maxDaysActive: self.limitMaxDaysActive ? self.maxDaysActive : nil).ruleForDatabase()
                 break
             }
             

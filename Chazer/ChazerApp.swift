@@ -17,6 +17,7 @@ struct ChazerApp: App {
     static let DEBUGGING_DATA = false
     
     init() {
+//        ChazerApp.printCDScheduledChazaras()
 //        Storage.shared.update()
     }
     
@@ -250,7 +251,7 @@ struct ChazerApp: App {
         
         print("Listing CDScheduledChazaras:")
         for result in results {
-            print("CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|RULE=\(result.rule ?? "nil")")
+            print("CDScheduledChazara: ID=\(result.scId ?? "nil")|NAME=\(result.scName ?? "nil")|LIMUDID=\(result.limud?.id ?? "nil")|RULE=\(result.rule ?? "nil")|DELAYEDFROMNIL=\(result.delayedFrom == nil ? true : false)")
         }
         
         return results
@@ -298,7 +299,7 @@ struct ChazerApp: App {
         try! PersistenceController.shared.container.viewContext.execute(deleteRequest)
     }
     
-    private static func getCDScheduledChazara(for scId: CID) -> CDScheduledChazara {
+    static func getCDScheduledChazara(for scId: CID) -> CDScheduledChazara {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDScheduledChazara.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "scId == %@", scId)
         let cdScheduledChazara = try! PersistenceController.shared.container.viewContext.fetch(fetchRequest).first as! CDScheduledChazara
@@ -310,8 +311,11 @@ struct ChazerApp: App {
     var body: some Scene {
         WindowGroup {
             contentView
+                .frame(minWidth: 1060, minHeight: 800)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
 //                .environmentObject(storage)
-        }.windowResizability(.contentMinSize)
+        }
+        .windowResizability(.contentSize)
+        .defaultSize(width: 1260, height: 850)
     }
 }

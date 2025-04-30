@@ -36,28 +36,44 @@ class DashboardModel: ObservableObject {
         }
         
         for point in data.active {
-            await point.getDueDate()
+            try? await point.getDueDate()
         }
         
         for point in data.late {
-            await point.getDueDate()
+            try? await point.getDueDate()
         }
         
         await MainActor.run {
             self.activeChazaraPoints = data.active.sorted(by: { lhs, rhs in
                 if let lhsDate = lhs.activeDate, let rhsDate = rhs.activeDate {
-                    return lhsDate < rhsDate
+                    if lhsDate.timeIntervalSince1970 == rhsDate.timeIntervalSince1970 {
+                        guard let lhsName = lhs.getSection()?.name, let rhsName = rhs.getSection()?.name else {
+                            assertionFailure("This isn't really supposed to occur")
+                            return true
+                        }
+                        return lhsName > rhsName
+                    } else {
+                        return lhsDate < rhsDate
+                    }
                 } else {
-                    //                                    this isn't really supposed to occur
+                    assertionFailure("This isn't really supposed to occur")
                     return true
                 }
             })
             
             self.lateChazaraPoints = data.late.sorted(by: { lhs, rhs in
                 if let lhsDate = lhs.activeDate, let rhsDate = rhs.activeDate {
-                    return lhsDate < rhsDate
+                    if lhsDate.timeIntervalSince1970 == rhsDate.timeIntervalSince1970 {
+                        guard let lhsName = lhs.getSection()?.name, let rhsName = rhs.getSection()?.name else {
+                            assertionFailure("This isn't really supposed to occur")
+                            return true
+                        }
+                        return lhsName > rhsName
+                    } else {
+                        return lhsDate < rhsDate
+                    }
                 } else {
-                    // this isn't really supposed to occur
+                    assertionFailure("This isn't really supposed to occur")
                     return true
                 }
             })

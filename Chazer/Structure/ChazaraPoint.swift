@@ -189,28 +189,28 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Fetches the ``Limud`` assosiated with this point's `limudId` and saves it.
     /// - Returns: The associated  ``Limud``, unless it wasn't found.
     @MainActor
-    func fetchLimud() -> Limud? {
+    private func fetchLimud() throws -> Limud {
         if let limudId = self.limudId {
-            self.limud = try? Storage.shared.fetchLimud(id: limudId)
+            self.limud = try Storage.shared.fetchLimud(id: limudId)
+            return self.limud!
         } else {
             guard let limudId = getSection()?.limudId else {
-                return nil
+                throw RetrievalError.missingData
             }
             self.limudId = limudId
-            self.limud = try? Storage.shared.fetchLimud(id: limudId)
+            self.limud = try Storage.shared.fetchLimud(id: limudId)
+            return self.limud!
         }
-        
-        return self.limud
     }
     
     /// Gets the ``Limud`` associated with this point if it is saved, or if not, fetches it from storage and saves it.
     /// - Returns: The associated  ``Limud``, unless it wasn't found.
     @MainActor
-    func getLimud() -> Limud? {
+    func getLimud() throws -> Limud {
         if let limud = self.limud {
             return limud
         } else {
-            return fetchLimud()
+            return try fetchLimud()
         }
     }
     
@@ -304,7 +304,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Sets the `date` attribute for this object, and also saves it as such in storage.
     @MainActor
     func setDate(_ date: Date?) {
-        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date!) : nil
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -347,7 +347,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     @MainActor
     func setState(status: ChazaraStatus, date: Date?) throws {
-        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: date!) : nil
+        let standardizedDate = date != nil ? Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: date!) : nil
         do {
             let result = self.fetchCDEntity()
             guard let entity = result.point, let context = result.context else {
@@ -396,7 +396,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the ``Date`` that this ``ChazaraPoint`` becomes active, if there is one available.
     @MainActor
-    func getActiveDate(retryOnFail: Bool = true) async -> Date? {
+    func getActiveDate(retryOnFail: Bool = true) async throws -> Date? {
         if status == .completed || status == .exempt {
             //  no date available
             let activeDate: Date? = nil
@@ -459,11 +459,48 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                         }
                     }
                 case .verticalDelay(let sectionsDelay, let daysActive, let maxDaysDelayed):
-                    return nil
+                    var maxDaysDelayedActiveDate: Date? = nil
+                    if let maxDaysDelayed = maxDaysDelayed {
+                        maxDaysDelayedActiveDate = section.initialDate.addingTimeInterval(TimeInterval(maxDaysDelayed * 86400))
+                    }
+                    
+                    let limud = try getLimud()
+                    let sectionsSorted = limud.getSectionsSorted()
+                    let index = sectionsSorted.binarySearch { comp in
+                        if comp == section {
+                            return 0
+                        } else if section.initialDate < comp.initialDate {
+                            return -1
+                        } else {
+                            return 1
+                        }
+                    }
+                    assert(sectionsSorted[index] == section)
+                    
+                    let targetIndex = index.advanced(by: sectionsDelay * -1)
+                    if sectionsSorted.indices.contains(targetIndex) {
+                        let targetSection = sectionsSorted[targetIndex]
+                        assert(sectionsSorted[targetIndex] != nil)
+                        guard let targetActiveDate = targetSection.initialDate else {
+                            assertionFailure("This isn't supposed to happen...")
+                            self.setActiveDate(maxDaysDelayedActiveDate)
+                            return maxDaysDelayedActiveDate
+                        }
+                        if let maxDaysDelayedActiveDate = maxDaysDelayedActiveDate, targetActiveDate > maxDaysDelayedActiveDate {
+                            self.setActiveDate(maxDaysDelayedActiveDate)
+                            return maxDaysDelayedActiveDate
+                        } else {
+                            self.setActiveDate(targetActiveDate)
+                            return targetActiveDate
+                        }
+                    } else {
+                        self.setActiveDate(maxDaysDelayedActiveDate)
+                        return maxDaysDelayedActiveDate
+                    }
                 }
             } else if retryOnFail {
                 try? await updateAllData()
-                return await getActiveDate(retryOnFail: false)
+                return try await getActiveDate(retryOnFail: false)
             } else {
                 print("Error: Cannot find information for this ChazaraPoint to getActiveDate. (PID=\(self.id))")
                 
@@ -480,7 +517,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the date that this ``ChazaraPoint`` is due, if there is one.
     @MainActor
-    func getDueDate(retryOnFail: Bool = true) async -> Date? {
+    func getDueDate(retryOnFail: Bool = true) async throws -> Date? {
         if status == .completed || status == .exempt {
             return nil
         } else {
@@ -517,17 +554,48 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                     } else {
                         let dueDate: Date? = nil
                         setDueDate(dueDate)
-                        
                         return dueDate
                     }
                 case .verticalDelay(sectionsDelay: let sectionsDelay, daysActive: let daysActive, maxDaysActive: let maxDaysActive):
-                    return nil
+                    let latestDueDate: Date? = maxDaysActive != nil ? section.initialDate.addingTimeInterval(TimeInterval(maxDaysActive! * 86400)).addingTimeInterval(TimeInterval(daysActive * 86400)) : nil
+                    
+                    let limud = try getLimud()
+                    let sectionsSorted = limud.getSectionsSorted()
+                    let index = sectionsSorted.binarySearch { comp in
+                        if comp == section {
+                            return 0
+                        } else if section.initialDate < comp.initialDate {
+                            return -1
+                        } else {
+                            return 1
+                        }
+                    }
+                    assert(sectionsSorted[index] == section)
+                    
+                    let targetIndex = index.advanced(by: sectionsDelay * -1)
+                    if sectionsSorted.indices.contains(targetIndex) {
+                        let targetSection = sectionsSorted[targetIndex]
+                        assert(sectionsSorted[targetIndex] != nil)
+                        let targetDueDate = targetSection.initialDate.addingTimeInterval(TimeInterval(daysActive * 86400))
+                        if let latestDueDate = latestDueDate, targetDueDate > latestDueDate {
+                            self.setDueDate(latestDueDate)
+                            return latestDueDate
+                        } else {
+                            self.setDueDate(targetDueDate)
+                            return targetDueDate
+                        }
+                    } else {
+                        self.setDueDate(latestDueDate)
+                        return latestDueDate
+                    }
                 }
             } else if retryOnFail {
-                try? await updateAllData()
-                return await self.getDueDate(retryOnFail: false)
+                try await updateAllData()
+                return try await self.getDueDate(retryOnFail: false)
             } else {
-                print("Error: Cannot find information for this ChazaraPoint to getDueDate.")
+                #if DEBUG
+                print("Error: Cannot find information for this ChazaraPoint (CID=\(self.id ?? "nil")) to getDueDate.")
+                #endif
                 return nil
             }
         }
@@ -559,7 +627,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     
     /// Gets the chazara status that should be assigned to this ``ChazaraPoint`` based on its section and scheduled chazara.
     /// - Returns: The correct ``ChazaraStatus`` that should be applied, based on the local variables.
-    func getCorrectChazaraStatus() async -> ChazaraStatus {
+    func getCorrectChazaraStatus() async throws -> ChazaraStatus {
         //        await updateAllData()
         //            check first to see if chazara has been completed
         if self.status == .completed {
@@ -571,27 +639,30 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
                 return .unknown
             }
             
-            guard let dueDate = await getDueDate(retryOnFail: false) else {
-                
-                guard case .horizontalDelay(let delayedFromID, _, _) = scheduleRule else {
-                    return .unknown
-                }
-                
-                guard let delayedFromID = delayedFromID else {
-                    return .unknown
-                }
-                
-                if (try? ChazaraPoint.getCompletionDate(sectionId: sectionId, scheduledChazaraId: delayedFromID)) == nil {
+            guard let dueDate = try await getDueDate(retryOnFail: false) else {
+                switch scheduleRule {
+                case .horizontalDelay(let delayedFromID, _, _):
+                    guard let delayedFromID = delayedFromID else {
+                        return .unknown
+                    }
+                    
+                    if (try? ChazaraPoint.getCompletionDate(sectionId: sectionId, scheduledChazaraId: delayedFromID)) == nil {
+                        return .early
+                    } else {
+                        return .unknown
+                    }
+                case .verticalDelay(sectionsDelay: _, daysActive: _, maxDaysActive: _):
                     return .early
-                } else {
+                    //where maxDaysActive == nil: return .early
+                    //where maxDaysActive != nil: return .unknown
+                default:
                     return .unknown
                 }
             }
             
-            
             let now = Date.now
             
-            if let dateActive = await getActiveDate(retryOnFail: false) {
+            if let dateActive = try await getActiveDate(retryOnFail: false) {
                 if now < dateActive {
                     return .early
                 } else if now >= dateActive && now < dueDate {
@@ -619,7 +690,7 @@ class ChazaraPoint: ObservableObject, Hashable, Identifiable {
     /// Assigns the correct computed ``ChazaraStatus`` based on the variables available.
     @MainActor
     func updateCorrectChazaraStatus() async throws {
-        let status = await getCorrectChazaraStatus()
+        let status = try await getCorrectChazaraStatus()
         try self.setStatus(status)
     }
     

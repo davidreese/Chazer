@@ -18,8 +18,7 @@ class Storage {
     }
     
     /// Find and return the ``CDLimud`` corresponding to the given `id` from the database.
-    private func pinCDLimud(id: CID) -> (limud: CDLimud?, context: NSManagedObjectContext?) {
-        do {
+    private func pinCDLimud(id: CID) throws -> (limud: CDLimud, context: NSManagedObjectContext?) {
             let request = CDLimud.fetchRequest()
             request.predicate = NSPredicate(format: "id == %@", id)
             
@@ -29,28 +28,27 @@ class Storage {
             return try context.performAndWait {
                 let results = try context.fetch(request)
                 
-                if results.count == 1 {
-                    return (results.first, context)
+                if let res = results.first {
+                    return (res, context)
                 } else if results.count > 1 {
                     print("Error: Something went wrong in pinning down the CDLimud, there is more than one match. Returning nil")
-                    return (nil, context)
+                    throw RetrievalError.invalidData
+//                    return (nil, context)
                 } else {
-                    return (nil, context)
+                    throw RetrievalError.notFound
+//                    return (nil, context)
                 }
             }
-        } catch {
-            print("Error: Failed to query to pin down a CDLimud: (id=\(id))")
-            return (nil, nil)
-        }
     }
     
-    func fetchLimud(id: CID) throws -> Limud? {
-        let result = pinCDLimud(id: id)
-        guard let cdLimud = result.limud, let context = result.context else {
-            return nil
+    func fetchLimud(id: CID) throws -> Limud {
+        let result = try pinCDLimud(id: id)
+        
+        guard let context = result.context else {
+            throw RetrievalError.unknownError
         }
         
-        return try Limud(cdLimud, context: context)
+        return try Limud(result.limud, context: context)
     }
     
     private func getArchivedLimudimIDs() throws -> Set<CID> {
@@ -141,17 +139,14 @@ class Storage {
                 let cpResults = try context.fetch(cpFetchRequest) as! [CDChazaraPoint]
                 
                 for cpResult in cpResults {
-                    if let cp = try? ChazaraPoint(cpResult, context: context) {
+                    let cp = try ChazaraPoint(cpResult, context: context) 
                         Task {
-                            let status = await cp.getCorrectChazaraStatus()
+                            let status = try await cp.getCorrectChazaraStatus()
                             
                             context.performAndWait {
                                 cpResult.chazaraState?.status = status.rawValue
                             }
                         }
-                    } else {
-                        print("\(cpResult.pointId ?? "nil") \(cpResult.sectionId ?? "nil")")
-                    }
                 }
                 
                 try context.save()

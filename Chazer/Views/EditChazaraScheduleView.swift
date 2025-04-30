@@ -242,9 +242,9 @@ struct EditChazaraScheduleView: View {
             case .fixedDate:
                 cdSC.rule = ScheduleRule.fixedDueDate(self.fixedDueDate).ruleForDatabase()
             case .horizontalDelay:
-                cdSC.rule = ScheduleRule.horizontalDelay(delayedFromID: self.delayedFromId, daysDelayed: self.delay, daysActive: self.daysActive).ruleForDatabase()
+                cdSC.rule = ScheduleRule.horizontalDelay(delayedFromID: self.delayedFromId == "init" ? nil : self.delayedFromId, daysDelayed: self.delay, daysActive: self.daysActive).ruleForDatabase()
             case .verticalDelay:
-                cdSC.rule = ScheduleRule.verticalDelay(sectionsDelay: self.sectionDelay, daysActive: self.daysActive, maxDaysActive: self.maxDaysActive).ruleForDatabase()
+                cdSC.rule = ScheduleRule.verticalDelay(sectionsDelay: self.sectionDelay, daysActive: self.daysActive, maxDaysActive: self.limitMaxDaysActive ? self.maxDaysActive : nil).ruleForDatabase()
             }
             
             if delayedFromId != cdSC.delayedFrom?.scId {

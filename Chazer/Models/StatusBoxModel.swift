@@ -28,12 +28,12 @@ class StatusBoxModel: ObservableObject {
         }
         switch point.status ?? .unknown {
         case .early:
-            return await point.getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
+            return try? await point.getActiveDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? ""
         case .active:
-            let dueDate = await point.getDueDate()
+            let dueDate = try? await point.getDueDate()
             return point.dueDate?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
         case .late:
-            return await point.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
+            return try? await point.getDueDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "nil"
         case .completed:
             return point.getCompletionDate()?.formatted(.dateTime.month(.abbreviated).day()) ?? "E"
         case .unknown:
